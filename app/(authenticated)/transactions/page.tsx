@@ -37,11 +37,13 @@ function TransactionsInner() {
   const { user, token } = useAuth();
   const [items, setItems] = useState<TransactionListItem[]>([]);
   const [loadErr, setLoadErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<TransactionFilter>("all");
 
   useEffect(() => {
     if (!user || !token) return;
     let cancelled = false;
+    setLoading(true);
     (async () => {
       try {
         const res = await txApi.listTransactionsForParty(token, user.id);
@@ -51,6 +53,8 @@ function TransactionsInner() {
         }
       } catch (e) {
         if (!cancelled) setLoadErr(errorMessage(e));
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => {
@@ -73,7 +77,7 @@ function TransactionsInner() {
   const tabs: TransactionTab[] = useMemo(() => [
     {
       id: "all",
-      label: "All rooms",
+      label: "All Transactions",
       description: "Every transaction",
       icon: "fa-layer-group",
       count: counts.all,
@@ -172,9 +176,11 @@ function TransactionsInner() {
           </p>
         )}
         <div className="space-y-4 p-6">
-          {filteredItems.length === 0 && !loadErr && (
+          {loading && filteredItems.length === 0 && !loadErr ? (
+            <TransactionsLoading />
+          ) : filteredItems.length === 0 && !loadErr ? (
             <EmptyState filter={filter} />
-          )}
+          ) : null}
           {filteredItems.map((row) => (
             <TransactionRow key={row.id} row={row} selfId={user.id} />
           ))}
@@ -305,6 +311,18 @@ function statusBadgeClass(status: string): string {
   return "bg-gambian-blue/10 text-gambian-blue";
 }
 
+
+function TransactionsLoading() {
+  return (
+    <div className="rounded-2xl border border-dashed border-gambian-blue/10 bg-gambian-blue/5 px-6 py-14 text-center">
+      <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-gambian-blue border-t-transparent" />
+      <p className="mx-auto mt-4 max-w-md text-sm font-bold leading-6 text-gambian-blue/70">
+        Loading transactions...
+      </p>
+    </div>
+  );
+}
+
 function EmptyState({ filter }: { filter: TransactionFilter }) {
   const text = filter === "public"
     ? "No shareable sales yet."
@@ -352,7 +370,7 @@ const accentMap: Record<
     glowBg: "bg-white/10",
     iconBg: "bg-white/20",
     iconText: "text-white",
-    labelText: "text-amber-100/90",
+    labelText: "text-white",
     valueText: "text-white",
     barTrack: "bg-white/20",
     barFill: "bg-white/80",
@@ -365,7 +383,7 @@ const accentMap: Record<
     glowBg: "bg-white/10",
     iconBg: "bg-white/20",
     iconText: "text-white",
-    labelText: "text-emerald-100/90",
+    labelText: "text-white",
     valueText: "text-white",
     barTrack: "bg-white/20",
     barFill: "bg-white/80",
@@ -378,7 +396,7 @@ const accentMap: Record<
     glowBg: "bg-white/10",
     iconBg: "bg-white/20",
     iconText: "text-white",
-    labelText: "text-rose-100/90",
+    labelText: "text-white",
     valueText: "text-white",
     barTrack: "bg-white/20",
     barFill: "bg-white/80",
@@ -391,7 +409,7 @@ const accentMap: Record<
     glowBg: "bg-white/10",
     iconBg: "bg-white/20",
     iconText: "text-white",
-    labelText: "text-violet-100/90",
+    labelText: "text-white",
     valueText: "text-white",
     barTrack: "bg-white/20",
     barFill: "bg-white/80",
@@ -404,7 +422,7 @@ const accentMap: Record<
     glowBg: "bg-white/10",
     iconBg: "bg-white/20",
     iconText: "text-white",
-    labelText: "text-sky-100/90",
+    labelText: "text-sky-100",
     valueText: "text-white",
     barTrack: "bg-white/20",
     barFill: "bg-white/80",

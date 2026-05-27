@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { CreateEscrowTransactionForm, CreatePublicTransactionForm } from "@/src/components/CreateTransactionForm";
+import { CreatePublicTransactionForm } from "@/src/components/CreateTransactionForm";
+// import { CreateEscrowTransactionForm } from "@/src/components/CreateTransactionForm";
 import { RequireAuth } from "@/src/components/auth/RequireAuth";
 import { useAuth } from "@/src/lib/auth/auth-context";
 import { userMayCreateTransactions } from "@/src/lib/kyc-access";
 
-type Flow = "public" | "escrow";
+// type Flow = "public" | "escrow";
 
 export default function NewTransactionPage() {
   return (
@@ -21,11 +21,12 @@ export default function NewTransactionPage() {
 function NewTransactionInner() {
   const { user, token } = useAuth();
   const router = useRouter();
-  const [flow, setFlow] = useState<Flow>(() => {
-    if (typeof window === "undefined") return "public";
-    const params = new URLSearchParams(window.location.search);
-    return params.get("flow") === "escrow" ? "escrow" : "public";
-  });
+  // Two-party creation is hidden for now. Keep this flow state for the later uncomment.
+  // const [flow, setFlow] = useState<Flow>(() => {
+  //   if (typeof window === "undefined") return "public";
+  //   const params = new URLSearchParams(window.location.search);
+  //   return params.get("flow") === "escrow" ? "escrow" : "public";
+  // });
 
   if (!user || !token) return null;
 
@@ -51,6 +52,7 @@ function NewTransactionInner() {
           <p className="text-xs font-bold uppercase tracking-widest text-gambian-blue/70">Create transaction</p>
           <h1 className="mt-2 font-display text-3xl font-bold text-gray-900">New transaction</h1>
 
+          {/*
           <div className="mt-5 flex gap-3">
             <FlowButton
               active={flow === "public"}
@@ -61,7 +63,7 @@ function NewTransactionInner() {
                 setFlow("public");
               }}
             />
-            {/* <FlowButton
+            <FlowButton
               active={flow === "escrow"}
               title="Two-party escrow"
               description="Private deal"
@@ -69,11 +71,19 @@ function NewTransactionInner() {
               onClick={() => {
                 setFlow("escrow");
               }}
-            /> */}
+            />
           </div>
+          */}
         </div>
 
         <div className="p-5 sm:p-8">
+          <CreatePublicTransactionForm
+            token={token}
+            selfId={user.id}
+            onCancel={() => router.push("/transactions")}
+            onCreated={(tid) => router.replace(`/transactions/${tid}`)}
+          />
+          {/*
           {flow === "public" ? (
             <CreatePublicTransactionForm
               token={token}
@@ -89,12 +99,14 @@ function NewTransactionInner() {
               onCreated={(tid) => router.replace(`/transactions/${tid}`)}
             />
           )}
+          */}
         </div>
       </div>
     </div>
   );
 }
 
+/*
 function FlowButton(props: {
   active: boolean;
   title: string;
@@ -119,3 +131,4 @@ function FlowButton(props: {
     </button>
   );
 }
+*/

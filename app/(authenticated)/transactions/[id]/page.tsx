@@ -15,8 +15,11 @@ import { errorMessage } from "@/src/lib/api/errors";
 import {
   canBuyerCloseTransaction,
   formatStatus,
+  formatTimelineAction,
+  formatTimelineDetail,
   formatTransactionType,
   statusApproxProgress,
+  transitionActionLabel,
 } from "@/src/lib/transaction-ui";
 import {
   timelineActorLabel,
@@ -249,7 +252,7 @@ function PublicProgress({ status, viewed }: { status: string; viewed: boolean })
       active: status === "AWAITING_FUNDING",
     },
     {
-      label: "Fulfillment",
+      label: "Delivery",
       done: ["IN_PROGRESS", "INSPECTION", "COMPLETED", "CLOSED"].includes(status),
       active: status === "FUNDED",
     },
@@ -272,7 +275,7 @@ function SecureEscrowSteps({ status }: { status: string }) {
       active: status === "AWAITING_FUNDING",
     },
     {
-      label: "Fulfillment",
+      label: "Delivery",
       done: ["IN_PROGRESS", "INSPECTION", "COMPLETED", "CLOSED"].includes(status),
       active: status === "FUNDED",
     },
@@ -403,7 +406,6 @@ function NextStepCard({
   description,
   action,
   actionNext,
-  danger,
   dangerLabel,
   dangerNext,
   busy,
@@ -414,7 +416,6 @@ function NextStepCard({
   description: string;
   action?: string;
   actionNext?: string;
-  danger?: boolean;
   dangerLabel?: string;
   dangerNext?: string;
   busy: boolean;
@@ -461,21 +462,24 @@ function TimelinePanel({ room, selfId }: { room: TransactionRoom; selfId: string
             <p className="text-sm text-gray-400">No activity yet</p>
           </div>
         ) : (
-          events.map((ev) => (
+          events.map((ev) => {
+            const detail = formatTimelineDetail(ev.action, ev.detail);
+            return (
             <div key={`${ev.at}-${ev.action}`} className="flex gap-4 px-5 py-4">
               <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-gambian-blue mt-2" />
               <div className="flex-1">
-                <p className="text-sm font-bold text-gray-900">{ev.action}</p>
+                <p className="text-sm font-bold text-gray-900">{formatTimelineAction(ev.action, ev.detail)}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{formatDate(ev.at)}</p>
-                {ev.detail && (
-                  <p className="text-sm text-gray-600 mt-1">{ev.detail}</p>
+                {detail && (
+                  <p className="text-sm text-gray-600 mt-1">{detail}</p>
                 )}
                 <p className="text-xs text-gray-400 mt-1">
                   By: {timelineActorLabel(ev.actorId, room, selfId)}
                 </p>
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </Card>
@@ -596,7 +600,7 @@ function ShareableBuyersPanel({
   onOrderTransition: (orderId: string, next: string) => Promise<void>;
 }) {
   function sellerAction(status: string): { label: string; next: string } | null {
-    if (status === "FUNDED") return { label: "Start fulfillment", next: "IN_PROGRESS" };
+    if (status === "FUNDED") return { label: transitionActionLabel("IN_PROGRESS"), next: "IN_PROGRESS" };
     if (status === "IN_PROGRESS") return { label: "Send to buyer", next: "INSPECTION" };
     return null;
   }
@@ -675,7 +679,7 @@ function SaleDetailsPanel({
         <InfoRow label="Quantity" value={String(quantity)} />
         <InfoRow label="Price per item" value={money(unitPrice)} />
         <InfoRow label="Total amount" value={money(tx.amount)} big />
-        <InfoRow label="Fulfilment" value={terms.deliveryNeeded ? "Delivery tracked" : "Payment only"} />
+        <InfoRow label="Delivery" value={terms.deliveryNeeded ? "Delivery tracked" : "Payment only"} />
         <InfoRow label="Status" value={formatStatus(tx.status)} />
         {terms.itemDescription && (
           <div className="mt-4 rounded-xl bg-gray-50 border border-gray-100 p-4">
@@ -760,11 +764,11 @@ function PublicActionPanel({
   if (status === "FUNDED" && role === "seller") {
     icon = "fa-box-open";
     title = "Payment is secured!";
-    description = "The buyer's money is safely held. Start fulfilling the order when ready.";
-    action = { label: "Start Fulfillment", next: "IN_PROGRESS" };
+    description = "The buyer's money is safely held. Start delivery when ready.";
+    action = { label: transitionActionLabel("IN_PROGRESS"), next: "IN_PROGRESS" };
   } else if (status === "IN_PROGRESS" && role === "seller") {
     icon = "fa-truck";
-    title = "Fulfillment in progress";
+    title = "Delivery in progress";
     description = "Once you have delivered or completed the service, send it to the buyer for inspection.";
     action = { label: "Send to Buyer for Inspection", next: "INSPECTION" };
   } else if (status === "INSPECTION" && role === "buyer") {
@@ -845,7 +849,7 @@ function SecureActionPanel({
 
   if (status === "AWAITING_ACCEPTANCE") { icon = "fa-user-check"; title = "Waiting for buyer"; description = "The buyer needs to accept the deal first."; }
   else if (status === "AWAITING_FUNDING") { icon = "fa-money-bill"; title = "Waiting for payment"; description = "Buyer needs to fund the escrow."; }
-  else if (status === "FUNDED" && role === "seller") { icon = "fa-box-open"; title = "Money is secured"; description = "Begin fulfilling the order."; action = { label: "Start Fulfillment", next: "IN_PROGRESS" }; }
+  else if (status === "FUNDED" && role === "seller") { icon = "fa-box-open"; title = "Money is secured"; description = "Begin delivery when ready."; action = { label: transitionActionLabel("IN_PROGRESS"), next: "IN_PROGRESS" }; }
   else if (status === "IN_PROGRESS" && role === "seller") { icon = "fa-truck"; title = "Deliver to buyer"; description = "Move to inspection after delivery."; action = { label: "Send to Inspection", next: "INSPECTION" }; }
   else if (status === "INSPECTION" && role === "buyer") { icon = "fa-check"; title = "Inspect & release"; description = "Confirm when you have received and checked the item."; action = { label: "Confirm and Release Money", next: "COMPLETED" }; }
   else if (status === "COMPLETED" || status === "CLOSED") { icon = "fa-check-circle"; title = "Complete!"; description = "Money has been released. Transaction finished."; }
@@ -893,6 +897,94 @@ function DealSummaryCard({ tx }: { tx: TransactionRoom["transaction"] }) {
   );
 }
 
+function TransactionHero({
+  tx,
+  title,
+  role,
+  isPublicShareable,
+  progressPct,
+  subtitle,
+}: {
+  tx: TransactionRoom["transaction"];
+  title: string;
+  role: SelfRole;
+  isPublicShareable: boolean;
+  progressPct: number;
+  subtitle?: string;
+}) {
+  const roleLabel = role === "buyer" ? "Buyer" : role === "seller" ? "Seller" : "Collaborator";
+  return (
+    <Card>
+      <div className="p-5 sm:p-6">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <StatusBadge status={tx.status} />
+          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-gambian-blue">
+            {isPublicShareable ? "Shareable sale" : "Two-party escrow"}
+          </span>
+          <span className="font-mono text-xs text-gray-400">#{tx.id.slice(0, 8)}</span>
+        </div>
+        <h1 className="text-2xl font-black leading-tight text-gray-900 sm:text-3xl">{title}</h1>
+        {subtitle ? <p className="mt-2 text-sm font-semibold text-gray-500">{subtitle}</p> : null}
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Amount</p>
+            <p className="mt-1 text-xl font-black text-gambian-blue">{money(tx.amount)}</p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Role</p>
+            <p className="mt-1 text-base font-black text-gray-900">{roleLabel}</p>
+          </div>
+        </div>
+        <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-gray-100">
+          <div
+            className="h-full rounded-full bg-gambian-blue transition-all duration-700"
+            style={{ width: `${Math.max(0, Math.min(100, progressPct))}%` }}
+          />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function PublicAnalyticsPanel({
+  analytics,
+  orders,
+  busy,
+  onOrderTransition,
+}: {
+  analytics: PublicTransactionAnalytics;
+  orders: NonNullable<TransactionRoom["shareBuyerOrders"]>;
+  busy: boolean;
+  onOrderTransition: (orderId: string, next: string) => Promise<void>;
+}) {
+  return (
+    <div className="space-y-5">
+      <Card>
+        <CardHeader title="Link analytics" subtitle="Views and payments from your shareable link" />
+        <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Views</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{analytics.totalViews}</p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Unique</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{analytics.uniqueViewers}</p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Paid</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{analytics.paidCount}</p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Conversion</p>
+            <p className="mt-1 text-2xl font-black text-gray-900">{analytics.conversionRate}%</p>
+          </div>
+        </div>
+      </Card>
+      <ShareableBuyersPanel orders={orders} busy={busy} onOrderTransition={onOrderTransition} />
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────
 // PUBLIC SHAREABLE ROOM
 // ─────────────────────────────────────────────
@@ -926,53 +1018,44 @@ function PublicShareableTransactionRoom({
   const unitPrice = tx.unitPrice ?? tx.amount;
 
   const tabs = useMemo<RoomTab[]>(() => {
-    if (isSellerTemplate) {
-      return [
-        { id: "buyers", label: "Buyers", icon: "fa-users" },
-        { id: "overview", label: "Overview", icon: "fa-home" },
-        { id: "deliveryDetails", label: "Delivery", icon: "fa-truck" },
-      ];
-    }
     const items: RoomTab[] = [
       { id: "overview", label: "Overview", icon: "fa-home" },
-      { id: "details", label: "Sale Details", icon: "fa-receipt" },
+      { id: "details", label: "Sale", icon: "fa-receipt" },
+      { id: "parties", label: "Parties", icon: "fa-users" },
     ];
-    if (!isTemplate) {
-      items.push({ id: "timeline", label: "History", icon: "fa-clock" });
+    if (isSellerTemplate) {
+      items.push({ id: "analytics", label: "Analytics", icon: "fa-chart-line" });
     }
+    items.push({ id: "timeline", label: "Timeline", icon: "fa-clock" });
     return items;
-  }, [isSellerTemplate, isTemplate]);
+  }, [isSellerTemplate]);
 
-  const [activeTab, setActiveTab] = useState<RoomTabId>(isSellerTemplate ? "buyers" : "overview");
+  const [activeTab, setActiveTab] = useState<RoomTabId>("overview");
   const currentTab = tabs.some((t) => t.id === activeTab) ? activeTab : tabs[0]?.id ?? "overview";
 
   return (
     <div className="space-y-5">
+      <TransactionHero
+        tx={tx}
+        title={tx.productTitle}
+        role={role}
+        isPublicShareable
+        progressPct={statusApproxProgress(tx.status)}
+        subtitle={isSellerTemplate ? `${buyerOrders.length} buyer order${buyerOrders.length === 1 ? "" : "s"}` : undefined}
+      />
       <RoomTabs tabs={tabs} active={currentTab} onChange={setActiveTab} />
-
-      {/* BUYERS TAB */}
-      {currentTab === "buyers" && isSellerTemplate && (
-        <ShareableBuyersPanel orders={buyerOrders} busy={busy} onOrderTransition={onOrderTransition} />
-      )}
 
       {/* OVERVIEW TAB */}
       {currentTab === "overview" && (
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <div className="space-y-5">
-            {/* Hero */}
             <Card>
-              <div className="p-6">
-                <div className="flex flex-wrap items-center gap-2 mb-4">
+              <CardHeader title="Overview" subtitle={tx.productTitle} />
+              <div className="p-5">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
                   <StatusBadge status={tx.status} />
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
-                    Public Payment Link
-                  </span>
-                  <span className="font-mono text-xs text-gray-300">#{tx.id.slice(0, 8)}</span>
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-gambian-blue">Shareable sale</span>
                 </div>
-                <h1 className="text-3xl font-black text-gray-900 leading-tight">{tx.productTitle}</h1>
-                {isSellerTemplate && (
-                  <p className="mt-1 text-sm text-gray-500">{buyerOrders.length} buyer order{buyerOrders.length === 1 ? "" : "s"}</p>
-                )}
                 <PublicProgress status={tx.status} viewed={false} />
               </div>
             </Card>
@@ -1006,6 +1089,30 @@ function PublicShareableTransactionRoom({
       {/* DETAILS TAB */}
       {currentTab === "details" && (
         <SaleDetailsPanel tx={tx} terms={terms} quantity={quantity} unitPrice={unitPrice} />
+      )}
+
+      {/* PARTIES TAB */}
+      {currentTab === "parties" && (
+        <Card>
+          <CardHeader title="Buyer and seller" />
+          <div className="p-5">
+            <TransactionRoomParties
+              buyer={room.parties?.buyer ?? null}
+              seller={room.parties?.seller ?? null}
+              selfId={selfId}
+            />
+          </div>
+        </Card>
+      )}
+
+      {/* ANALYTICS TAB */}
+      {currentTab === "analytics" && isSellerTemplate && (
+        <PublicAnalyticsPanel
+          analytics={analytics}
+          orders={buyerOrders}
+          busy={busy}
+          onOrderTransition={onOrderTransition}
+        />
       )}
 
       {/* TIMELINE TAB */}
@@ -1068,6 +1175,13 @@ function SecureEscrowTransactionRoom({
 
   return (
     <div className="space-y-5">
+      <TransactionHero
+        tx={tx}
+        title={heading}
+        role={role}
+        isPublicShareable={false}
+        progressPct={progressPct}
+      />
       <RoomTabs tabs={tabs} active={currentTab} onChange={setActiveTab} />
 
       {/* OVERVIEW */}
