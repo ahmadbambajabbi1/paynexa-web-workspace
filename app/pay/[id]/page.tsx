@@ -2,7 +2,7 @@
 
 // import Link from "next/link";
 // import { useParams, useRouter } from "next/navigation";
-// import { useCallback, useEffect, useMemo, useState } from "react";
+// import { useEffect, useMemo, useState } from "react";
 // import { SiteHeader } from "@/src/components/SiteHeader";
 // import { TransactionPaymentPanel } from "@/src/components/TransactionPaymentPanel";
 // import { CURRENCY_PREFIX } from "@/src/config/constants";
@@ -20,7 +20,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/src/components/SiteHeader";
 import { TransactionPaymentPanel } from "@/src/components/TransactionPaymentPanel";
 import { CURRENCY_PREFIX } from "@/src/config/constants";
@@ -44,18 +44,27 @@ export default function PayTransactionPage() {
   const profileHref = `/complete-profile?next=${encodeURIComponent(returnPath)}`;
   const appDeepLink = useMemo(() => `safetrade://pay/${encodeURIComponent(ref)}`, [ref]);
 
-  const load = useCallback(async () => {
+  useEffect(() => {
     if (!ref) return;
-    setErr(null);
-    try {
-      setSummary(await txApi.getPublicTransactionSummary(ref));
-    } catch (e) {
-      setErr(errorMessage(e));
-      setSummary(null);
-    }
-  }, [ref]);
+    let cancelled = false;
 
-  useEffect(() => { void load(); }, [load]);
+    txApi
+      .getPublicTransactionSummary(ref)
+      .then((nextSummary) => {
+        if (cancelled) return;
+        setSummary(nextSummary);
+        setErr(null);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setSummary(null);
+        setErr(errorMessage(e));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ref]);
 
   useEffect(() => {
     if (!ref || typeof window === "undefined") return;
@@ -65,6 +74,18 @@ export default function PayTransactionPage() {
     const t = window.setTimeout(() => { window.location.href = appDeepLink; }, 350);
     return () => window.clearTimeout(t);
   }, [appDeepLink, ref]);
+
+  async function refreshSummary() {
+    if (!ref) return;
+    try {
+      const nextSummary = await txApi.getPublicTransactionSummary(ref);
+      setSummary(nextSummary);
+      setErr(null);
+    } catch (e) {
+      setSummary(null);
+      setErr(errorMessage(e));
+    }
+  }
 
   const isSeller = !!summary && !!user && user.id === summary.sellerId;
   const isAssignedOtherBuyer = !!summary?.buyerId && !!user && summary.buyerId !== user.id;
@@ -307,7 +328,7 @@ export default function PayTransactionPage() {
                       transactionId={summary.id}
                       amount={summary.totalBuyerPays}
                       onPaid={async (paidTransactionId) => {
-                        await load();
+                        await refreshSummary();
                         router.push(`/transactions/${paidTransactionId}`);
                       }}
                     />
