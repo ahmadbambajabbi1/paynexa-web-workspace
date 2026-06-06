@@ -22,19 +22,19 @@ export default function MarketplacePage() {
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Link
             href="/marketplace/services"
-            className="rounded-full bg-gambian-blue px-8 py-3 font-semibold text-white shadow-lg transition hover:bg-blue-950"
+            className="rounded-full bg-primaryColorBlack px-8 py-3 font-semibold text-white shadow-lg transition hover:bg-blue-950"
           >
             Browse services
           </Link>
           <Link
             href="/dashboard"
-            className="rounded-full border-2 border-gray-200 px-8 py-3 font-semibold text-gray-800 transition hover:border-gambian-blue hover:text-gambian-blue"
+            className="rounded-full border-2 border-gray-200 px-8 py-3 font-semibold text-gray-800 transition hover:border-primaryColorBlack hover:text-primaryColorBlack"
           >
             Go to dashboard
           </Link>
           <Link
             href="/how-it-works"
-            className="rounded-full border-2 border-gray-200 px-8 py-3 font-semibold text-gray-800 transition hover:border-gambian-blue hover:text-gambian-blue"
+            className="rounded-full border-2 border-gray-200 px-8 py-3 font-semibold text-gray-800 transition hover:border-primaryColorBlack hover:text-primaryColorBlack"
           >
             How it works
           </Link>

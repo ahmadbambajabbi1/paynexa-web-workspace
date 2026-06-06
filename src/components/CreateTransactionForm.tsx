@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as txApi from "@/src/lib/api/transactions";
 import * as userApi from "@/src/lib/api/users";
 import * as productsApi from "@/src/lib/api/products";
+import * as escrowApi from "@/src/lib/api/escrow";
 import { errorMessage } from "@/src/lib/api/errors";
-import { CURRENCY_PREFIX, ESCROW_FEE_PERCENT } from "@/src/config/constants";
+import { ESCROW_FEE_PERCENT } from "@/src/config/constants";
 import { fieldInput, fieldLabel } from "@/src/components/ui/form-classes";
 import { productDisplayName } from "@/src/lib/product-display";
+import { currencySymbol, formatMoney } from "@/src/lib/currency";
 import type { ProductRow } from "@/src/lib/api/types";
 
 type CreatedMeta = { workflow?: string; sharePath?: string; shareToken?: string };
@@ -21,7 +23,34 @@ type Props = {
 
 const SEARCH_DEBOUNCE_MS = 420;
 
+function useWalletCurrency(token: string) {
+  const [currency, setCurrency] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      try {
+        const wallet = await escrowApi.getWallet(token);
+        if (alive) setCurrency(wallet.currency ?? null);
+      } catch {
+        if (alive) setCurrency(null);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [token]);
+
+  return currency;
+}
+
+function unitPriceLabel(currency: string | null) {
+  const symbol = currencySymbol(currency);
+  return symbol ? `Unit price (${symbol})` : "Unit price";
+}
+
 export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel }: Props) {
+  const walletCurrency = useWalletCurrency(token);
   const [itemTitle, setItemTitle] = useState("");
   const [itemDescription, setItemDescription] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -92,13 +121,13 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
           <input id="public-qty" value={quantity} onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ""))} className={fieldInput} inputMode="numeric" required />
         </div>
         <div>
-          <label className={fieldLabel} htmlFor="public-price">Unit price ({CURRENCY_PREFIX})</label>
+          <label className={fieldLabel} htmlFor="public-price">{unitPriceLabel(walletCurrency)}</label>
           <input id="public-price" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} className={fieldInput} inputMode="decimal" placeholder="0.00" required />
         </div>
       </div>
 
       <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700">
-        <input type="checkbox" checked={deliveryNeeded} onChange={(e) => setDeliveryNeeded(e.target.checked)} className="mt-1 h-4 w-4 rounded border-gray-300 text-gambian-blue" />
+        <input type="checkbox" checked={deliveryNeeded} onChange={(e) => setDeliveryNeeded(e.target.checked)} className="mt-1 h-4 w-4 rounded border-gray-300 text-primaryColorBlack" />
         <span>Delivery or fulfillment needs to be tracked for this transaction.</span>
       </label>
 
@@ -109,8 +138,8 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
 
       <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white text-sm shadow-sm">
         <div className="flex items-center justify-between gap-4 bg-blue-50/80 px-4 py-4">
-          <span className="font-bold text-gambian-blue">Buyer pays</span>
-          <span className="font-display text-3xl font-bold text-gray-950">{CURRENCY_PREFIX}{total.toFixed(2)}</span>
+          <span className="font-bold text-primaryColorBlack">Buyer pays</span>
+          <span className="font-display text-3xl font-bold text-gray-950">{formatMoney(total, walletCurrency)}</span>
         </div>
         <div className="grid gap-3 px-4 py-4 sm:grid-cols-2">
           <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-3">
@@ -119,7 +148,7 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
           </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Unit price</p>
-            <p className="mt-1 font-bold text-gray-900">{CURRENCY_PREFIX}{Number(unitPrice || 0).toFixed(2)}</p>
+            <p className="mt-1 font-bold text-gray-900">{formatMoney(unitPrice || 0, walletCurrency)}</p>
           </div>
         </div>
       </div>
@@ -128,7 +157,7 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button type="button" onClick={onCancel} className="rounded-xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700">Cancel</button>
-        <button type="submit" disabled={busy} className="flex-1 rounded-xl bg-gambian-blue px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60">
+        <button type="submit" disabled={busy} className="flex-1 rounded-xl bg-primaryColorBlack px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60">
           {busy ? "Creating..." : "Create shareable link"}
         </button>
       </div>
@@ -137,6 +166,7 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
 }
 
 export function CreateEscrowTransactionForm({ token, selfId, onCreated, onCancel }: Props) {
+  const walletCurrency = useWalletCurrency(token);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [productId, setProductId] = useState("");
   const [buyerQuery, setBuyerQuery] = useState("");
@@ -254,13 +284,13 @@ export function CreateEscrowTransactionForm({ token, selfId, onCreated, onCancel
 
       <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white text-sm shadow-sm">
         <div className="flex items-center justify-between gap-4 bg-blue-50/80 px-4 py-4">
-          <span className="font-bold text-gambian-blue">Escrow amount</span>
-          <span className="font-display text-3xl font-bold text-gray-950">{CURRENCY_PREFIX}{selectedProduct?.price ?? "0"}</span>
+          <span className="font-bold text-primaryColorBlack">Escrow amount</span>
+          <span className="font-display text-3xl font-bold text-gray-950">{formatMoney(selectedProduct?.price ?? 0, walletCurrency)}</span>
         </div>
         <div className="grid gap-3 px-4 py-4 sm:grid-cols-2">
           <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Estimated fee</p>
-            <p className="mt-1 font-bold text-gray-900">{CURRENCY_PREFIX}{feePreview}</p>
+            <p className="mt-1 font-bold text-gray-900">{formatMoney(feePreview, walletCurrency)}</p>
           </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Funding</p>
@@ -273,7 +303,7 @@ export function CreateEscrowTransactionForm({ token, selfId, onCreated, onCancel
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button type="button" onClick={onCancel} className="rounded-xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700">Cancel</button>
-        <button type="submit" disabled={busy || products.length === 0} className="flex-1 rounded-xl bg-gambian-blue px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60">
+        <button type="submit" disabled={busy || products.length === 0} className="flex-1 rounded-xl bg-primaryColorBlack px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60">
           {busy ? "Creating..." : "Create escrow"}
         </button>
       </div>

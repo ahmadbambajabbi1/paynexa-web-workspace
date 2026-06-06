@@ -183,7 +183,7 @@ export default function ServiceMarketplaceBrowsePage() {
                   <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="field-select-chevron w-full appearance-none rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-10 text-sm font-medium text-gray-900 shadow-sm transition focus:border-gambian-blue focus:ring-2 focus:ring-gambian-blue/20"
+                    className="field-select-chevron w-full appearance-none rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-10 text-sm font-medium text-gray-900 shadow-sm transition focus:border-primaryColorBlack focus:ring-2 focus:ring-primaryColorBlack/20"
                     aria-label="Category filter"
                   >
                     <option value="">All categories</option>
@@ -194,12 +194,12 @@ export default function ServiceMarketplaceBrowsePage() {
                     ))}
                   </select>
                 </div>
-                <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-gambian-blue/15 bg-gray-50/90 px-4 py-3.5 transition hover:border-gambian-blue/35 hover:bg-gray-50">
+                <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-primaryColorBlack/15 bg-gray-50/90 px-4 py-3.5 transition hover:border-primaryColorBlack/35 hover:bg-gray-50">
                   <input
                     type="checkbox"
                     checked={onlineOnly}
                     onChange={(e) => setOnlineOnly(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-gambian-blue focus:ring-gambian-blue"
+                    className="h-4 w-4 rounded border-gray-300 text-primaryColorBlack focus:ring-primaryColorBlack"
                   />
                   <span className="text-sm font-semibold text-gray-800">Online providers only</span>
                 </label>
@@ -253,7 +253,7 @@ export default function ServiceMarketplaceBrowsePage() {
                 <Link
                   key={l.id}
                   href={`/marketplace/services/${encodeURIComponent(l.id)}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/70 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-gambian-blue focus-visible:ring-offset-2"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/70 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryColorBlack focus-visible:ring-offset-2"
                 >
                   {/* Image Container */}
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
@@ -284,10 +284,10 @@ export default function ServiceMarketplaceBrowsePage() {
                   <div className="flex flex-1 flex-col gap-4 p-5">
                     {/* Title Section */}
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wide text-gambian-blue">
+                      <p className="text-xs font-bold uppercase tracking-wide text-primaryColorBlack">
                         {l.category?.name ?? "Service"}
                       </p>
-                      <h3 className="mt-2 text-base font-bold text-gray-900 line-clamp-2 group-hover:text-gambian-blue transition">
+                      <h3 className="mt-2 text-base font-bold text-gray-900 line-clamp-2 group-hover:text-primaryColorBlack transition">
                         {l.title}
                       </h3>
                       {provName ? (
@@ -304,7 +304,7 @@ export default function ServiceMarketplaceBrowsePage() {
                       </span>
                       
                       {row.distanceKm != null ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-gambian-blue">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-primaryColorBlack">
                           <i className="fas fa-location-dot" aria-hidden />
                           {row.distanceKm.toFixed(1)} km
                         </span>
@@ -334,7 +334,7 @@ export default function ServiceMarketplaceBrowsePage() {
                           ? `D${l.priceAmount ?? ""}`
                           : `D${l.priceMin ?? ""}–D${l.priceMax ?? ""}`}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-gambian-blue opacity-0 transition group-hover:opacity-100">
+                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-primaryColorBlack opacity-0 transition group-hover:opacity-100">
                         {authed ? "View" : "Sign in"}
                         <i className="fas fa-arrow-right text-xs" aria-hidden />
                       </span>

@@ -33,7 +33,7 @@ function statusColor(status: string): { bg: string; text: string; dot: string } 
   if (status === "DISPUTED")
     return { bg: "bg-red-100", text: "text-red-800", dot: "bg-red-500" };
   if (["FUNDED", "IN_PROGRESS", "INSPECTION"].includes(status))
-    return { bg: "bg-gambian-blue/10", text: "text-gambian-blue", dot: "bg-gambian-blue" };
+    return { bg: "bg-primaryColorBlack/10", text: "text-primaryColorBlack", dot: "bg-primaryColorBlack" };
   return { bg: "bg-amber-100", text: "text-amber-800", dot: "bg-amber-400" };
 }
 
@@ -67,7 +67,7 @@ function StatCard({
   return (
     <div className="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-[0_2px_16px_rgba(11,37,69,0.08)] transition-all duration-300 hover:shadow-[0_8px_32px_rgba(11,37,69,0.14)] hover:-translate-y-0.5">
       {/* subtle top accent line */}
-      <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-3xl bg-gambian-blue/20 group-hover:bg-gambian-blue/60 transition-colors duration-300" />
+      <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-3xl bg-primaryColorBlack/20 group-hover:bg-primaryColorBlack/60 transition-colors duration-300" />
       <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ${iconBg}`}>
         <i className={`fas ${icon} text-lg ${iconColor}`} />
       </div>
@@ -92,7 +92,7 @@ function NewTransactionCard({
     <button
       type="button"
       onClick={onClick}
-      className="group relative flex min-h-[140px] w-full flex-col items-center justify-center overflow-hidden rounded-3xl bg-gambian-blue p-6 shadow-[0_2px_16px_rgba(11,37,69,0.20)] transition-all duration-300 hover:shadow-[0_8px_32px_rgba(11,37,69,0.30)] hover:-translate-y-0.5 active:scale-95"
+      className="group relative flex min-h-[140px] w-full flex-col items-center justify-center overflow-hidden rounded-3xl bg-primaryColorBlack p-6 shadow-[0_2px_16px_rgba(11,37,69,0.20)] transition-all duration-300 hover:shadow-[0_8px_32px_rgba(11,37,69,0.30)] hover:-translate-y-0.5 active:scale-95"
     >
       {/* decorative circle */}
       <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/[0.06]" />
@@ -126,14 +126,14 @@ function TransactionRow({
   return (
     <Link
       href={`/transactions/${row.id}`}
-      className="group block transition-colors duration-150 hover:bg-gambian-blue/[0.025]"
+      className="group block transition-colors duration-150 hover:bg-primaryColorBlack/[0.025]"
     >
       <div className="flex items-center gap-4 px-6 py-5">
         {/* icon */}
         <div
           className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-lg transition-transform duration-200 group-hover:scale-105 ${isProperty
             ? "bg-gambian-sand text-gambian-earth"
-            : "bg-gambian-blue/10 text-gambian-blue"
+            : "bg-primaryColorBlack/10 text-primaryColorBlack"
             }`}
         >
           <i className={`fas ${isProperty ? "fa-home" : "fa-box"}`} />
@@ -149,7 +149,7 @@ function TransactionRow({
           </div>
           <p className="mt-0.5 text-sm text-gray-500">
             {formatTransactionType(row.type)} ·{" "}
-            <span className={`font-semibold ${isBuyer ? "text-gambian-blue" : "text-gambian-earth"}`}>
+            <span className={`font-semibold ${isBuyer ? "text-primaryColorBlack" : "text-gambian-earth"}`}>
               {isBuyer ? "You are buying" : "You are selling"}
             </span>{" "}
             · {new Date(row.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
@@ -159,7 +159,7 @@ function TransactionRow({
           <div className="mt-2.5 flex items-center gap-3">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full rounded-full bg-gambian-blue transition-all duration-700"
+                className="h-full rounded-full bg-primaryColorBlack transition-all duration-700"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -170,7 +170,7 @@ function TransactionRow({
         </div>
 
         {/* arrow */}
-        <i className="fas fa-chevron-right shrink-0 text-sm text-gray-300 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-gambian-blue" />
+        <i className="fas fa-chevron-right shrink-0 text-sm text-gray-300 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primaryColorBlack" />
       </div>
     </Link>
   );
@@ -220,7 +220,7 @@ function DashboardInner() {
     <>
       {/* ── Page header ── */}
       <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-widest text-gambian-blue/50 mb-1">
+        <p className="text-sm font-semibold uppercase tracking-widest text-primaryColorBlack/50 mb-1">
           Welcome back
         </p>
         <h1 className="text-3xl capitalize font-black tracking-tight text-gray-900 md:text-4xl">
@@ -234,8 +234,8 @@ function DashboardInner() {
           icon="fa-list"
           label="Total"
           value={stats.total}
-          iconBg="bg-gambian-blue/10"
-          iconColor="text-gambian-blue"
+          iconBg="bg-primaryColorBlack/10"
+          iconColor="text-primaryColorBlack"
         />
         <StatCard
           icon="fa-clock"
@@ -276,7 +276,7 @@ function DashboardInner() {
               {items.length === 0 ? "No transactions yet" : `${items.length} transaction${items.length === 1 ? "" : "s"}`}
             </p>
           </div>
-          <span className="inline-flex items-center rounded-full bg-gambian-blue/10 px-3 py-1.5 text-xs font-bold text-gambian-blue">
+          <span className="inline-flex items-center rounded-full bg-primaryColorBlack/10 px-3 py-1.5 text-xs font-bold text-primaryColorBlack">
             All roles
           </span>
         </div>
@@ -295,8 +295,8 @@ function DashboardInner() {
         {/* empty state */}
         {items.length === 0 && !loadErr && (
           <div className="px-6 py-16 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gambian-blue/10">
-              <i className="fas fa-inbox text-2xl text-gambian-blue" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-primaryColorBlack/10">
+              <i className="fas fa-inbox text-2xl text-primaryColorBlack" />
             </div>
             <p className="text-base font-bold text-gray-700">No transactions yet</p>
             <p className="mt-1 text-sm text-gray-400">
@@ -305,7 +305,7 @@ function DashboardInner() {
             {canCreate && (
               <button
                 type="button"
-                className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gambian-blue px-5 py-3 text-sm font-bold text-white shadow transition hover:bg-gambian-blue/90 active:scale-95"
+                className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-primaryColorBlack px-5 py-3 text-sm font-bold text-white shadow transition hover:bg-primaryColorBlack/90 active:scale-95"
                 onClick={() => {
                   if (!canCreate) {
                     router.push("/kyc/personal");

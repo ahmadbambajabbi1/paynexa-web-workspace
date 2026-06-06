@@ -67,7 +67,7 @@ function PersonalKycInner() {
           </p>
           <Link
             href="/transactions"
-            className="mt-6 inline-flex rounded-xl bg-gambian-blue px-5 py-2.5 text-sm font-semibold text-white"
+            className="mt-6 inline-flex rounded-xl bg-primaryColorBlack px-5 py-2.5 text-sm font-semibold text-white"
           >
             Back to transactions
           </Link>
@@ -100,7 +100,7 @@ function PersonalKycInner() {
   return (
     <div className="mx-auto max-w-xl pb-12">
       <div className="mb-6">
-        <Link href="/transactions" className="text-sm font-medium text-gambian-blue hover:underline">
+        <Link href="/transactions" className="text-sm font-medium text-primaryColorBlack hover:underline">
           ← Transactions
         </Link>
       </div>
@@ -147,7 +147,7 @@ function PersonalKycInner() {
         <button
           type="submit"
           disabled={busy || !idDoc || !selfie}
-          className="rounded-xl bg-gambian-blue px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+          className="rounded-xl bg-primaryColorBlack px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
         >
           {busy ? "Submitting..." : "Submit for review"}
         </button>

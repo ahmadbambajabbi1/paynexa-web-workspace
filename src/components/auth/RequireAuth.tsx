@@ -35,7 +35,7 @@ export function RequireAuth({
   if (loading || !token || !user) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-gray-600">
-        <i className="fas fa-circle-notch fa-spin text-gambian-blue" />
+        <i className="fas fa-circle-notch fa-spin text-primaryColorBlack" />
       </div>
     );
   }
@@ -43,7 +43,7 @@ export function RequireAuth({
   if (requireProfileComplete && !isProfileComplete(user)) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-gray-600">
-        <i className="fas fa-circle-notch fa-spin text-gambian-blue" />
+        <i className="fas fa-circle-notch fa-spin text-primaryColorBlack" />
       </div>
     );
   }

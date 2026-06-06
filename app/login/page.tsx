@@ -27,7 +27,7 @@ export default function LoginPage() {
         </div>
 
         <p className="relative z-10 mx-auto mt-8 max-w-md text-center text-sm text-gray-600">
-          <Link href="/" className="font-medium text-gambian-blue hover:underline">
+          <Link href="/" className="font-medium text-primaryColorBlack hover:underline">
             ← Back to home
           </Link>
         </p>
@@ -174,7 +174,7 @@ function LoginFlow() {
   return (
     <div className={`${cardPanel} p-8 sm:p-10`}>
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-gambian-red via-gambian-blue to-gambian-green text-2xl text-white shadow-lg">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-gambian-red via-primaryColorBlack to-gambian-green text-2xl text-white shadow-lg">
           <i className="fas fa-mobile-alt" />
         </div>
         <h1 className="font-display text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -205,7 +205,7 @@ function LoginFlow() {
           <button
             type="submit"
             disabled={busy || !/^\+\d{8,15}$/.test(phoneE164.trim())}
-            className="w-full rounded-xl bg-gambian-blue py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
+            className="w-full rounded-xl bg-primaryColorBlack py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
           >
             {busy ? "Sending…" : "Send SMS code"}
           </button>
@@ -226,7 +226,7 @@ function LoginFlow() {
               maxLength={6}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-gambian-blue/30 transition focus:border-gambian-blue focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="000000"
             />
           </div>
@@ -238,14 +238,14 @@ function LoginFlow() {
           <button
             type="submit"
             disabled={busy || code.length !== 6}
-            className="w-full rounded-xl bg-gambian-blue py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
+            className="w-full rounded-xl bg-primaryColorBlack py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
           >
             {busy ? "Checking…" : "Continue"}
           </button>
           <button
             type="button"
             onClick={goBackToPhone}
-            className="w-full text-sm font-medium text-gray-600 hover:text-gambian-blue"
+            className="w-full text-sm font-medium text-gray-600 hover:text-primaryColorBlack"
           >
             Change number
           </button>
@@ -267,7 +267,7 @@ function LoginFlow() {
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-gambian-blue/30 transition focus:border-gambian-blue focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="••••"
             />
           </div>
@@ -285,7 +285,7 @@ function LoginFlow() {
               onChange={(e) =>
                 setPinConfirm(e.target.value.replace(/\D/g, "").slice(0, 4))
               }
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-gambian-blue/30 transition focus:border-gambian-blue focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="••••"
             />
           </div>
@@ -319,7 +319,7 @@ function LoginFlow() {
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-gambian-blue/30 transition focus:border-gambian-blue focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="••••"
             />
           </div>
@@ -331,7 +331,7 @@ function LoginFlow() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-xl bg-gambian-blue py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
+            className="w-full rounded-xl bg-primaryColorBlack py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
           >
             {busy ? "Signing in…" : "Sign in"}
           </button>

@@ -5,7 +5,7 @@ import { StorePageClient } from "@/src/components/store/StorePageClient";
 function StoreFallback() {
   return (
     <div className="flex justify-center py-24">
-      <i className="fas fa-circle-notch fa-spin text-3xl text-gambian-blue" aria-hidden />
+      <i className="fas fa-circle-notch fa-spin text-3xl text-primaryColorBlack" aria-hidden />
     </div>
   );
 }

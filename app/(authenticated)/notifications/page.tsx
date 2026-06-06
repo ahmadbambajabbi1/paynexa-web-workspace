@@ -73,7 +73,7 @@ function NotificationsInner() {
 
   const getStatusColor = (status: string) => {
     const st = status?.toLowerCase() ?? "";
-    if (st.includes("pending")) return { bg: "bg-blue-50", border: "border-gambian-blue/20", badge: "bg-gambian-blue/10 text-gambian-blue" };
+    if (st.includes("pending")) return { bg: "bg-blue-50", border: "border-primaryColorBlack/20", badge: "bg-primaryColorBlack/10 text-primaryColorBlack" };
     if (st.includes("accepted") || st.includes("approved")) return { bg: "bg-emerald-50", border: "border-gambian-green/20", badge: "bg-gambian-green/10 text-gambian-green" };
     if (st.includes("rejected") || st.includes("failed")) return { bg: "bg-red-50", border: "border-gambian-red/20", badge: "bg-gambian-red/10 text-gambian-red" };
     return { bg: "bg-gray-50", border: "border-gray-200", badge: "bg-gray-100 text-gray-700" };
@@ -116,7 +116,7 @@ function NotificationsInner() {
         <div className="flex flex-1 items-center justify-center py-16">
           <div className="text-center">
             <div className="mb-4 flex justify-center">
-              <i className="fas fa-circle-notch fa-spin text-4xl text-gambian-blue" />
+              <i className="fas fa-circle-notch fa-spin text-4xl text-primaryColorBlack" />
             </div>
             <p className="text-sm text-gray-600">Loading notifications...</p>
           </div>
@@ -128,9 +128,9 @@ function NotificationsInner() {
             <div className="flex flex-1 items-center justify-center">
               <div className="rounded-3xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-50/50 px-8 py-24 text-center max-w-md">
                 <div className="mb-6 flex justify-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-gambian-blue/10 to-gambian-blue/5">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primaryColorBlack/10 to-primaryColorBlack/5">
                     <svg
-                      className="h-10 w-10 text-gambian-blue/40"
+                      className="h-10 w-10 text-primaryColorBlack/40"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -170,7 +170,7 @@ function NotificationsInner() {
 
                     {/* Timeline Connector - Only on unread items */}
                     {isNew && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gambian-blue to-gambian-blue/50" />
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primaryColorBlack to-primaryColorBlack/50" />
                     )}
 
                     <div className="relative p-5 sm:p-6">
@@ -192,7 +192,7 @@ function NotificationsInner() {
                               </p>
                               <div className="mt-2 flex flex-wrap gap-3 items-center text-xs text-gray-600">
                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/60 border border-gray-200">
-                                  <i className="fas fa-circle text-[6px] text-gambian-blue" />
+                                  <i className="fas fa-circle text-[6px] text-primaryColorBlack" />
                                   {item.role}
                                 </span>
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium ${colors.badge}`}>
@@ -221,7 +221,7 @@ function NotificationsInner() {
                       <div className="mt-5 flex flex-col sm:flex-row gap-3">
                         <Link
                           href={`/transactions/${item.transactionId}`}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gambian-blue to-gambian-blue/80 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:from-gambian-blue hover:to-blue-950 active:scale-95"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primaryColorBlack to-primaryColorBlack/80 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:from-primaryColorBlack hover:to-blue-950 active:scale-95"
                         >
                           <svg
                             className="h-4 w-4"

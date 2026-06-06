@@ -105,7 +105,7 @@ function CompleteProfileContent() {
       <div className="relative z-10 mx-auto w-full max-w-md">
         <div className={`${cardPanel} p-8 sm:p-10`}>
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-gambian-red via-gambian-blue to-gambian-green text-2xl text-white shadow-lg">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-gambian-red via-primaryColorBlack to-gambian-green text-2xl text-white shadow-lg">
               <i className="fas fa-user-check" />
             </div>
             <h1 className="font-display text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -206,7 +206,7 @@ function CompleteProfileContent() {
               <button
                 type="submit"
                 disabled={busy || code.length !== 6}
-                className="w-full rounded-xl bg-gambian-blue py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
+                className="w-full rounded-xl bg-primaryColorBlack py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-blue-950 disabled:opacity-60"
               >
                 {busy ? "Verifying…" : "Verify and continue"}
               </button>
@@ -214,7 +214,7 @@ function CompleteProfileContent() {
                 type="button"
                 onClick={() => void onResend()}
                 disabled={busy}
-                className="w-full text-sm font-medium text-gambian-blue hover:underline disabled:opacity-60"
+                className="w-full text-sm font-medium text-primaryColorBlack hover:underline disabled:opacity-60"
               >
                 Resend code
               </button>
@@ -224,7 +224,7 @@ function CompleteProfileContent() {
                   setStep("form");
                   setErr(null);
                 }}
-                className="w-full text-sm font-medium text-gray-600 hover:text-gambian-blue"
+                className="w-full text-sm font-medium text-gray-600 hover:text-primaryColorBlack"
               >
                 Edit profile details
               </button>
@@ -233,7 +233,7 @@ function CompleteProfileContent() {
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-600">
-          <Link href="/" className="font-medium text-gambian-blue hover:underline">
+          <Link href="/" className="font-medium text-primaryColorBlack hover:underline">
             ← Back to home
           </Link>
         </p>
