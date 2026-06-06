@@ -165,7 +165,7 @@ export function InviteParticipantModal({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search…"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none ring-gambian-blue focus:ring-2"
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none ring-primaryColorBlack focus:ring-2"
                 autoComplete="off"
               />
               {disabledReason ? (
@@ -199,12 +199,12 @@ export function InviteParticipantModal({
                           </p>
                         </div>
                         {item.invited ? (
-                          <span className="shrink-0 text-xs font-semibold text-gambian-blue">Invited</span>
+                          <span className="shrink-0 text-xs font-semibold text-primaryColorBlack">Invited</span>
                         ) : (
                           <button
                             type="button"
                             onClick={() => pickProfessional(item)}
-                            className="shrink-0 rounded-lg bg-gambian-blue px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-900"
+                            className="shrink-0 rounded-lg bg-primaryColorBlack px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-900"
                           >
                             Next
                           </button>
@@ -232,7 +232,7 @@ export function InviteParticipantModal({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={12}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 outline-none ring-gambian-blue focus:ring-2"
+                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 outline-none ring-primaryColorBlack focus:ring-2"
               />
               {err ? (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
@@ -255,7 +255,7 @@ export function InviteParticipantModal({
                   type="button"
                   disabled={sending}
                   onClick={() => void sendInvite()}
-                  className="flex-1 rounded-xl bg-gambian-blue py-2.5 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:opacity-50"
+                  className="flex-1 rounded-xl bg-primaryColorBlack py-2.5 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:opacity-50"
                 >
                   {sending ? <i className="fas fa-circle-notch fa-spin" /> : "Send invite"}
                 </button>

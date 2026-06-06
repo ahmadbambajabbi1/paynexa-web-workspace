@@ -133,7 +133,7 @@ function ProductDetailInner() {
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <i className="fas fa-circle-notch fa-spin text-3xl text-gambian-blue" aria-hidden />
+        <i className="fas fa-circle-notch fa-spin text-3xl text-primaryColorBlack" aria-hidden />
       </div>
     );
   }
@@ -141,7 +141,7 @@ function ProductDetailInner() {
   if (err && !row) {
     return (
       <div className="space-y-4">
-        <Link href="/store?tab=products" className="text-sm font-medium text-gambian-blue hover:underline">
+        <Link href="/store?tab=products" className="text-sm font-medium text-primaryColorBlack hover:underline">
           ← Back to products
         </Link>
         <p className="text-sm text-red-600">{err}</p>
@@ -158,7 +158,7 @@ function ProductDetailInner() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-16">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/store?tab=products" className="text-sm font-medium text-gambian-blue hover:underline">
+        <Link href="/store?tab=products" className="text-sm font-medium text-primaryColorBlack hover:underline">
           ← Back to products
         </Link>
         <div className="flex flex-wrap gap-2">
@@ -192,7 +192,7 @@ function ProductDetailInner() {
       )}
 
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-gambian-blue">
+        <p className="text-xs font-semibold uppercase tracking-wide text-primaryColorBlack">
           {p.productType?.name ?? "Product"}
         </p>
         <h1 className="font-display mt-1 text-2xl font-bold text-gray-900">
@@ -264,7 +264,7 @@ function ProductDetailInner() {
               type="button"
               disabled={galleryBusy || !token}
               onClick={() => galleryInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-xl bg-gambian-blue px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-gambian-blue/90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-primaryColorBlack px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-primaryColorBlack/90 disabled:opacity-50"
             >
               {galleryBusy ? (
                 <i className="fas fa-circle-notch fa-spin" aria-hidden />

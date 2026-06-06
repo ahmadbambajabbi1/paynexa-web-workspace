@@ -53,7 +53,7 @@ export default function HomePage() {
                     </Link>
                     <Link
                       href="/login"
-                      className="flex items-center justify-center space-x-2 rounded-full border-2 border-gray-200 bg-white px-8 py-4 text-lg font-semibold text-gray-800 transition hover:border-gambian-blue hover:text-gambian-blue"
+                      className="flex items-center justify-center space-x-2 rounded-full border-2 border-gray-200 bg-white px-8 py-4 text-lg font-semibold text-gray-800 transition hover:border-primaryColorBlack hover:text-primaryColorBlack"
                     >
                       <i className="fas fa-sign-in-alt" />
                       <span>Sign in</span>
@@ -62,7 +62,7 @@ export default function HomePage() {
                 )}
                 <Link
                   href="/marketplace"
-                  className="flex items-center justify-center space-x-2 rounded-full border-2 border-gray-200 bg-white/80 px-8 py-4 text-lg font-semibold text-gray-800 backdrop-blur-sm transition hover:border-gambian-blue hover:text-gambian-blue"
+                  className="flex items-center justify-center space-x-2 rounded-full border-2 border-gray-200 bg-white/80 px-8 py-4 text-lg font-semibold text-gray-800 backdrop-blur-sm transition hover:border-primaryColorBlack hover:text-primaryColorBlack"
                 >
                   <i className="fas fa-search" />
                   <span>Browse marketplace</span>
@@ -71,7 +71,7 @@ export default function HomePage() {
             </div>
 
             <div className="relative">
-              <div className="absolute inset-0 rotate-3 rounded-3xl bg-linear-to-r from-gambian-blue/20 to-gambian-green/20" />
+              <div className="absolute inset-0 rotate-3 rounded-3xl bg-linear-to-r from-primaryColorBlack/20 to-gambian-green/20" />
               <div className="relative rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl sm:p-8">
                 <div className="mb-6 flex items-center justify-between">
                   <h3 className="font-display text-lg font-bold text-gray-900">
@@ -94,7 +94,7 @@ export default function HomePage() {
                         <p className="text-sm text-gray-500">From your dashboard</p>
                       </div>
                     </div>
-                    <span className="font-bold text-gambian-blue">API</span>
+                    <span className="font-bold text-primaryColorBlack">API</span>
                   </div>
                   <div className="relative">
                     <div className="mb-2 flex justify-between text-xs text-gray-500">
@@ -103,14 +103,14 @@ export default function HomePage() {
                       <span>Done</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                      <div className="relative h-full w-2/3 rounded-full bg-linear-to-r from-gambian-blue to-gambian-green">
+                      <div className="relative h-full w-2/3 rounded-full bg-linear-to-r from-primaryColorBlack to-gambian-green">
                         <div className="absolute bottom-0 right-0 top-0 w-2 animate-pulse bg-white/50" />
                       </div>
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-3 gap-3">
                     <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-center">
-                      <i className="fas fa-user-shield mb-1 text-gambian-blue" />
+                      <i className="fas fa-user-shield mb-1 text-primaryColorBlack" />
                       <p className="text-xs font-medium text-gray-700">Verified</p>
                     </div>
                     <div className="rounded-lg border border-yellow-100 bg-yellow-50 p-3 text-center">

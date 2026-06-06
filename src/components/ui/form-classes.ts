@@ -4,7 +4,7 @@ export const fieldLabel =
 
 export const fieldInput =
   "w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 " +
-  "focus:ring-2 focus:ring-gambian-blue focus:border-transparent outline-none transition shadow-sm";
+  "focus:ring-2 focus:ring-primaryColorBlack focus:border-transparent outline-none transition shadow-sm";
 
 /** Chevron via `.field-select-chevron` in globals.css (avoids Tailwind arbitrary url() issues). */
 export const fieldSelect = `${fieldInput} !pr-9 field-select-chevron appearance-none`;

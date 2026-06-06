@@ -146,7 +146,7 @@ function EditProductInner() {
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <i className="fas fa-circle-notch fa-spin text-3xl text-gambian-blue" aria-hidden />
+        <i className="fas fa-circle-notch fa-spin text-3xl text-primaryColorBlack" aria-hidden />
       </div>
     );
   }
@@ -154,7 +154,7 @@ function EditProductInner() {
   if (loadErr || !row) {
     return (
       <div className="space-y-4">
-        <Link href="/store?tab=products" className="text-sm font-medium text-gambian-blue hover:underline">
+        <Link href="/store?tab=products" className="text-sm font-medium text-primaryColorBlack hover:underline">
           ← Back to products
         </Link>
         <p className="text-sm text-red-600">{loadErr ?? "Not found."}</p>
@@ -167,7 +167,7 @@ function EditProductInner() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link
           href={`/products/${id}`}
-          className="text-sm font-medium text-gambian-blue hover:underline"
+          className="text-sm font-medium text-primaryColorBlack hover:underline"
         >
           ← Back to listing
         </Link>
@@ -177,12 +177,12 @@ function EditProductInner() {
         <h1 className="font-display text-2xl font-bold text-gray-900">Edit details</h1>
         <p className="mt-2 text-sm text-gray-600">
           Description and typed fields only. Change photos on the{" "}
-          <Link href={`/products/${id}`} className="font-medium text-gambian-blue hover:underline">
+          <Link href={`/products/${id}`} className="font-medium text-primaryColorBlack hover:underline">
             product page
           </Link>
           .
         </p>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-gambian-blue">
+        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-primaryColorBlack">
           {row.productType?.name}
         </p>
 
@@ -247,7 +247,7 @@ function EditProductInner() {
                     >
                       <input
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-gambian-blue focus:ring-gambian-blue"
+                        className="h-4 w-4 rounded border-gray-300 text-primaryColorBlack focus:ring-primaryColorBlack"
                         checked={Boolean(attributes[d.name])}
                         onChange={(e) => setAttr(d.name, e.target.checked)}
                       />
@@ -385,7 +385,7 @@ function EditProductInner() {
             <button
               type="submit"
               disabled={submitting || !description.trim() || !price.trim()}
-              className="rounded-xl bg-gambian-blue px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-gambian-blue/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-primaryColorBlack px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primaryColorBlack/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Saving…" : "Save details"}
             </button>

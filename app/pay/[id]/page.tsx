@@ -1,21 +1,3 @@
-// "use client";
-
-// import Link from "next/link";
-// import { useParams, useRouter } from "next/navigation";
-// import { useEffect, useMemo, useState } from "react";
-// import { SiteHeader } from "@/src/components/SiteHeader";
-// import { TransactionPaymentPanel } from "@/src/components/TransactionPaymentPanel";
-// import { CURRENCY_PREFIX } from "@/src/config/constants";
-// import * as txApi from "@/src/lib/api/transactions";
-// import { errorMessage } from "@/src/lib/api/errors";
-// import { useAuth } from "@/src/lib/auth/auth-context";
-// import { isProfileComplete } from "@/src/lib/auth/profile";
-
-// type PublicSummary = Awaited<ReturnType<typeof txApi.getPublicTransactionSummary>>;
-
-// export default function PayTransactionPage() {
-//   ...all original commented code preserved...
-// }
 "use client";
 
 import Link from "next/link";
@@ -23,11 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/src/components/SiteHeader";
 import { TransactionPaymentPanel } from "@/src/components/TransactionPaymentPanel";
-import { CURRENCY_PREFIX } from "@/src/config/constants";
 import * as txApi from "@/src/lib/api/transactions";
+import * as escrowApi from "@/src/lib/api/escrow";
 import { errorMessage } from "@/src/lib/api/errors";
 import { useAuth } from "@/src/lib/auth/auth-context";
 import { isProfileComplete } from "@/src/lib/auth/profile";
+import { formatMoney } from "@/src/lib/currency";
 
 type PublicSummary = Awaited<ReturnType<typeof txApi.getPublicTransactionSummary>>;
 
@@ -38,6 +21,7 @@ export default function PayTransactionPage() {
   const { user, token, loading } = useAuth();
   const [summary, setSummary] = useState<PublicSummary | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [walletCurrency, setWalletCurrency] = useState<string | null>(null);
 
   const returnPath = `/pay/${encodeURIComponent(ref)}`;
   const loginHref = `/login?next=${encodeURIComponent(returnPath)}`;
@@ -65,6 +49,25 @@ export default function PayTransactionPage() {
       cancelled = true;
     };
   }, [ref]);
+
+  useEffect(() => {
+    if (!token) {
+      setWalletCurrency(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const wallet = await escrowApi.getWallet(token);
+        if (!cancelled) setWalletCurrency(wallet.currency ?? null);
+      } catch {
+        if (!cancelled) setWalletCurrency(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   useEffect(() => {
     if (!ref || typeof window === "undefined") return;
@@ -99,7 +102,7 @@ export default function PayTransactionPage() {
       {/* ── Page body ── */}
       <main className="flex-1 px-4 py-10 sm:px-6">
         {/* ── Hero band — sits below header, no overlap ── */}
-        <div className="relative overflow-hidden bg-gambian-blue">
+        <div className="relative overflow-hidden bg-primaryColorBlack">
           {/* Decorative blobs — purely visual, pointer-events none */}
           <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
           <div className="pointer-events-none absolute -left-16 bottom-0 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
@@ -138,7 +141,7 @@ export default function PayTransactionPage() {
                 <div className="shrink-0 rounded-2xl border border-white/15 bg-white/10 px-6 py-4">
                   <p className="text-xs font-bold uppercase tracking-widest text-white/50">Total</p>
                   <p className="mt-1 text-3xl font-black tracking-tight text-white">
-                    {CURRENCY_PREFIX}{summary.totalBuyerPays}
+                    {formatMoney(summary.totalBuyerPays, walletCurrency)}
                   </p>
                 </div>
               )}
@@ -165,7 +168,7 @@ export default function PayTransactionPage() {
           )}
 
           {!summary && !err && (
-            <div className="mb-6 rounded-2xl border border-gambian-blue/10 bg-white px-6 py-10 text-center text-sm font-medium text-gambian-blue/50">
+            <div className="mb-6 rounded-2xl border border-primaryColorBlack/10 bg-white px-6 py-10 text-center text-sm font-medium text-primaryColorBlack/50">
               Loading transaction…
             </div>
           )}
@@ -177,35 +180,35 @@ export default function PayTransactionPage() {
               <section className="flex flex-col gap-5 min-w-0">
 
                 {/* Order summary table */}
-                <div className="overflow-hidden rounded-2xl border border-gambian-blue/10 bg-white shadow-sm">
-                  <div className="border-b border-gambian-blue/10 bg-white px-6 py-4">
-                    <p className="text-xs font-bold uppercase tracking-widest text-gambian-blue/50">
+                <div className="overflow-hidden rounded-2xl border border-primaryColorBlack/10 bg-white shadow-sm">
+                  <div className="border-b border-primaryColorBlack/10 bg-white px-6 py-4">
+                    <p className="text-xs font-bold uppercase tracking-widest text-primaryColorBlack/50">
                       Order Summary
                     </p>
                   </div>
-                  <div className="divide-y divide-gambian-blue/5">
+                  <div className="divide-y divide-primaryColorBlack/5">
                     <LineItem label="Seller" value={summary.seller} />
                     <LineItem label="Status" value={formatPublicStatus(summary.status)} highlight />
                     <LineItem label="Quantity" value={String(summary.quantity ?? 1)} />
-                    <LineItem label="Unit price" value={`${CURRENCY_PREFIX}${summary.unitPrice}`} />
-                    <LineItem label="Subtotal" value={`${CURRENCY_PREFIX}${summary.amount}`} />
+                    <LineItem label="Unit price" value={formatMoney(summary.unitPrice, walletCurrency)} />
+                    <LineItem label="Subtotal" value={formatMoney(summary.amount, walletCurrency)} />
                   </div>
                   {/* Total row */}
-                  <div className="flex items-center justify-between border-t-2 border-gambian-blue/10 bg-white px-6 py-5">
-                    <p className="text-sm font-bold uppercase tracking-widest text-gambian-blue/50">Total</p>
-                    <p className="text-2xl font-black text-gambian-blue">
-                      {CURRENCY_PREFIX}{summary.totalBuyerPays}
+                  <div className="flex items-center justify-between border-t-2 border-primaryColorBlack/10 bg-white px-6 py-5">
+                    <p className="text-sm font-bold uppercase tracking-widest text-primaryColorBlack/50">Total</p>
+                    <p className="text-2xl font-black text-primaryColorBlack">
+                      {formatMoney(summary.totalBuyerPays, walletCurrency)}
                     </p>
                   </div>
                 </div>
 
                 {/* Item description */}
                 {summary.itemDescription && (
-                  <div className="rounded-2xl border border-gambian-blue/10 bg-white p-6 shadow-sm">
-                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gambian-blue/50">
+                  <div className="rounded-2xl border border-primaryColorBlack/10 bg-white p-6 shadow-sm">
+                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-primaryColorBlack/50">
                       Item Details
                     </p>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-gambian-blue/80">
+                    <p className="whitespace-pre-line text-sm leading-relaxed text-primaryColorBlack/80">
                       {summary.itemDescription}
                     </p>
                   </div>
@@ -213,25 +216,25 @@ export default function PayTransactionPage() {
 
                 {/* Seller note */}
                 {summary.sellerNote && (
-                  <div className="rounded-2xl border border-gambian-blue/10 bg-gambian-blue/5 p-6">
+                  <div className="rounded-2xl border border-primaryColorBlack/10 bg-primaryColorBlack/5 p-6">
                     <div className="mb-3 flex items-center gap-2">
-                      <i className="fas fa-sticky-note text-xs text-gambian-blue/40" />
-                      <p className="text-xs font-bold uppercase tracking-widest text-gambian-blue/50">
+                      <i className="fas fa-sticky-note text-xs text-primaryColorBlack/40" />
+                      <p className="text-xs font-bold uppercase tracking-widest text-primaryColorBlack/50">
                         Seller Note
                       </p>
                     </div>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-gambian-blue/80">
+                    <p className="whitespace-pre-line text-sm leading-relaxed text-primaryColorBlack/80">
                       {summary.sellerNote}
                     </p>
                   </div>
                 )}
 
                 {/* Session protection notice */}
-                <div className="flex items-start gap-4 rounded-2xl border border-gambian-blue/10 bg-gambian-blue/5 px-5 py-4">
-                  <i className="fas fa-shield-alt mt-0.5 text-gambian-blue/50" />
+                <div className="flex items-start gap-4 rounded-2xl border border-primaryColorBlack/10 bg-primaryColorBlack/5 px-5 py-4">
+                  <i className="fas fa-shield-alt mt-0.5 text-primaryColorBlack/50" />
                   <div>
-                    <p className="text-xs font-bold text-gambian-blue">Session Protected</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gambian-blue/60">
+                    <p className="text-xs font-bold text-primaryColorBlack">Session Protected</p>
+                    <p className="mt-1 text-xs leading-relaxed text-primaryColorBlack/60">
                       Login, wallet funding, refreshes, and app handoff all return to this same transaction automatically.
                     </p>
                   </div>
@@ -241,27 +244,27 @@ export default function PayTransactionPage() {
 
             {/* ── Right: action sidebar ── */}
             <aside className="min-w-0">
-              <div className="sticky top-6 overflow-hidden rounded-2xl border border-gambian-blue/10 bg-white shadow-sm">
+              <div className="sticky top-6 overflow-hidden rounded-2xl border border-primaryColorBlack/10 bg-white shadow-sm">
 
-                <div className="border-b border-gambian-blue/10 bg-white px-6 py-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gambian-blue/50">Next Step</p>
+                <div className="border-b border-primaryColorBlack/10 bg-white px-6 py-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-primaryColorBlack/50">Next Step</p>
                 </div>
 
                 <div className="p-6">
                   {loading ? (
-                    <p className="text-sm font-medium text-gambian-blue/50">Checking session…</p>
+                    <p className="text-sm font-medium text-primaryColorBlack/50">Checking session…</p>
 
                   ) : !user || !token ? (
                     <div className="space-y-4">
-                      <h2 className="text-xl font-extrabold tracking-tight text-gambian-blue">
+                      <h2 className="text-xl font-extrabold tracking-tight text-primaryColorBlack">
                         Log in to continue
                       </h2>
-                      <p className="text-sm leading-relaxed text-gambian-blue/70">
+                      <p className="text-sm leading-relaxed text-primaryColorBlack/70">
                         You will return to this transaction after login.
                       </p>
                       <Link
                         href={loginHref}
-                        className="block w-full rounded-xl bg-gambian-blue py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
+                        className="block w-full rounded-xl bg-primaryColorBlack py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
                       >
                         Login or sign up
                       </Link>
@@ -269,15 +272,15 @@ export default function PayTransactionPage() {
 
                   ) : !isProfileComplete(user) ? (
                     <div className="space-y-4">
-                      <h2 className="text-xl font-extrabold tracking-tight text-gambian-blue">
+                      <h2 className="text-xl font-extrabold tracking-tight text-primaryColorBlack">
                         Complete profile
                       </h2>
-                      <p className="text-sm leading-relaxed text-gambian-blue/70">
+                      <p className="text-sm leading-relaxed text-primaryColorBlack/70">
                         Finish profile setup, then you will return here.
                       </p>
                       <Link
                         href={profileHref}
-                        className="block w-full rounded-xl bg-gambian-blue py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
+                        className="block w-full rounded-xl bg-primaryColorBlack py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
                       >
                         Continue profile
                       </Link>
@@ -285,16 +288,16 @@ export default function PayTransactionPage() {
 
                   ) : isSeller ? (
                     <div className="space-y-4">
-                      <h2 className="text-xl font-extrabold tracking-tight text-gambian-blue">
+                      <h2 className="text-xl font-extrabold tracking-tight text-primaryColorBlack">
                         Seller view
                       </h2>
-                      <p className="text-sm leading-relaxed text-gambian-blue/70">
+                      <p className="text-sm leading-relaxed text-primaryColorBlack/70">
                         Share this link with buyers or track it in your transaction room.
                       </p>
                       {summary && (
                         <Link
                           href={`/transactions/${summary.id}`}
-                          className="block w-full rounded-xl bg-gambian-blue py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
+                          className="block w-full rounded-xl bg-primaryColorBlack py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
                         >
                           View transaction room
                         </Link>
@@ -302,21 +305,21 @@ export default function PayTransactionPage() {
                     </div>
 
                   ) : isAssignedOtherBuyer ? (
-                    <p className="rounded-xl border border-gambian-blue/10 bg-gambian-blue/5 px-4 py-4 text-sm font-semibold text-gambian-blue">
+                    <p className="rounded-xl border border-primaryColorBlack/10 bg-primaryColorBlack/5 px-4 py-4 text-sm font-semibold text-primaryColorBlack">
                       This transaction is already assigned to another buyer.
                     </p>
 
                   ) : isDone && summary ? (
                     <div className="space-y-4">
-                      <h2 className="text-xl font-extrabold tracking-tight text-gambian-blue">
+                      <h2 className="text-xl font-extrabold tracking-tight text-primaryColorBlack">
                         Payment recorded
                       </h2>
-                      <p className="text-sm leading-relaxed text-gambian-blue/70">
+                      <p className="text-sm leading-relaxed text-primaryColorBlack/70">
                         Continue tracking this transaction until it is completed.
                       </p>
                       <Link
                         href={`/transactions/${summary.id}`}
-                        className="block w-full rounded-xl bg-gambian-blue py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
+                        className="block w-full rounded-xl bg-primaryColorBlack py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90"
                       >
                         Open transaction room
                       </Link>
@@ -327,6 +330,7 @@ export default function PayTransactionPage() {
                       token={token}
                       transactionId={summary.id}
                       amount={summary.totalBuyerPays}
+                      currency={walletCurrency}
                       onPaid={async (paidTransactionId) => {
                         await refreshSummary();
                         router.push(`/transactions/${paidTransactionId}`);
@@ -336,13 +340,13 @@ export default function PayTransactionPage() {
                 </div>
 
                 {/* Bottom trust strip */}
-                <div className="border-t border-gambian-blue/10 bg-white px-6 py-4">
-                  <div className="flex items-center justify-center gap-4 text-xs text-gambian-blue/40">
+                <div className="border-t border-primaryColorBlack/10 bg-white px-6 py-4">
+                  <div className="flex items-center justify-center gap-4 text-xs text-primaryColorBlack/40">
                     <span className="flex items-center gap-1.5">
                       <i className="fas fa-lock" />
                       Encrypted
                     </span>
-                    <span className="h-3 w-px bg-gambian-blue/10" />
+                    <span className="h-3 w-px bg-primaryColorBlack/10" />
                     <span className="flex items-center gap-1.5">
                       <i className="fas fa-shield-alt" />
                       Escrow guaranteed
@@ -372,11 +376,11 @@ function LineItem({
 }) {
   return (
     <div className="flex items-center justify-between px-6 py-4">
-      <p className="text-xs font-bold uppercase tracking-widest text-gambian-blue/40">{label}</p>
+      <p className="text-xs font-bold uppercase tracking-widest text-primaryColorBlack/40">{label}</p>
       <p
         className={`text-sm font-bold ${highlight
-          ? "rounded-full bg-gambian-blue/10 px-3 py-1 text-gambian-blue"
-          : "text-gambian-blue/80"
+          ? "rounded-full bg-primaryColorBlack/10 px-3 py-1 text-primaryColorBlack"
+          : "text-primaryColorBlack/80"
           }`}
       >
         {value}

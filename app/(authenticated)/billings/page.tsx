@@ -1,811 +1,10 @@
-// "use client";
-
-// import { RequireAuth } from "@/src/components/auth/RequireAuth";
-// import { cardPanel, fieldInput, fieldLabel } from "@/src/components/ui/form-classes";
-// import { CURRENCY_PREFIX } from "@/src/config/constants";
-// import { useAuth } from "@/src/lib/auth/auth-context";
-// import * as escrowApi from "@/src/lib/api/escrow";
-// import { loadStripe } from "@stripe/stripe-js";
-// import Link from "next/link";
-// import { useSearchParams } from "next/navigation";
-// import { useCallback, useEffect, useMemo, useState } from "react";
-
-// function publicErrorMessage(value: unknown): string {
-//   const raw = value instanceof Error ? value.message : String(value ?? "");
-//   const lowered = raw.toLowerCase();
-//   if (
-//     lowered.includes("secret") ||
-//     lowered.includes("token") ||
-//     lowered.includes("apikey") ||
-//     lowered.includes("database_url")
-//   ) {
-//     return "Payment request failed. Please try again.";
-//   }
-//   return raw || "Payment request failed. Please try again.";
-// }
-
-// export default function BillingsPage() {
-//   return (
-//     <RequireAuth requireProfileComplete>
-//       <BillingsInner />
-//     </RequireAuth>
-//   );
-// }
-
-// function BillingsInner() {
-//   const { token } = useAuth();
-//   const searchParams = useSearchParams();
-//   const [loading, setLoading] = useState(true);
-//   const [balance, setBalance] = useState("0");
-//   const [methods, setMethods] = useState<escrowApi.PaymentMethodSummary[]>([]);
-//   const [transfers, setTransfers] = useState<escrowApi.WalletTransferSummary[]>([]);
-//   const [error, setError] = useState<string | null>(null);
-//   const [stripeKey, setStripeKey] = useState<string>("");
-
-//   const [depositOpen, setDepositOpen] = useState(false);
-//   const [depositAmount, setDepositAmount] = useState("100");
-//   const [depositSource, setDepositSource] = useState<"card" | "mobile">("card");
-//   const [depositPaymentMethodId, setDepositPaymentMethodId] = useState<string>("");
-//   const [pendingModernPayTransferId, setPendingModernPayTransferId] = useState<string>("");
-//   const [requestId, setRequestId] = useState<string>("");
-//   const [redirectHandled, setRedirectHandled] = useState(false);
-//   const [activeTab, setActiveTab] = useState<"overview" | "transactions">("overview");
-
-//   const [payoutOpen, setPayoutOpen] = useState(false);
-//   const [payoutAmount, setPayoutAmount] = useState("50");
-
-//   const [mmOpen, setMmOpen] = useState(false);
-//   const [mmMsisdn, setMmMsisdn] = useState("+220");
-
-
-//   const stripePromise = useMemo(() => {
-//     if (!stripeKey) return null;
-//     return loadStripe(stripeKey);
-//   }, [stripeKey]);
-
-//   const refresh = useCallback(async () => {
-//     if (!token) return;
-//     setLoading(true);
-//     setError(null);
-//     try {
-//       const cfg = await escrowApi.getEscrowConfig(token);
-//       setStripeKey(cfg.stripePublishableKey?.trim() ?? "");
-//       const w = await escrowApi.getWallet(token);
-//       const m = await escrowApi.listPaymentMethods(token);
-//       const t = await escrowApi.getWalletTransfers(token, 20);
-//       setBalance(w.balance ?? "0");
-//       setMethods(m.methods ?? []);
-//       setTransfers(t.transfers ?? []);
-//     } catch (e) {
-//       setError(publicErrorMessage(e));
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [token]);
-
-//   useEffect(() => {
-//     void refresh();
-//   }, [refresh]);
-
-//   async function addMobileMoney() {
-//     if (!token) return;
-//     setMmOpen(true);
-//   }
-
-//   async function addFundsStripe() {
-//     if (!token) return;
-//     if (!stripePromise) {
-//       setError("Stripe is not configured (missing STRIPE_PUBLISHABLE_KEY on backend)");
-//       return;
-//     }
-//     setDepositSource("card");
-//     setRequestId("");
-//     setDepositOpen(true);
-//   }
-
-//   async function submitDeposit() {
-//     if (!token) return;
-//     setError(null);
-//     const amount = Number(depositAmount);
-//     if (!Number.isFinite(amount) || amount <= 0) {
-//       setError("Invalid amount");
-//       return;
-//     }
-//     try {
-//       if (depositSource === "mobile") {
-//         const res = await escrowApi.createModernPayDepositIntent(token, {
-//           amount,
-//           clientRequestId: requestId || undefined,
-//         });
-//         setPendingModernPayTransferId(res.transferId);
-//         window.open(res.checkoutUrl, "_blank", "noopener,noreferrer");
-//         return;
-//       }
-
-//       if (!depositPaymentMethodId) {
-//         setError("Select a card payment method first");
-//         return;
-//       }
-//       const selectedCard = methods.find((m) => m.id === depositPaymentMethodId);
-//       if (!selectedCard?.stripePaymentMethodId) {
-//         setError("Selected card is invalid. Re-add card and try again.");
-//         return;
-//       }
-//       const stripe = await stripePromise;
-//       if (!stripe) {
-//         setError("Card checkout is unavailable");
-//         return;
-//       }
-//       const res = await escrowApi.createStripeDepositIntent(token, {
-//         amount,
-//         paymentMethodId: depositPaymentMethodId,
-//         clientRequestId: requestId || undefined,
-//       });
-//       const { clientSecret } = res;
-//       const confirm = await stripe.confirmCardPayment(
-//         clientSecret,
-//         {
-//           payment_method: selectedCard.stripePaymentMethodId,
-//         },
-//       );
-//       if (confirm.error) {
-//         setError(confirm.error.message ?? "Card confirmation failed");
-//         return;
-//       }
-//       if (confirm.paymentIntent?.status !== "succeeded" && confirm.paymentIntent?.status !== "processing") {
-//         setError("Card payment is still pending");
-//         return;
-//       }
-//       setDepositOpen(false);
-//       setPendingModernPayTransferId("");
-//       setRequestId("");
-//       await refresh();
-//     } catch (e) {
-//       setError(publicErrorMessage(e));
-//     }
-//   }
-
-//   useEffect(() => {
-//     if (!depositOpen) return;
-//     if (!requestId) {
-//       setRequestId(crypto.randomUUID());
-//     }
-//   }, [depositOpen, requestId]);
-
-//   useEffect(() => {
-//     if (!token || redirectHandled) return;
-//     const depositState = searchParams.get("deposit");
-//     if (!depositState) return;
-//     setRedirectHandled(true);
-//     if (depositState === "cancel") {
-//       setError("Payment was cancelled.");
-//       window.history.replaceState({}, "", "/billings");
-//       return;
-//     }
-//     if (depositState !== "success") return;
-
-//     void (async () => {
-//       try {
-//         const list = await escrowApi.getWalletTransfers(token, 20);
-//         const candidate = (list.transfers ?? []).find(
-//           (t) =>
-//             t.kind === "DEPOSIT" &&
-//             t.provider === "MODERNPAY" &&
-//             (t.status === "REQUIRES_ACTION" || t.status === "PROCESSING"),
-//         );
-//         if (!candidate) {
-//           await refresh();
-//           window.history.replaceState({}, "", "/billings");
-//           return;
-//         }
-//         const res = await escrowApi.confirmModernPayDeposit(token, {
-//           transferId: candidate.id,
-//         });
-//         if (res.status === "SUCCEEDED") {
-//           setError(null);
-//         } else if (res.status === "FAILED" || res.status === "CANCELED") {
-//           setError("Mobile wallet payment did not complete.");
-//         } else {
-//           setError("Payment is still processing. It will update shortly.");
-//         }
-//         await refresh();
-//       } catch (e) {
-//         setError(publicErrorMessage(e));
-//       } finally {
-//         window.history.replaceState({}, "", "/billings");
-//       }
-//     })();
-//   }, [redirectHandled, refresh, searchParams, token]);
-
-//   useEffect(() => {
-//     const cardState = searchParams.get("card");
-//     if (cardState === "added") {
-//       setError(null);
-//       void refresh();
-//       window.history.replaceState({}, "", "/billings");
-//     }
-//   }, [refresh, searchParams]);
-
-//   async function confirmMobileDeposit() {
-//     if (!token || !pendingModernPayTransferId) return;
-//     setError(null);
-//     try {
-//       const res = await escrowApi.confirmModernPayDeposit(token, {
-//         transferId: pendingModernPayTransferId,
-//       });
-//       if (res.status === "SUCCEEDED") {
-//         setDepositOpen(false);
-//         setPendingModernPayTransferId("");
-//         await refresh();
-//         return;
-//       }
-//       if (res.status === "FAILED" || res.status === "CANCELED") {
-//         setError("Mobile wallet payment was not successful.");
-//         return;
-//       }
-//       setError("Payment is still processing. Try confirm again in a moment.");
-//     } catch (e) {
-//       setError(publicErrorMessage(e));
-//     }
-//   }
-
-//   async function requestPayout() {
-//     if (!token) return;
-//     setPayoutOpen(true);
-//   }
-
-//   async function submitPayout() {
-//     if (!token) return;
-//     setError(null);
-//     const amount = Number(payoutAmount);
-//     if (!Number.isFinite(amount) || amount <= 0) {
-//       setError("Invalid amount");
-//       return;
-//     }
-//     try {
-//       await escrowApi.requestPayout(token, {
-//         amount,
-//         provider: "MODERNPAY",
-//         providerPayload: { note: "MVP: payout execution not wired yet" },
-//       });
-//       setPayoutOpen(false);
-//       await refresh();
-//     } catch (e) {
-//       setError(publicErrorMessage(e));
-//     }
-//   }
-
-//   async function submitMobileMoney() {
-//     if (!token) return;
-//     setError(null);
-//     const msisdn = mmMsisdn.trim();
-//     if (!msisdn) {
-//       setError("MSISDN is required");
-//       return;
-//     }
-//     try {
-//       await escrowApi.addModernPayMobileMoneyMethod(token, { msisdn });
-//       setMmOpen(false);
-//       await refresh();
-//     } catch (e) {
-//       setError(publicErrorMessage(e));
-//     }
-//   }
-
-//   return (
-//     <>
-//       <div className="mb-8">
-//         <h1 className="font-display text-4xl font-bold text-gray-900">
-//           Wallet & Billing
-//         </h1>
-//         <p className="mt-2 text-base text-gray-600">
-//           Manage your wallet, payment methods, and transactions
-//         </p>
-//       </div>
-
-//       <div className="mb-6 inline-flex rounded-xl border border-gray-200 bg-white p-1">
-//         <button
-//           type="button"
-//           onClick={() => setActiveTab("overview")}
-//           className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-//             activeTab === "overview"
-//               ? "bg-gambian-blue text-white"
-//               : "text-gray-700 hover:bg-gray-50"
-//           }`}
-//         >
-//           Overview
-//         </button>
-//         <button
-//           type="button"
-//           onClick={() => setActiveTab("transactions")}
-//           className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-//             activeTab === "transactions"
-//               ? "bg-gambian-blue text-white"
-//               : "text-gray-700 hover:bg-gray-50"
-//           }`}
-//         >
-//           Transaction history
-//         </button>
-//       </div>
-
-//       {error ? (
-//         <div className="mb-6 rounded-xl border-l-4 border-red-500 bg-red-50 px-5 py-4 flex items-start gap-3 shadow-sm">
-//           <svg
-//             className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5"
-//             fill="none"
-//             stroke="currentColor"
-//             viewBox="0 0 24 24"
-//           >
-//             <path
-//               strokeLinecap="round"
-//               strokeLinejoin="round"
-//               strokeWidth={2}
-//               d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-//             />
-//           </svg>
-//           <p className="text-sm font-medium text-red-800">{error}</p>
-//         </div>
-//       ) : null}
-
-//       {activeTab === "overview" ? (
-//         <>
-//       {/* Wallet Balance Card */}
-//       <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-gambian-blue via-gambian-blue/95 to-blue-900 shadow-2xl">
-//         <div className="absolute inset-0 bg-gradient-to-t from-gambian-blue/20 via-transparent to-transparent pointer-events-none"></div>
-        
-//         <div className="relative p-8 sm:p-10">
-//           <div className="flex flex-col gap-8">
-//             {/* Balance Section */}
-//             <div>
-//               <p className="text-sm font-semibold text-white/70 uppercase tracking-wide">Your Balance</p>
-//               <p className="mt-3 font-display text-5xl sm:text-6xl font-bold text-white">
-//                 {CURRENCY_PREFIX}<span className="ml-2">{balance}</span>
-//               </p>
-//               <p className="mt-2 text-sm text-white/60">Immediately available for transactions</p>
-//             </div>
-
-//             {/* Action Buttons */}
-//             <div className="flex flex-wrap gap-3">
-//               <button
-//                 type="button"
-//                 disabled={loading}
-//                 onClick={() => void addFundsStripe()}
-//                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gambian-gold via-amber-300 to-yellow-400 px-6 py-3 font-bold text-amber-950 shadow-lg transition hover:shadow-2xl hover:scale-105 disabled:opacity-50 active:scale-95"
-//               >
-//                 <svg
-//                   className="h-5 w-5"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                 >
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth={2}
-//                     d="M12 4v16m8-8H4"
-//                   />
-//                 </svg>
-//                 Add Funds
-//               </button>
-//               <button
-//                 type="button"
-//                 disabled={loading}
-//                 onClick={() => void requestPayout()}
-//                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-gambian-blue shadow-lg transition hover:shadow-2xl hover:scale-105 disabled:opacity-50 active:scale-95"
-//               >
-//                 <svg
-//                   className="h-5 w-5"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                 >
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth={2}
-//                     d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8m-8 4v4m0 0H8m4 0h4"
-//                   />
-//                 </svg>
-//                 Withdraw
-//               </button>
-//               <button
-//                 type="button"
-//                 disabled={loading}
-//                 onClick={() => void refresh()}
-//                 className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 font-bold text-white transition hover:bg-white/20 hover:border-white/50 disabled:opacity-50 active:scale-95"
-//               >
-//                 <svg
-//                   className="h-5 w-5"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                 >
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth={2}
-//                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-//                   />
-//                 </svg>
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Payment Methods Section */}
-//       <div>
-//         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-//           <div>
-//             <h2 className="font-display text-3xl font-bold text-gray-900">
-//               Payment Methods
-//             </h2>
-//             <p className="mt-2 text-base text-gray-600">
-//               Add and manage your cards and mobile money accounts
-//             </p>
-//           </div>
-//           <div className="flex flex-wrap gap-2">
-//             <Link
-//               href="/billings/add-card"
-//               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gambian-blue px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-gambian-blue/90 hover:shadow-lg disabled:opacity-60 active:scale-95"
-//             >
-//               <svg
-//                 className="h-5 w-5"
-//                 fill="none"
-//                 stroke="currentColor"
-//                 viewBox="0 0 24 24"
-//               >
-//                 <path
-//                   strokeLinecap="round"
-//                   strokeLinejoin="round"
-//                   strokeWidth={2}
-//                   d="M12 4v16m8-8H4"
-//                 />
-//               </svg>
-//               Add Card
-//             </Link>
-//             <button
-//               type="button"
-//               disabled={loading}
-//               onClick={() => void addMobileMoney()}
-//               className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gambian-green bg-gambian-green/5 px-5 py-3 text-sm font-bold text-gambian-green shadow-sm transition hover:bg-gambian-green/10 hover:shadow-md disabled:opacity-60 active:scale-95"
-//             >
-//               <svg
-//                 className="h-5 w-5"
-//                 fill="none"
-//                 stroke="currentColor"
-//                 viewBox="0 0 24 24"
-//               >
-//                 <path
-//                   strokeLinecap="round"
-//                   strokeLinejoin="round"
-//                   strokeWidth={2}
-//                   d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-//                 />
-//               </svg>
-//               Add Mobile
-//             </button>
-//           </div>
-//         </div>
-
-//         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-//           {methods.length === 0 ? (
-//             <div className="col-span-full rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/50 px-8 py-16 text-center">
-//               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-200">
-//                 <svg
-//                   className="h-8 w-8 text-gray-600"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                 >
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth={1.5}
-//                     d="M3 10h18M7 15h10M3 20h18"
-//                   />
-//                 </svg>
-//               </div>
-//               <p className="font-semibold text-gray-900">No payment methods yet</p>
-//               <p className="mt-2 text-sm text-gray-600">
-//                 Add a card or mobile money account to enable deposits
-//               </p>
-//             </div>
-//           ) : (
-//             methods.map((m) => (
-//               <div
-//                 key={m.id}
-//                 className={`group relative overflow-hidden rounded-2xl border-2 p-6 shadow-sm transition-all hover:shadow-md ${
-//                   m.provider === "STRIPE"
-//                     ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-blue-50/20 hover:border-blue-300"
-//                     : "border-green-200 bg-gradient-to-br from-green-50/50 to-green-50/20 hover:border-green-300"
-//                 }`}
-//               >
-//                 <div className="relative flex items-start justify-between">
-//                   <div className="flex-1">
-//                     <div className="flex items-center gap-3 mb-3">
-//                       {m.provider === "STRIPE" ? (
-//                         <div className="rounded-lg bg-blue-100 p-2.5">
-//                           <svg
-//                             className="h-5 w-5 text-blue-600"
-//                             fill="none"
-//                             stroke="currentColor"
-//                             viewBox="0 0 24 24"
-//                           >
-//                             <path
-//                               strokeLinecap="round"
-//                               strokeLinejoin="round"
-//                               strokeWidth={2}
-//                               d="M3 10h18M7 15h10M3 20h18"
-//                             />
-//                           </svg>
-//                         </div>
-//                       ) : (
-//                         <div className="rounded-lg bg-green-100 p-2.5">
-//                           <svg
-//                             className="h-5 w-5 text-green-600"
-//                             fill="none"
-//                             stroke="currentColor"
-//                             viewBox="0 0 24 24"
-//                           >
-//                             <path
-//                               strokeLinecap="round"
-//                               strokeLinejoin="round"
-//                               strokeWidth={2}
-//                               d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-//                             />
-//                           </svg>
-//                         </div>
-//                       )}
-//                       <div>
-//                         <p className="font-bold text-gray-900">
-//                           {m.label ?? (m.provider === "STRIPE" ? "Card" : "Mobile Money")}
-//                         </p>
-//                         <p className="text-xs text-gray-600 mt-1">
-//                           {m.provider === "STRIPE"
-//                             ? `${m.brand ?? "Card"} •••• ${m.last4 ?? ""}`
-//                             : m.modernpayMsisdn ?? "Mobile money"}
-//                         </p>
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <span className={`flex-shrink-0 rounded-lg px-3 py-1 text-xs font-bold ${
-//                     m.provider === "STRIPE"
-//                       ? "bg-blue-100 text-blue-700"
-//                       : "bg-green-100 text-green-700"
-//                   }`}>
-//                     {m.provider === "STRIPE" ? "Card" : "Mobile"}
-//                   </span>
-//                 </div>
-//               </div>
-//             ))
-//           )}
-//         </div>
-//       </div>
-//       </>
-//       ) : (
-//         <div className="mt-2">
-//           <h2 className="font-display text-2xl font-bold text-gray-900">Recent Transactions</h2>
-//           <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white">
-//             {transfers.length === 0 ? (
-//               <div className="px-5 py-6 text-sm text-gray-600">No wallet transfers yet.</div>
-//             ) : (
-//               <div className="divide-y divide-gray-100">
-//                 {transfers.map((item) => (
-//                   <div key={item.id} className="flex items-center justify-between px-5 py-3">
-//                     <div>
-//                       <p className="text-sm font-semibold text-gray-900">
-//                         {item.kind === "DEPOSIT" ? "Deposit" : "Payout"} via {item.provider}
-//                       </p>
-//                       <p className="text-xs text-gray-500">{new Date(item.createdAt).toLocaleString()}</p>
-//                     </div>
-//                     <div className="text-right">
-//                       <p className="text-sm font-bold text-gray-900">
-//                         {CURRENCY_PREFIX}
-//                         {item.amount}
-//                       </p>
-//                       <p className="text-xs text-gray-500">{item.status}</p>
-//                     </div>
-//                   </div>
-//                 ))}
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       )}
-
-//       {depositOpen ? (
-//         <Modal
-//           title="Add funds"
-//           onClose={() => {
-//             setDepositOpen(false);
-//             setRequestId("");
-//           }}
-//           primaryLabel="Continue"
-//           onPrimary={() => void submitDeposit()}
-//         >
-//           <label className={fieldLabel}>Deposit source</label>
-//           <div className="grid grid-cols-2 gap-2">
-//             <button
-//               type="button"
-//               onClick={() => {
-//                 setDepositSource("card");
-//                 setDepositPaymentMethodId("");
-//                 setPendingModernPayTransferId("");
-//               }}
-//               className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-//                 depositSource === "card"
-//                   ? "border-gambian-blue bg-gambian-blue/10 text-gambian-blue"
-//                   : "border-gray-200 bg-white text-gray-700"
-//               }`}
-//             >
-//               Card
-//             </button>
-//             <button
-//               type="button"
-//               onClick={() => {
-//                 setDepositSource("mobile");
-//                 setDepositPaymentMethodId("");
-//               }}
-//               className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-//                 depositSource === "mobile"
-//                   ? "border-gambian-green bg-gambian-green/10 text-gambian-green"
-//                   : "border-gray-200 bg-white text-gray-700"
-//               }`}
-//             >
-//               Mobile Wallet
-//             </button>
-//           </div>
-//           {depositSource === "card" ? (
-//             <>
-//               <div className="mt-4 border-t border-gray-100 pt-4" />
-//               <label className={fieldLabel}>Payment method</label>
-//               <select
-//                 className={fieldInput}
-//                 value={depositPaymentMethodId}
-//                 onChange={(e) => setDepositPaymentMethodId(e.target.value)}
-//               >
-//                 <option value="">Select a card</option>
-//                 {methods
-//                   .filter((m) => m.provider === "STRIPE")
-//                   .map((m) => (
-//                     <option key={m.id} value={m.id}>
-//                       {(m.label ?? "Card").slice(0, 40)} {m.last4 ? `•••• ${m.last4}` : ""}
-//                     </option>
-//                   ))}
-//               </select>
-//               <div className="mt-2 text-xs text-gray-500">
-//                 Don&apos;t have a card yet? Add one from the Payment methods section.
-//               </div>
-//               <p className="mt-3 text-xs text-gray-500">
-//                 Card deposits are charged and settled in GMD only.
-//               </p>
-//             </>
-//           ) : (
-//             <p className="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-900">
-//               Enter amount and continue. Modem Pay checkout lets you choose the payment method.
-//             </p>
-//           )}
-//           <div className="mt-4 border-t border-gray-100 pt-4" />
-//           <label className={fieldLabel}>Amount (GMD)</label>
-//           <input
-//             className={fieldInput}
-//             value={depositAmount}
-//             onChange={(e) => setDepositAmount(e.target.value)}
-//             inputMode="decimal"
-//             placeholder="e.g. 250"
-//           />
-//           <p className="mt-2 text-xs text-gray-500">
-//             {depositSource === "mobile"
-//               ? "After paying in Modem Pay, click confirm below to update your wallet."
-//               : "Your wallet balance updates after payment confirmation."}
-//           </p>
-//           {depositSource === "mobile" && pendingModernPayTransferId ? (
-//             <button
-//               type="button"
-//               onClick={() => void confirmMobileDeposit()}
-//               className="mt-3 rounded-xl border border-gambian-green bg-gambian-green/10 px-4 py-2 text-sm font-semibold text-gambian-green"
-//             >
-//               I completed payment, confirm now
-//             </button>
-//           ) : null}
-//         </Modal>
-//       ) : null}
-
-//       {payoutOpen ? (
-//         <Modal
-//           title="Withdraw funds"
-//           onClose={() => setPayoutOpen(false)}
-//           primaryLabel="Request payout"
-//           onPrimary={() => void submitPayout()}
-//         >
-//           <label className={fieldLabel}>Amount (GMD)</label>
-//           <input
-//             className={fieldInput}
-//             value={payoutAmount}
-//             onChange={(e) => setPayoutAmount(e.target.value)}
-//             inputMode="decimal"
-//             placeholder="e.g. 100"
-//           />
-//           <p className="mt-2 text-xs text-gray-500">
-//             MVP: payout execution will be wired to ModernPay next.
-//           </p>
-//         </Modal>
-//       ) : null}
-
-//       {mmOpen ? (
-//         <Modal
-//           title="Add mobile money"
-//           onClose={() => setMmOpen(false)}
-//           primaryLabel="Add method"
-//           onPrimary={() => void submitMobileMoney()}
-//         >
-//           <label className={fieldLabel}>MSISDN (phone number)</label>
-//           <input
-//             className={fieldInput}
-//             value={mmMsisdn}
-//             onChange={(e) => setMmMsisdn(e.target.value)}
-//             placeholder="e.g. +220xxxxxxxx"
-//           />
-//         </Modal>
-//       ) : null}
-
-//     </>
-//   );
-// }
-
-// function Modal(props: {
-//   title: string;
-//   children: React.ReactNode;
-//   onClose: () => void;
-//   onPrimary: () => void;
-//   primaryLabel: string;
-// }) {
-//   const { title, children, onClose, onPrimary, primaryLabel } = props;
-//   return (
-//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-//       <div className={`${cardPanel} w-full max-w-lg p-6`}>
-//         <div className="flex items-start justify-between gap-3">
-//           <h2 className="font-display text-lg font-bold text-gray-900">
-//             {title}
-//           </h2>
-//           <button
-//             type="button"
-//             onClick={onClose}
-//             className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-//             aria-label="Close"
-//           >
-//             <i className="fas fa-times" aria-hidden />
-//           </button>
-//         </div>
-//         <div className="mt-4">{children}</div>
-//         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-//           <button
-//             type="button"
-//             onClick={onClose}
-//             className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-//           >
-//             Cancel
-//           </button>
-//           <button
-//             type="button"
-//             onClick={onPrimary}
-//             className="rounded-xl bg-gambian-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gambian-blue/90"
-//           >
-//             {primaryLabel}
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 "use client";
 
 import { RequireAuth } from "@/src/components/auth/RequireAuth";
 import { cardPanel, fieldInput, fieldLabel } from "@/src/components/ui/form-classes";
-import { CURRENCY_PREFIX } from "@/src/config/constants";
 import { useAuth } from "@/src/lib/auth/auth-context";
 import * as escrowApi from "@/src/lib/api/escrow";
+import { currencySymbol, formatMoney } from "@/src/lib/currency";
 import { loadStripe } from "@stripe/stripe-js";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -838,6 +37,7 @@ function BillingsInner() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState("0");
+  const [walletCurrency, setWalletCurrency] = useState<string | null>(null);
   const [methods, setMethods] = useState<escrowApi.PaymentMethodSummary[]>([]);
   const [transfers, setTransfers] = useState<escrowApi.WalletTransferSummary[]>([]);
   const [ledger, setLedger] = useState<escrowApi.WalletLedgerEntry[]>([]);
@@ -884,6 +84,7 @@ function BillingsInner() {
       ]);
       setStripeKey(cfg.stripePublishableKey?.trim() ?? "");
       setBalance(w.balance ?? "0");
+      setWalletCurrency(w.currency ?? null);
       setMethods(m.methods ?? []);
       setTransfers(t.transfers ?? []);
       setLedger(ledgerRes.entries ?? []);
@@ -1097,8 +298,12 @@ function BillingsInner() {
     };
 
     const friendlyLabel = (item: escrowApi.WalletTransferSummary): string => {
-      if (item.kind === "DEPOSIT") return "Wallet Deposit";
-      if (item.kind === "PAYOUT") return "Wallet Withdrawal";
+      if (item.kind === "DEPOSIT") {
+        return item.provider === "STRIPE"
+          ? "Deposited through card"
+          : "Deposited through mobile wallet";
+      }
+      if (item.kind === "PAYOUT") return "Withdrawn through Modem Pay";
       return item.kind;
     };
 
@@ -1197,7 +402,7 @@ function BillingsInner() {
         ) : null}
 
         {/* Main Wallet Card */}
-        <div className="mb-8 overflow-hidden rounded-2xl bg-gambian-blue shadow-xl">
+        <div className="mb-8 overflow-hidden rounded-2xl bg-primaryColorBlack shadow-xl">
           <div className="relative px-6 py-8 sm:px-8 sm:py-10">
             <button
               type="button"
@@ -1248,7 +453,7 @@ function BillingsInner() {
                   </div>
                   <div className={`transition-all duration-150 ${animatingBalance ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}>
                     <p className="font-display text-4xl sm:text-5xl font-bold text-white tracking-tight">
-                      {showBalance ? `${CURRENCY_PREFIX}${balance}` : `${CURRENCY_PREFIX}••••••`}
+                      {showBalance ? formatMoney(balance, walletCurrency) : `${currencySymbol(walletCurrency)}••••••`}
                     </p>
                   </div>
                   <div className="mt-3 flex items-center gap-4 text-sm">
@@ -1297,11 +502,11 @@ function BillingsInner() {
               <div className="mt-8 grid grid-cols-2 gap-4">
                 <div className="rounded-xl bg-white/10 px-4 py-3 backdrop-blur-sm">
                   <p className="text-xs font-medium text-white/60">Total Deposited</p>
-                  <p className="mt-1 text-lg font-bold text-white">{CURRENCY_PREFIX}{totalDeposits.toFixed(2)}</p>
+                  <p className="mt-1 text-lg font-bold text-white">{formatMoney(totalDeposits, walletCurrency)}</p>
                 </div>
                 <div className="rounded-xl bg-white/10 px-4 py-3 backdrop-blur-sm">
                   <p className="text-xs font-medium text-white/60">Total Withdrawn</p>
-                  <p className="mt-1 text-lg font-bold text-white">{CURRENCY_PREFIX}{totalWithdrawals.toFixed(2)}</p>
+                  <p className="mt-1 text-lg font-bold text-white">{formatMoney(totalWithdrawals, walletCurrency)}</p>
                 </div>
               </div>
             </div>
@@ -1355,7 +560,7 @@ function BillingsInner() {
                 <div className="flex gap-2">
                   <Link
                     href="/billings/add-card"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-gambian-blue px-3 py-2 text-xs font-bold text-white transition hover:bg-gambian-blue/90"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primaryColorBlack px-3 py-2 text-xs font-bold text-white transition hover:bg-primaryColorBlack/90"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1435,7 +640,7 @@ function BillingsInner() {
                   <button
                     type="button"
                     onClick={() => setActiveTab("transactions")}
-                    className="text-sm font-semibold text-gambian-blue hover:text-gambian-blue/80 transition"
+                    className="text-sm font-semibold text-primaryColorBlack hover:text-primaryColorBlack/80 transition"
                   >
                     View all →
                   </button>
@@ -1471,7 +676,7 @@ function BillingsInner() {
                         </div>
                         <div className="text-right shrink-0 ml-3">
                           <p className={`text-sm font-bold ${positive ? "text-green-600" : "text-red-600"}`}>
-                            {positive ? "+" : "-"}{CURRENCY_PREFIX}{Math.abs(item.signedAmount).toFixed(2)}
+                            {positive ? "+" : "-"}{formatMoney(Math.abs(item.signedAmount), walletCurrency)}
                           </p>
                           {item.status ? (
                           <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(item.status)}`}>
@@ -1536,7 +741,7 @@ function BillingsInner() {
                       </div>
                       <div className="text-right shrink-0 ml-3">
                         <p className={`text-sm font-bold ${positive ? "text-green-600" : "text-red-600"}`}>
-                          {positive ? "+" : "-"}{CURRENCY_PREFIX}{Math.abs(item.signedAmount).toFixed(2)}
+                          {positive ? "+" : "-"}{formatMoney(Math.abs(item.signedAmount), walletCurrency)}
                         </p>
                         {item.status ? (
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(item.status)}`}>
@@ -1576,7 +781,7 @@ function BillingsInner() {
               }}
               className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
                 depositSource === "card"
-                  ? "border-gambian-blue bg-gambian-blue/10 text-gambian-blue"
+                  ? "border-primaryColorBlack bg-primaryColorBlack/10 text-primaryColorBlack"
                   : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -1631,7 +836,7 @@ function BillingsInner() {
                 </div>
               )}
               <p className="mt-3 text-xs text-gray-500">
-                Card deposits are charged and settled in GMD only.
+                Card deposits are charged and settled in your wallet currency.
               </p>
             </>
           ) : (
@@ -1647,7 +852,7 @@ function BillingsInner() {
             </div>
           )}
           <div className="mt-4 border-t border-gray-100 pt-4" />
-          <label className={fieldLabel}>Amount (GMD)</label>
+          <label className={fieldLabel}>Amount ({walletCurrency})</label>
           <input
             className={fieldInput}
             value={depositAmount}
@@ -1686,11 +891,11 @@ function BillingsInner() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
               <p className="text-xs text-amber-800">
-                Available balance: <span className="font-bold">{CURRENCY_PREFIX}{balance}</span>. Withdrawals are processed via ModernPay.
+                Available balance: <span className="font-bold">{formatMoney(balance, walletCurrency)}</span>. Withdrawals are processed via Modem Pay.
               </p>
             </div>
           </div>
-          <label className={fieldLabel}>Amount (GMD)</label>
+          <label className={fieldLabel}>Amount ({walletCurrency})</label>
           <input
             className={fieldInput}
             value={payoutAmount}
@@ -1699,7 +904,7 @@ function BillingsInner() {
             placeholder="e.g. 100"
           />
           <p className="mt-2 text-xs text-gray-500">
-            MVP: payout execution will be wired to ModernPay next.
+            MVP: payout execution will be wired to Modem Pay next.
           </p>
         </Modal>
       ) : null}
@@ -1744,7 +949,7 @@ function Modal(props: {
           <button
             type="button"
             onClick={onPrimary}
-            className="rounded-xl bg-gambian-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gambian-blue/90"
+            className="rounded-xl bg-primaryColorBlack px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primaryColorBlack/90"
           >
             {primaryLabel}
           </button>

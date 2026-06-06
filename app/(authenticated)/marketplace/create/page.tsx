@@ -166,7 +166,7 @@ function CreateServiceInner() {
       <div className="mb-6">
         <Link
           href="/store?tab=services"
-          className="text-sm font-medium text-gambian-blue hover:underline"
+          className="text-sm font-medium text-primaryColorBlack hover:underline"
         >
           ← Store
         </Link>
@@ -364,7 +364,7 @@ function CreateServiceInner() {
                 !banner?.file ||
                 galleryItems.length < 1
               }
-              className="rounded-xl bg-gambian-blue px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-gambian-blue/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-primaryColorBlack px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primaryColorBlack/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Publishing…" : "Publish to marketplace"}
             </button>

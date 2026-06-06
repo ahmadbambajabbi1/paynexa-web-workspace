@@ -228,7 +228,7 @@ function KycApplyInner() {
           </p>
           <Link
             href="/profile"
-            className="mt-6 inline-flex rounded-xl bg-gambian-blue px-5 py-2.5 text-sm font-semibold text-white"
+            className="mt-6 inline-flex rounded-xl bg-primaryColorBlack px-5 py-2.5 text-sm font-semibold text-white"
           >
             Back to profile
           </Link>
@@ -247,7 +247,7 @@ function KycApplyInner() {
           </p>
           <Link
             href="/profile"
-            className="mt-6 inline-flex rounded-xl bg-gambian-blue px-5 py-2.5 text-sm font-semibold text-white"
+            className="mt-6 inline-flex rounded-xl bg-primaryColorBlack px-5 py-2.5 text-sm font-semibold text-white"
           >
             Back to profile
           </Link>
@@ -259,7 +259,7 @@ function KycApplyInner() {
   return (
     <div className="mx-auto max-w-2xl pb-12">
       <div className="mb-6">
-        <Link href="/profile" className="text-sm font-medium text-gambian-blue hover:underline">
+        <Link href="/profile" className="text-sm font-medium text-primaryColorBlack hover:underline">
           ← Profile
         </Link>
       </div>
@@ -279,13 +279,13 @@ function KycApplyInner() {
                   done
                     ? "bg-emerald-600 text-white"
                     : active
-                      ? "bg-gambian-blue text-white"
+                      ? "bg-primaryColorBlack text-white"
                       : "bg-gray-200 text-gray-600"
                 }`}
               >
                 {done ? "✓" : index + 1}
               </span>
-              <span className={active ? "text-gambian-blue" : "text-gray-500"}>{label}</span>
+              <span className={active ? "text-primaryColorBlack" : "text-gray-500"}>{label}</span>
               {index < 2 && <span className="h-px w-4 bg-gray-300" />}
             </div>
           );
@@ -306,7 +306,7 @@ function KycApplyInner() {
               }}
               className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
                 role === "LAWYER"
-                  ? "border-gambian-blue bg-gambian-blue/10 text-gambian-blue"
+                  ? "border-primaryColorBlack bg-primaryColorBlack/10 text-primaryColorBlack"
                   : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
               } ${!canLawyer ? "cursor-not-allowed opacity-50" : ""}`}
             >
@@ -321,7 +321,7 @@ function KycApplyInner() {
               }}
               className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
                 role === "AGENT"
-                  ? "border-gambian-blue bg-gambian-blue/10 text-gambian-blue"
+                  ? "border-primaryColorBlack bg-primaryColorBlack/10 text-primaryColorBlack"
                   : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
               } ${!canAgent ? "cursor-not-allowed opacity-50" : ""}`}
             >
@@ -449,7 +449,7 @@ function KycApplyInner() {
                     type="button"
                     disabled={cameraBusy}
                     onClick={() => void openCamera()}
-                    className="mt-3 rounded-xl bg-gambian-blue px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    className="mt-3 rounded-xl bg-primaryColorBlack px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                   >
                     {cameraBusy ? "Opening camera…" : fSelfie ? "Retake selfie" : "Open camera"}
                   </button>
@@ -460,7 +460,7 @@ function KycApplyInner() {
                       <button
                         type="button"
                         onClick={() => void captureSelfie()}
-                        className="rounded-xl bg-gambian-blue px-4 py-2 text-sm font-semibold text-white"
+                        className="rounded-xl bg-primaryColorBlack px-4 py-2 text-sm font-semibold text-white"
                       >
                         Capture selfie
                       </button>
@@ -541,7 +541,7 @@ function KycApplyInner() {
               type="button"
               disabled={!role || busy}
               onClick={() => setStep(step + 1)}
-              className="rounded-xl bg-gambian-blue px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-primaryColorBlack px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               Continue
             </button>
@@ -550,7 +550,7 @@ function KycApplyInner() {
             <button
               type="submit"
               disabled={!role || !token || busy}
-              className="rounded-xl bg-gambian-blue px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-gambian-blue/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-primaryColorBlack px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primaryColorBlack/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {busy ? "Submitting…" : "Submit application"}
             </button>

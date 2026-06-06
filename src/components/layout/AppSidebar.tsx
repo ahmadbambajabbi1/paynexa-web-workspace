@@ -47,7 +47,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   }
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-gambian-blue text-white shadow-[4px_0_24px_-8px_rgba(12,28,140,0.35)]">
+    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-primaryColorBlack text-white shadow-[4px_0_24px_-8px_rgba(12,28,140,0.35)]">
       <div className="border-b border-white/10 px-5 py-6">
         <Link
           href="/dashboard"
@@ -80,13 +80,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
               href={item.href}
               onClick={onNavigate}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${active
-                ? "bg-white text-gambian-blue shadow-sm ring-1 ring-white/20"
+                ? "bg-white text-primaryColorBlack shadow-sm ring-1 ring-white/20"
                 : "text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
             >
               <span
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${active
-                  ? "bg-gambian-blue text-white shadow-md"
+                  ? "bg-primaryColorBlack text-white shadow-md"
                   : "bg-white/10 text-white/70"
                   }`}
               >

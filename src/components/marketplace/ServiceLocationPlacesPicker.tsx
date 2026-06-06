@@ -194,7 +194,7 @@ export function ServiceLocationPlacesPicker({ value, onChange, disabled }: Props
       {value ? (
         <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-linear-to-br from-white to-gray-50/80 p-4 shadow-sm ring-1 ring-gray-100">
           <div className="flex gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gambian-blue/10 text-gambian-blue">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primaryColorBlack/10 text-primaryColorBlack">
               <i className="fas fa-map-pin" aria-hidden />
             </div>
             <div className="min-w-0 flex-1">
@@ -232,7 +232,7 @@ export function ServiceLocationPlacesPicker({ value, onChange, disabled }: Props
                 disabled={disabled}
                 value={input}
                 placeholder="Search for an address or place…"
-                className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-3 text-sm shadow-sm outline-none ring-gambian-blue/30 transition focus:ring-2"
+                className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-3 text-sm shadow-sm outline-none ring-primaryColorBlack/30 transition focus:ring-2"
                 onChange={(e) => {
                   const v = e.target.value;
                   setInput(v);
@@ -256,7 +256,7 @@ export function ServiceLocationPlacesPicker({ value, onChange, disabled }: Props
                       <button
                         type="button"
                         className={`flex w-full px-3 py-2.5 text-left transition ${
-                          i === highlight ? "bg-gambian-blue/10 text-gambian-blue" : "hover:bg-gray-50"
+                          i === highlight ? "bg-primaryColorBlack/10 text-primaryColorBlack" : "hover:bg-gray-50"
                         }`}
                         onMouseEnter={() => setHighlight(i)}
                         onClick={() => void selectPrediction(p)}
@@ -270,7 +270,7 @@ export function ServiceLocationPlacesPicker({ value, onChange, disabled }: Props
             </div>
             <button
               type="button"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gambian-blue/25 bg-white px-4 py-3 text-sm font-semibold text-gambian-blue shadow-sm transition hover:bg-gambian-blue/5 disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primaryColorBlack/25 bg-white px-4 py-3 text-sm font-semibold text-primaryColorBlack shadow-sm transition hover:bg-primaryColorBlack/5 disabled:opacity-50"
               onClick={() => void useCurrentLocation()}
               disabled={disabled || locBusy || mapsReady !== true}
             >

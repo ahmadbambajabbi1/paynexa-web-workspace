@@ -98,16 +98,16 @@
 //   const primary = contactNameLine(u);
 //   return (
 //     <div className="rounded-xl border-0 bg-white px-4 py-3 text-sm shadow-[0_4px_16px_rgba(12,28,140,0.1)]">
-//       <p className="text-[10px] font-bold uppercase tracking-wider text-gambian-blue/70">{role}</p>
+//       <p className="text-[10px] font-bold uppercase tracking-wider text-primaryColorBlack/70">{role}</p>
 //       {primary ? <p className="mt-1 font-semibold text-gray-900">{primary}</p> : null}
 //       <div className="mt-2 space-y-1.5 text-xs text-gray-700">
 //         {u.phone ? (
-//           <a className="block font-medium text-gambian-blue hover:underline" href={`tel:${u.phone}`}>
+//           <a className="block font-medium text-primaryColorBlack hover:underline" href={`tel:${u.phone}`}>
 //             {u.phone}
 //           </a>
 //         ) : null}
 //         {u.email ? (
-//           <a className="block break-all font-medium text-gambian-blue hover:underline" href={`mailto:${u.email}`}>
+//           <a className="block break-all font-medium text-primaryColorBlack hover:underline" href={`mailto:${u.email}`}>
 //             {u.email}
 //           </a>
 //         ) : null}
@@ -206,21 +206,21 @@
 //   }
 
 //   return (
-//     <div className="rounded-xl border border-gambian-blue/10 bg-white px-3 py-3 shadow-[0_4px_16px_rgba(12,28,140,0.06)]">
-//       <p className="text-xs font-semibold uppercase tracking-wide text-gambian-blue">Booking comments</p>
+//     <div className="rounded-xl border border-primaryColorBlack/10 bg-white px-3 py-3 shadow-[0_4px_16px_rgba(12,28,140,0.06)]">
+//       <p className="text-xs font-semibold uppercase tracking-wide text-primaryColorBlack">Booking comments</p>
 //       <textarea
 //         value={msg}
 //         onChange={(e) => setMsg(e.target.value)}
 //         placeholder="Write a comment for this booking"
 //         rows={2}
-//         className="mt-2 w-full rounded-lg border border-gray-200/80 bg-gray-50/80 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gambian-blue/35 focus:ring-2 focus:ring-gambian-blue/20"
+//         className="mt-2 w-full rounded-lg border border-gray-200/80 bg-gray-50/80 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primaryColorBlack/35 focus:ring-2 focus:ring-primaryColorBlack/20"
 //       />
 //       {localErr ? <p className="mt-2 text-sm text-gambian-red">{localErr}</p> : null}
 //       <button
 //         type="button"
 //         disabled={busy || msg.trim().length === 0}
 //         onClick={() => void submit()}
-//         className={`${btnRaised} mt-3 bg-gambian-blue text-white`}
+//         className={`${btnRaised} mt-3 bg-primaryColorBlack text-white`}
 //       >
 //         {busy ? "Posting..." : "Post comment"}
 //       </button>
@@ -259,8 +259,8 @@
 //   }
 
 //   return (
-//     <div className="rounded-xl border border-gambian-blue/10 bg-white px-3 py-3 shadow-[0_4px_16px_rgba(12,28,140,0.06)]">
-//       <p className="text-xs font-semibold uppercase tracking-wide text-gambian-blue">Rate the provider</p>
+//     <div className="rounded-xl border border-primaryColorBlack/10 bg-white px-3 py-3 shadow-[0_4px_16px_rgba(12,28,140,0.06)]">
+//       <p className="text-xs font-semibold uppercase tracking-wide text-primaryColorBlack">Rate the provider</p>
 //       <p className="mt-1 text-xs text-gray-600">Share how the service went. Your rating helps other clients.</p>
 //       <div className="mt-2 flex flex-wrap gap-1">
 //         {[1, 2, 3, 4, 5].map((n) => (
@@ -268,7 +268,7 @@
 //             key={n}
 //             type="button"
 //             onClick={() => setRating(n)}
-//             className={`rounded-lg border-0 px-2 py-1 text-xl shadow-none ${rating >= n ? "text-gambian-blue" : "text-gray-300"}`}
+//             className={`rounded-lg border-0 px-2 py-1 text-xl shadow-none ${rating >= n ? "text-primaryColorBlack" : "text-gray-300"}`}
 //             aria-label={`${n} stars`}
 //           >
 //             ★
@@ -281,14 +281,14 @@
 //         onChange={(e) => setComment(e.target.value)}
 //         placeholder="Optional feedback"
 //         rows={2}
-//         className="mt-2 w-full rounded-lg border border-gray-200/80 bg-gray-50/80 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gambian-blue/35 focus:ring-2 focus:ring-gambian-blue/20"
+//         className="mt-2 w-full rounded-lg border border-gray-200/80 bg-gray-50/80 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primaryColorBlack/35 focus:ring-2 focus:ring-primaryColorBlack/20"
 //       />
 //       {localErr ? <p className="mt-2 text-sm text-gambian-red">{localErr}</p> : null}
 //       <button
 //         type="button"
 //         disabled={busy}
 //         onClick={() => void submit()}
-//         className={`${btnRaised} mt-3 bg-gambian-blue text-white`}
+//         className={`${btnRaised} mt-3 bg-primaryColorBlack text-white`}
 //       >
 //         {busy ? "Submitting..." : "Submit review"}
 //       </button>
@@ -407,8 +407,8 @@
 //   const tabCls = (tab: DetailTab) =>
 //     `w-full rounded-lg border-0 px-3 py-2.5 text-left text-sm font-semibold transition shadow-[0_2px_8px_rgba(12,28,140,0.06)] md:rounded-xl ${
 //       detailTab === tab
-//         ? "bg-gambian-blue text-white shadow-[0_4px_14px_rgba(12,28,140,0.28)]"
-//         : "bg-white text-gray-800 ring-1 ring-gambian-blue/10 hover:bg-gray-50"
+//         ? "bg-primaryColorBlack text-white shadow-[0_4px_14px_rgba(12,28,140,0.28)]"
+//         : "bg-white text-gray-800 ring-1 ring-primaryColorBlack/10 hover:bg-gray-50"
 //     }`;
 
 //   return (
@@ -422,20 +422,20 @@
 //       />
 
 //       <div className="mb-3">
-//         <Link href="/store?tab=my-bookings" className="text-sm font-medium text-gambian-blue hover:underline">
+//         <Link href="/store?tab=my-bookings" className="text-sm font-medium text-primaryColorBlack hover:underline">
 //           ← {searchParams.get("from") === "provider-bookings" || isProviderView ? "Back to provider bookings" : "Back to my bookings"}
 //         </Link>
 //       </div>
 
 //       <div className="grid gap-4 lg:grid-cols-[1fr_minmax(260px,300px)]">
 //         <section className="rounded-2xl border-0 bg-white shadow-[0_8px_30px_rgba(12,28,140,0.08)]">
-//           <header className="border-b border-gambian-blue/10 px-4 py-4 sm:px-5">
-//             <p className="text-xs font-semibold uppercase tracking-wide text-gambian-blue/75">
+//           <header className="border-b border-primaryColorBlack/10 px-4 py-4 sm:px-5">
+//             <p className="text-xs font-semibold uppercase tracking-wide text-primaryColorBlack/75">
 //               {l?.category?.name ?? "Service"}
 //             </p>
 //             <h1 className="font-display text-xl font-bold text-gray-900 sm:text-2xl">{l?.title ?? "Service"}</h1>
 //             <div className="mt-3 flex flex-wrap">
-//               <span className="inline-flex max-w-full rounded-2xl bg-gambian-blue/[0.08] px-3.5 py-2 text-sm font-medium leading-snug text-gray-800 shadow-[0_2px_12px_rgba(12,28,140,0.12)] ring-1 ring-gambian-blue/10">
+//               <span className="inline-flex max-w-full rounded-2xl bg-primaryColorBlack/[0.08] px-3.5 py-2 text-sm font-medium leading-snug text-gray-800 shadow-[0_2px_12px_rgba(12,28,140,0.12)] ring-1 ring-primaryColorBlack/10">
 //                 {stepSummary(isProviderView, booking)}
 //               </span>
 //             </div>
@@ -443,7 +443,7 @@
 
 //           <div className="flex flex-col gap-0 md:flex-row">
 //             <nav
-//               className="flex shrink-0 gap-2 border-b border-gambian-blue/10 p-3 md:w-44 md:flex-col md:border-b-0 md:border-r md:border-gambian-blue/10 md:p-4"
+//               className="flex shrink-0 gap-2 border-b border-primaryColorBlack/10 p-3 md:w-44 md:flex-col md:border-b-0 md:border-r md:border-primaryColorBlack/10 md:p-4"
 //               aria-label="Booking details"
 //             >
 //               <button type="button" className={tabCls("service")} onClick={() => setDetailTab("service")}>
@@ -459,7 +459,7 @@
 //                 <>
 //                   {typeof l?.description === "string" && l.description.trim() ? (
 //                     <div>
-//                       <p className="text-xs font-semibold uppercase tracking-wide text-gambian-blue/80">
+//                       <p className="text-xs font-semibold uppercase tracking-wide text-primaryColorBlack/80">
 //                         About this service
 //                       </p>
 //                       <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-700">{l.description.trim()}</p>
@@ -468,8 +468,8 @@
 
 //                   {(typeof booking.serviceLocationLabel === "string" && booking.serviceLocationLabel.trim()) ||
 //                   (typeof booking.serviceAddressText === "string" && booking.serviceAddressText.trim()) ? (
-//                     <div className="rounded-xl border border-gambian-blue/10 bg-white px-4 py-3 text-sm text-gray-800 shadow-[0_4px_14px_rgba(12,28,140,0.06)]">
-//                       <p className="text-xs font-semibold text-gambian-blue">Where</p>
+//                     <div className="rounded-xl border border-primaryColorBlack/10 bg-white px-4 py-3 text-sm text-gray-800 shadow-[0_4px_14px_rgba(12,28,140,0.06)]">
+//                       <p className="text-xs font-semibold text-primaryColorBlack">Where</p>
 //                       {typeof booking.serviceLocationLabel === "string" && booking.serviceLocationLabel.trim() ? (
 //                         <p className="mt-1 font-medium text-gray-900">{booking.serviceLocationLabel.trim()}</p>
 //                       ) : null}
@@ -481,7 +481,7 @@
 //                           href={mapUrl}
 //                           target="_blank"
 //                           rel="noreferrer"
-//                           className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-gambian-blue hover:underline"
+//                           className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-primaryColorBlack hover:underline"
 //                         >
 //                           <i className="fas fa-directions" aria-hidden />
 //                           Open in Maps
@@ -494,7 +494,7 @@
 
 //                   {booking.notes ? (
 //                     <details className="rounded-xl border border-gray-200/90 bg-white px-3 py-2 text-sm text-gray-700 shadow-[0_2px_10px_rgba(12,28,140,0.05)]">
-//                       <summary className="cursor-pointer font-medium text-gambian-blue">Your booking notes</summary>
+//                       <summary className="cursor-pointer font-medium text-primaryColorBlack">Your booking notes</summary>
 //                       <p className="mt-2 whitespace-pre-wrap break-words">{String(booking.notes)}</p>
 //                     </details>
 //                   ) : null}
@@ -505,14 +505,14 @@
 //                     <>
 //                       <ParticipantContactMini role="Provider" u={participants.provider} />
 //                       {typeof l?.provider?.bio === "string" && l.provider.bio.trim() ? (
-//                         <div className="rounded-xl border border-gambian-blue/10 bg-white px-4 py-3 text-sm shadow-[0_4px_14px_rgba(12,28,140,0.06)]">
-//                           <p className="text-xs font-semibold text-gambian-blue">Bio</p>
+//                         <div className="rounded-xl border border-primaryColorBlack/10 bg-white px-4 py-3 text-sm shadow-[0_4px_14px_rgba(12,28,140,0.06)]">
+//                           <p className="text-xs font-semibold text-primaryColorBlack">Bio</p>
 //                           <p className="mt-1 whitespace-pre-wrap text-gray-700">{l.provider.bio.trim()}</p>
 //                         </div>
 //                       ) : null}
 //                       {l?.provider?.ratingCount != null && Number(l.provider.ratingCount) > 0 ? (
 //                         <p className="text-sm text-gray-600">
-//                           <span className="font-semibold text-gambian-blue">
+//                           <span className="font-semibold text-primaryColorBlack">
 //                             {(l.provider?.ratingAvg != null ? Number(l.provider.ratingAvg) : 0).toFixed(1)}
 //                           </span>{" "}
 //                           average · {Number(l.provider.ratingCount)} review
@@ -535,8 +535,8 @@
 //             </div>
 //           </div>
 
-//           <div className="border-t border-gambian-blue/10 bg-gray-50/40 px-4 py-4 sm:px-5">
-//             <p className="text-xs font-semibold uppercase tracking-wide text-gambian-blue/80">Comments</p>
+//           <div className="border-t border-primaryColorBlack/10 bg-gray-50/40 px-4 py-4 sm:px-5">
+//             <p className="text-xs font-semibold uppercase tracking-wide text-primaryColorBlack/80">Comments</p>
 //             <p className="mt-0.5 text-xs text-gray-500">Visible to you and the other party on this booking.</p>
 //             {token ? (
 //               <div className="mt-3">
@@ -561,10 +561,10 @@
 //                       <p className="text-xs text-gray-600">
 //                         <span className="font-semibold text-gray-900">
 //                           {c.authorName || "Someone"}
-//                           {isSelf ? <span className="ml-1 font-normal text-gambian-blue">(you)</span> : null}
+//                           {isSelf ? <span className="ml-1 font-normal text-primaryColorBlack">(you)</span> : null}
 //                         </span>
 //                         <span className="mx-1.5 text-gray-400">·</span>
-//                         <span className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gambian-blue">
+//                         <span className="rounded bg-white/70 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primaryColorBlack">
 //                           {roleLabel}
 //                         </span>
 //                         <span className="mx-1.5 text-gray-400">·</span>
@@ -582,26 +582,26 @@
 //         </section>
 
 //         <aside className="space-y-4">
-//           <section className="relative overflow-hidden rounded-2xl border border-gambian-blue/10 bg-white shadow-[0_10px_36px_rgba(12,28,140,0.1)]">
+//           <section className="relative overflow-hidden rounded-2xl border border-primaryColorBlack/10 bg-white shadow-[0_10px_36px_rgba(12,28,140,0.1)]">
 //             <div
 //               className="h-1 w-full bg-[linear-gradient(90deg,#0c1c8c_0%,#3a7728_50%,#ce1126_100%)]"
 //               aria-hidden
 //             />
 //             <div className="p-5">
-//               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gambian-blue/75">
+//               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primaryColorBlack/75">
 //                 Booking summary
 //               </p>
 //               <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
 //                 <div>
 //                   <p className="text-xs font-medium text-gray-500">Status</p>
-//                   <p className="mt-1 inline-flex rounded-full bg-gambian-blue/[0.09] px-3 py-1 text-xs font-bold uppercase tracking-wide text-gambian-blue shadow-[0_2px_8px_rgba(12,28,140,0.12)] ring-1 ring-gambian-blue/15">
+//                   <p className="mt-1 inline-flex rounded-full bg-primaryColorBlack/[0.09] px-3 py-1 text-xs font-bold uppercase tracking-wide text-primaryColorBlack shadow-[0_2px_8px_rgba(12,28,140,0.12)] ring-1 ring-primaryColorBlack/15">
 //                     {status.replace(/_/g, " ")}
 //                   </p>
 //                 </div>
 //                 <div className="text-right">
 //                   <p className="text-xs font-medium text-gray-500">Amount</p>
 //                   <p className="font-display mt-0.5 text-2xl font-bold tracking-tight text-gray-900">
-//                     <span className="text-lg font-semibold text-gambian-blue">D</span>
+//                     <span className="text-lg font-semibold text-primaryColorBlack">D</span>
 //                     {String(booking.amount ?? "")}
 //                   </p>
 //                 </div>
@@ -613,8 +613,8 @@
 
 //           {booking.review ? (
 //             <div className="rounded-2xl border-0 bg-white px-4 py-3 text-sm shadow-[0_8px_30px_rgba(12,28,140,0.08)]">
-//               <p className="text-xs font-semibold uppercase text-gambian-blue/70">Your review</p>
-//               <p className="mt-2 text-gambian-blue">
+//               <p className="text-xs font-semibold uppercase text-primaryColorBlack/70">Your review</p>
+//               <p className="mt-2 text-primaryColorBlack">
 //                 {Array.from({ length: 5 }, (_, i) => (
 //                   <span key={i}>{i < booking.review!.rating ? "★" : "☆"}</span>
 //                 ))}
@@ -639,8 +639,8 @@
 //                 }}
 //                 className={`${btnRaised} ${
 //                   a.tone === "primary"
-//                     ? "bg-gambian-blue text-white shadow-[0_4px_18px_rgba(12,28,140,0.28)]"
-//                     : "bg-white text-gray-900 shadow-[0_4px_14px_rgba(12,28,140,0.1)] ring-1 ring-gambian-blue/12 hover:bg-gray-50"
+//                     ? "bg-primaryColorBlack text-white shadow-[0_4px_18px_rgba(12,28,140,0.28)]"
+//                     : "bg-white text-gray-900 shadow-[0_4px_14px_rgba(12,28,140,0.1)] ring-1 ring-primaryColorBlack/12 hover:bg-gray-50"
 //                 }`}
 //               >
 //                 {a.label}
@@ -888,7 +888,7 @@ function WorkflowStepper({ isProvider, booking }: { isProvider: boolean; booking
           const isPast = i < currentStep;
           return (
             <div key={i} className="flex-1">
-              <div className={`mx-4 h-0.5 rounded-full transition-all duration-500 ${isDone || isPast ? "bg-gambian-blue" : "bg-slate-200"}`} />
+              <div className={`mx-4 h-0.5 rounded-full transition-all duration-500 ${isDone || isPast ? "bg-primaryColorBlack" : "bg-slate-200"}`} />
             </div>
           );
         })}
@@ -905,9 +905,9 @@ function WorkflowStepper({ isProvider, booking }: { isProvider: boolean; booking
               <div
                 className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-all duration-300 ${
                   isDone
-                    ? "border-gambian-blue bg-gambian-blue text-white"
+                    ? "border-primaryColorBlack bg-primaryColorBlack text-white"
                     : isActive
-                    ? "border-gambian-blue bg-white text-gambian-blue shadow-md shadow-gambian-blue/20"
+                    ? "border-primaryColorBlack bg-white text-primaryColorBlack shadow-md shadow-primaryColorBlack/20"
                     : "border-slate-200 bg-white text-slate-400"
                 }`}
               >
@@ -921,7 +921,7 @@ function WorkflowStepper({ isProvider, booking }: { isProvider: boolean; booking
               </div>
 
               {/* Label */}
-              <span className={`mt-2 text-center text-[10px] font-semibold uppercase tracking-wider transition-colors duration-300 ${isDone || isActive ? "text-gambian-blue" : "text-slate-400"}`}>
+              <span className={`mt-2 text-center text-[10px] font-semibold uppercase tracking-wider transition-colors duration-300 ${isDone || isActive ? "text-primaryColorBlack" : "text-slate-400"}`}>
                 {step.label}
               </span>
             </div>
@@ -938,14 +938,14 @@ function ParticipantCard({ role, u, isProviderView }: { role: string; u: sm.Mark
   const initials = primary?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
 
   return (
-    <div className="group overflow-hidden rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] transition-all duration-300 hover:border-gambian-blue/15 hover:shadow-[0_8px_24px_-8px_rgba(12,28,140,0.12)]">
+    <div className="group overflow-hidden rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] transition-all duration-300 hover:border-primaryColorBlack/15 hover:shadow-[0_8px_24px_-8px_rgba(12,28,140,0.12)]">
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gambian-blue/10 text-sm font-bold text-gambian-blue">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primaryColorBlack/10 text-sm font-bold text-primaryColorBlack">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gambian-blue/70">{role}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-primaryColorBlack/70">{role}</span>
             {isProviderView && role === "Client" && (
               <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Booked you</span>
             )}
@@ -953,7 +953,7 @@ function ParticipantCard({ role, u, isProviderView }: { role: string; u: sm.Mark
           {primary ? <p className="mt-1 text-base font-semibold text-slate-900">{primary}</p> : null}
           <div className="mt-3 space-y-2">
             {u.phone ? (
-              <a href={`tel:${u.phone}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-gambian-blue">
+              <a href={`tel:${u.phone}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-primaryColorBlack">
                 <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                 </svg>
@@ -961,7 +961,7 @@ function ParticipantCard({ role, u, isProviderView }: { role: string; u: sm.Mark
               </a>
             ) : null}
             {u.email ? (
-              <a href={`mailto:${u.email}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-gambian-blue">
+              <a href={`mailto:${u.email}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-primaryColorBlack">
                 <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                 </svg>
@@ -994,7 +994,7 @@ function BookingPartiesStrip({
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
       <div className="mb-3 flex items-center gap-2">
-        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -1009,14 +1009,14 @@ function BookingPartiesStrip({
           <span className="w-20 shrink-0 font-semibold text-slate-400">Provider</span>
           <span className="font-semibold text-slate-900">
             {providerLine}
-            {!isProviderView ? null : <span className="ml-1 font-medium text-gambian-blue">(you)</span>}
+            {!isProviderView ? null : <span className="ml-1 font-medium text-primaryColorBlack">(you)</span>}
           </span>
         </div>
         <div className="flex gap-3">
           <span className="w-20 shrink-0 font-semibold text-slate-400">Client</span>
           <span className="font-semibold text-slate-900">
             {clientLine}
-            {isProviderView ? null : <span className="ml-1 font-medium text-gambian-blue">(you)</span>}
+            {isProviderView ? null : <span className="ml-1 font-medium text-primaryColorBlack">(you)</span>}
           </span>
         </div>
       </div>
@@ -1131,7 +1131,7 @@ function BookingCommentForm({ bookingId, token, onDone }: { bookingId: string; t
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
       <div className="flex items-center gap-2 mb-1">
-        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.012z" />
         </svg>
         <p className="text-sm font-semibold text-slate-800">Add a comment</p>
@@ -1143,7 +1143,7 @@ function BookingCommentForm({ bookingId, token, onDone }: { bookingId: string; t
         onChange={(e) => setMsg(e.target.value)}
         placeholder="Write your message..."
         rows={3}
-        className="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-gambian-blue/30 focus:bg-white focus:ring-2 focus:ring-gambian-blue/10"
+        className="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-primaryColorBlack/30 focus:bg-white focus:ring-2 focus:ring-primaryColorBlack/10"
       />
 
       {localErr ? (
@@ -1159,7 +1159,7 @@ function BookingCommentForm({ bookingId, token, onDone }: { bookingId: string; t
         type="button"
         disabled={busy || msg.trim().length === 0}
         onClick={() => void submit()}
-        className={`${btnBase} mt-3 bg-gambian-blue text-white shadow-lg shadow-gambian-blue/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-gambian-blue/30 active:translate-y-0`}
+        className={`${btnBase} mt-3 bg-primaryColorBlack text-white shadow-lg shadow-primaryColorBlack/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primaryColorBlack/30 active:translate-y-0`}
       >
         {busy ? (
           <>
@@ -1205,7 +1205,7 @@ function RateProviderForm({ bookingId, token, onDone }: { bookingId: string; tok
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
       <div className="flex items-center gap-2 mb-1">
-        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
         </svg>
         <p className="text-sm font-semibold text-slate-800">Rate your experience</p>
@@ -1234,7 +1234,7 @@ function RateProviderForm({ bookingId, token, onDone }: { bookingId: string; tok
         onChange={(e) => setComment(e.target.value)}
         placeholder="Share your experience (optional)"
         rows={3}
-        className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-gambian-blue/30 focus:bg-white focus:ring-2 focus:ring-gambian-blue/10"
+        className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-primaryColorBlack/30 focus:bg-white focus:ring-2 focus:ring-primaryColorBlack/10"
       />
 
       {localErr ? (
@@ -1250,7 +1250,7 @@ function RateProviderForm({ bookingId, token, onDone }: { bookingId: string; tok
         type="button"
         disabled={busy}
         onClick={() => void submit()}
-        className={`${btnBase} mt-3 bg-gambian-blue text-white shadow-lg shadow-gambian-blue/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-gambian-blue/30 active:translate-y-0`}
+        className={`${btnBase} mt-3 bg-primaryColorBlack text-white shadow-lg shadow-primaryColorBlack/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primaryColorBlack/30 active:translate-y-0`}
       >
         {busy ? (
           <>
@@ -1274,8 +1274,8 @@ function RateProviderForm({ bookingId, token, onDone }: { bookingId: string; tok
 function BackgroundDecor() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute -top-60 -right-60 h-[500px] w-[500px] rounded-full bg-gambian-blue/[0.02] blur-3xl" />
-      <div className="absolute -bottom-60 -left-60 h-[500px] w-[500px] rounded-full bg-gambian-blue/[0.015] blur-3xl" />
+      <div className="absolute -top-60 -right-60 h-[500px] w-[500px] rounded-full bg-primaryColorBlack/[0.02] blur-3xl" />
+      <div className="absolute -bottom-60 -left-60 h-[500px] w-[500px] rounded-full bg-primaryColorBlack/[0.015] blur-3xl" />
     </div>
   );
 }
@@ -1368,7 +1368,7 @@ function Inner() {
   if (loading) {
     return (
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-center py-20">
-        <div className="h-10 w-10 animate-spin rounded-full border-3 border-gambian-blue border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-3 border-primaryColorBlack border-t-transparent" />
         <p className="mt-4 text-sm text-slate-500">Loading booking details...</p>
       </div>
     );
@@ -1441,9 +1441,9 @@ function Inner() {
       <div className="mb-6">
         <Link
           href={`/store?tab=${searchParams.get("from") === "provider-bookings" || isProviderView ? "provider-bookings" : "my-bookings"}`}
-          className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-gambian-blue"
+          className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-primaryColorBlack"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm transition-all group-hover:shadow-md group-hover:text-gambian-blue">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm transition-all group-hover:shadow-md group-hover:text-primaryColorBlack">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
@@ -1463,7 +1463,7 @@ function Inner() {
           <div>
             <p className="text-xs font-medium text-slate-400">Total Amount</p>
             <p className="font-display text-2xl font-bold text-slate-900">
-              <span className="text-lg font-semibold text-gambian-blue">D</span>
+              <span className="text-lg font-semibold text-primaryColorBlack">D</span>
               {String(booking.amount ?? "0")}
             </p>
           </div>
@@ -1487,7 +1487,7 @@ function Inner() {
                     onClick={() => setDetailTab(tab.id)}
                     className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
                       active
-                        ? "bg-gambian-blue text-white shadow-md shadow-gambian-blue/20"
+                        ? "bg-primaryColorBlack text-white shadow-md shadow-primaryColorBlack/20"
                         : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
                     }`}
                   >
@@ -1507,7 +1507,7 @@ function Inner() {
               <div className="space-y-6">
                 {/* TITLE CARD - now in Overview tab */}
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
-                  <span className="text-xs font-bold uppercase tracking-widest text-gambian-blue/70">
+                  <span className="text-xs font-bold uppercase tracking-widest text-primaryColorBlack/70">
                     {l?.category?.name ?? "Service"}
                   </span>
                   <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-slate-900">
@@ -1524,8 +1524,8 @@ function Inner() {
                 {!isProviderView ? (
                   <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gambian-blue/10">
-                        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primaryColorBlack/10">
+                        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                         </svg>
                       </div>
@@ -1542,8 +1542,8 @@ function Inner() {
                 {/* Location Card */}
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gambian-blue/10">
-                      <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primaryColorBlack/10">
+                      <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                       </svg>
                     </div>
@@ -1564,7 +1564,7 @@ function Inner() {
                           href={mapUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-2 rounded-lg bg-gambian-blue/5 px-4 py-2 text-sm font-semibold text-gambian-blue transition-all hover:bg-gambian-blue/10"
+                          className="inline-flex items-center gap-2 rounded-lg bg-primaryColorBlack/5 px-4 py-2 text-sm font-semibold text-primaryColorBlack transition-all hover:bg-primaryColorBlack/10"
                         >
                           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 6.75V15m6-6v8.25m.503 3.498l-7.5-7.5-7.5 7.5V21.75a2.25 2.25 0 002.25 2.25h13.5a2.25 2.25 0 002.25-2.25V15m-6-6v8.25m.503 3.498l-7.5-7.5-7.5 7.5V21.75a2.25 2.25 0 002.25 2.25h13.5a2.25 2.25 0 002.25-2.25V15m-6-6v8.25m.503 3.498l-7.5-7.5-7.5 7.5V21.75a2.25 2.25 0 002.25 2.25h13.5a2.25 2.25 0 002.25-2.25V15m-6-6v8.25" />
@@ -1603,8 +1603,8 @@ function Inner() {
                 {isProviderView ? (
                   <>
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gambian-blue/10">
-                        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primaryColorBlack/10">
+                        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.946-4.318l4.718-1.359A3.004 3.004 0 0019.5 3H4.5a3.004 3.004 0 00-2.907 2.629l4.718 1.359a4.5 4.5 0 004.946 4.318c.58-.048 1.193-.024 1.743.14M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.946-4.318l4.718-1.359A3.004 3.004 0 0019.5 3H4.5a3.004 3.004 0 00-2.907 2.629l4.718 1.359a4.5 4.5 0 004.946 4.318c.58-.048 1.193-.024 1.743.14" />
                         </svg>
                       </div>
@@ -1619,8 +1619,8 @@ function Inner() {
                 ) : (
                   <>
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gambian-blue/10">
-                        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primaryColorBlack/10">
+                        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.25 8.25h19.5M2.25 8.25a2.25 2.25 0 011.183-1.98l7.5-4.04a2.25 2.25 0 012.134 0l7.5 4.04a2.25 2.25 0 011.183 1.98M2.25 8.25v10.5a2.25 2.25 0 002.25 2.25h15a2.25 2.25 0 002.25-2.25V8.25m-19.5 0V18a2.25 2.25 0 002.25 2.25H19.5A2.25 2.25 0 0021.75 18V8.25" />
                         </svg>
                       </div>
@@ -1670,8 +1670,8 @@ function Inner() {
                         {l?.provider?.ratingCount != null && Number(l.provider.ratingCount) > 0 ? (
                           <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
                             <div className="flex items-center gap-4">
-                              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gambian-blue/10">
-                                <span className="font-display text-xl font-bold text-gambian-blue">
+                              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primaryColorBlack/10">
+                                <span className="font-display text-xl font-bold text-primaryColorBlack">
                                   {(l.provider?.ratingAvg != null ? Number(l.provider.ratingAvg) : 0).toFixed(1)}
                                 </span>
                               </div>
@@ -1705,7 +1705,7 @@ function Inner() {
           {/* Comments Section */}
           <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
             <div className="flex items-center gap-2 mb-1">
-              <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.012z" />
               </svg>
               <h2 className="text-base font-semibold text-slate-900">Comments</h2>
@@ -1727,19 +1727,19 @@ function Inner() {
                   return (
                     <li
                       key={`${c.authorUserId}-${c.createdAt}-${idx}`}
-                      className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:border-gambian-blue/15 hover:bg-white hover:shadow-sm"
+                      className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:border-primaryColorBlack/15 hover:bg-white hover:shadow-sm"
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${isSelf ? "bg-gambian-blue text-white" : "bg-slate-200 text-slate-600"}`}>
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${isSelf ? "bg-primaryColorBlack text-white" : "bg-slate-200 text-slate-600"}`}>
                           {(c.authorName || "?").charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold text-slate-800">
                               {c.authorName || "Someone"}
-                              {isSelf ? <span className="ml-1 text-xs font-normal text-gambian-blue">(you)</span> : null}
+                              {isSelf ? <span className="ml-1 text-xs font-normal text-primaryColorBlack">(you)</span> : null}
                             </span>
-                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gambian-blue ring-1 ring-gambian-blue/10">
+                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primaryColorBlack ring-1 ring-primaryColorBlack/10">
                               {roleLabel}
                             </span>
                             <span className="text-xs text-slate-400">{formatCommentWhen(c.createdAt)}</span>
@@ -1764,7 +1764,7 @@ function Inner() {
           {/* Actions Card */}
           <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
             <div className="flex items-center gap-2 mb-4">
-              <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
               </svg>
               <h2 className="text-sm font-semibold text-slate-800">Actions</h2>
@@ -1784,7 +1784,7 @@ function Inner() {
                   }}
                   className={`${btnBase} ${
                     a.tone === "primary"
-                      ? "bg-gambian-blue text-white shadow-lg shadow-gambian-blue/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-gambian-blue/30 active:translate-y-0"
+                      ? "bg-primaryColorBlack text-white shadow-lg shadow-primaryColorBlack/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primaryColorBlack/30 active:translate-y-0"
                       : "bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300"
                   }`}
                 >
@@ -1833,7 +1833,7 @@ function Inner() {
           {/* Booking Info - NOW INCLUDES category, summary, perspective */}
           <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
             <div className="flex items-center gap-2 mb-4">
-              <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
               </svg>
               <h2 className="text-sm font-semibold text-slate-800">Booking Info</h2>
@@ -1842,7 +1842,7 @@ function Inner() {
               {/* Category */}
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">Category</span>
-                <span className="text-xs font-semibold text-gambian-blue bg-gambian-blue/5 px-2 py-1 rounded-full">
+                <span className="text-xs font-semibold text-primaryColorBlack bg-primaryColorBlack/5 px-2 py-1 rounded-full">
                   {l?.category?.name ?? "Service"}
                 </span>
               </div>

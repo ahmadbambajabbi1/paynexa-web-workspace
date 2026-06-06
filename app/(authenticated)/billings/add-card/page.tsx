@@ -91,7 +91,7 @@ function AddCardInner() {
             type="button"
             onClick={() => void initialize()}
             disabled={loading}
-            className="rounded-xl bg-gambian-blue px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+            className="rounded-xl bg-primaryColorBlack px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
           >
             {loading ? "Preparing..." : "Start card setup"}
           </button>
@@ -109,7 +109,7 @@ function AddCardInner() {
       ) : null}
 
       <div className="mt-4">
-        <Link href={returnTo.startsWith("/billings") ? "/billings" : returnTo} className="text-sm font-semibold text-gambian-blue">
+        <Link href={returnTo.startsWith("/billings") ? "/billings" : returnTo} className="text-sm font-semibold text-primaryColorBlack">
           Back
         </Link>
       </div>
@@ -162,7 +162,7 @@ function CardSetupForm(props: {
         type="button"
         onClick={() => void submit()}
         disabled={saving}
-        className="mt-4 rounded-xl bg-gambian-blue px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+        className="mt-4 rounded-xl bg-primaryColorBlack px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
       >
         {saving ? "Saving..." : "Save card"}
       </button>

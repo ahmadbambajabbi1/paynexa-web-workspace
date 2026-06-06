@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useMemo, useState } from "react";
-import { CURRENCY_PREFIX } from "@/src/config/constants";
+import { formatMoney } from "@/src/lib/currency";
 import type { ProductRow, ProductTypeFieldDef } from "@/src/lib/api/types";
 import { productDisplayName } from "@/src/lib/product-display";
 import { cardPanel } from "@/src/components/ui/form-classes";
@@ -75,12 +75,13 @@ function collectProductImageUrls(product: ProductRow): string[] {
 
 type Props = {
   product: ProductRow;
+  currency?: string | null;
 };
 
 const zoomableThumb =
-  "cursor-pointer transition duration-200 hover:brightness-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-gambian-blue focus-visible:ring-offset-2";
+  "cursor-pointer transition duration-200 hover:brightness-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryColorBlack focus-visible:ring-offset-2";
 
-export function TransactionRoomProduct({ product }: Props) {
+export function TransactionRoomProduct({ product, currency }: Props) {
   const defs = normalizeFieldDefs(product.productType.fieldDefinitions);
   const banner =
     Array.isArray(product.productImages) && product.productImages.length > 0
@@ -105,7 +106,7 @@ export function TransactionRoomProduct({ product }: Props) {
   return (
     <div className={`${cardPanel} overflow-hidden border-blue-100 p-0`}>
       <div className="border-b border-blue-100 bg-blue-50/70 px-5 py-4 sm:px-6">
-        <p className="text-xs font-bold uppercase tracking-widest text-gambian-blue/70">Product</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-primaryColorBlack/70">Product</p>
         <h2 className="mt-1 font-display text-xl font-bold text-gray-900">{productDisplayName(product)}</h2>
         <p className="mt-0.5 text-xs font-semibold text-gray-500">
           {product.productType?.name ?? "Listing"}
@@ -139,10 +140,9 @@ export function TransactionRoomProduct({ product }: Props) {
             </p>
           </div>
           <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-gambian-blue/70">Price</p>
-            <p className="mt-2 text-2xl font-bold text-gambian-blue">
-              {CURRENCY_PREFIX}
-              {product.price}
+            <p className="text-xs font-bold uppercase tracking-widest text-primaryColorBlack/70">Price</p>
+            <p className="mt-2 text-2xl font-bold text-primaryColorBlack">
+              {formatMoney(product.price, currency)}
             </p>
           </div>
         </div>

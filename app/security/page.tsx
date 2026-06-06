@@ -55,7 +55,7 @@ export default function SecurityPage() {
           ))}
         </ul>
         <p className="mt-10 text-center">
-          <Link href="/" className="font-medium text-gambian-blue hover:underline">
+          <Link href="/" className="font-medium text-primaryColorBlack hover:underline">
             ← Back home
           </Link>
         </p>

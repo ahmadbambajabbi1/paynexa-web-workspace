@@ -182,7 +182,7 @@ function NewProductInner() {
       <div className="mb-6">
         <Link
           href="/store?tab=products"
-          className="text-sm font-medium text-gambian-blue hover:underline"
+          className="text-sm font-medium text-primaryColorBlack hover:underline"
         >
           ← Back to products
         </Link>
@@ -325,7 +325,7 @@ function NewProductInner() {
                     >
                       <input
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-gambian-blue focus:ring-gambian-blue"
+                        className="h-4 w-4 rounded border-gray-300 text-primaryColorBlack focus:ring-primaryColorBlack"
                         checked={Boolean(attributes[d.name])}
                         onChange={(e) => setAttr(d.name, e.target.checked)}
                       />
@@ -497,7 +497,7 @@ function NewProductInner() {
                 !price.trim() ||
                 !description.trim()
               }
-              className="rounded-xl bg-gambian-blue px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-gambian-blue/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-primaryColorBlack px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primaryColorBlack/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Uploading & saving…" : "Publish product"}
             </button>

@@ -196,7 +196,7 @@ export function ServiceBookingPaymentModal({ open, token, booking, onClose, onPa
             <button
               type="button"
               className={`flex-1 rounded-lg py-2 text-sm font-semibold ${
-                mode === "wallet" ? "bg-white text-gambian-blue shadow-sm" : "text-gray-600"
+                mode === "wallet" ? "bg-white text-primaryColorBlack shadow-sm" : "text-gray-600"
               }`}
               onClick={() => setMode("wallet")}
             >
@@ -205,7 +205,7 @@ export function ServiceBookingPaymentModal({ open, token, booking, onClose, onPa
             <button
               type="button"
               className={`flex-1 rounded-lg py-2 text-sm font-semibold ${
-                mode === "card" ? "bg-white text-gambian-blue shadow-sm" : "text-gray-600"
+                mode === "card" ? "bg-white text-primaryColorBlack shadow-sm" : "text-gray-600"
               }`}
               onClick={() => setMode("card")}
             >
@@ -269,7 +269,7 @@ export function ServiceBookingPaymentModal({ open, token, booking, onClose, onPa
           </button>
           <button
             type="button"
-            className="rounded-xl bg-gambian-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
+            className="rounded-xl bg-primaryColorBlack px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
             disabled={
               busy ||
               (mode === "wallet" ? !canWallet : !stripePromise || !cardMethodId)

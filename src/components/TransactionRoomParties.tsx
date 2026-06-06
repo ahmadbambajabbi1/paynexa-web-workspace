@@ -48,9 +48,9 @@ function PartyCard({
   const phone = party?.phone?.trim();
   const fallback = party ? "No contact details on file" : "Profile unavailable";
   const shell = accent === "blue"
-    ? "border-blue-100 bg-blue-50/80 text-gambian-blue"
+    ? "border-blue-100 bg-blue-50/80 text-primaryColorBlack"
     : "border-gambian-sand bg-gambian-sand/70 text-gambian-earth";
-  const avatar = accent === "blue" ? "bg-gambian-blue text-white" : "bg-gambian-earth text-white";
+  const avatar = accent === "blue" ? "bg-primaryColorBlack text-white" : "bg-gambian-earth text-white";
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -66,7 +66,7 @@ function PartyCard({
             </div>
           </div>
           {isYou ? (
-            <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-gambian-blue shadow-sm">You</span>
+            <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-primaryColorBlack shadow-sm">You</span>
           ) : null}
         </div>
       </div>
@@ -86,7 +86,7 @@ function PartyCard({
 function ContactRow({ icon, value }: { icon: string; value: string }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 text-gray-700">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-gambian-blue shadow-sm">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-primaryColorBlack shadow-sm">
         <i className={`fas ${icon} text-xs`} />
       </span>
       <span className="min-w-0 truncate font-medium">{value}</span>

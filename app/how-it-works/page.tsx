@@ -53,7 +53,7 @@ export default function HowItWorksPage() {
                   className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white shadow-lg ${
                     s.accent === "green"
                       ? "bg-gambian-green"
-                      : "bg-gambian-blue"
+                      : "bg-primaryColorBlack"
                   }`}
                 >
                   {s.n}

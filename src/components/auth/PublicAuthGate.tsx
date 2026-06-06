@@ -29,7 +29,7 @@ export function PublicAuthGate({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center pt-24">
         <div className="flex items-center gap-3 text-gray-600">
-          <i className="fas fa-circle-notch fa-spin text-gambian-blue" />
+          <i className="fas fa-circle-notch fa-spin text-primaryColorBlack" />
           Loading…
         </div>
       </div>
@@ -40,7 +40,7 @@ export function PublicAuthGate({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center pt-24">
         <div className="flex items-center gap-3 text-gray-600">
-          <i className="fas fa-circle-notch fa-spin text-gambian-blue" />
+          <i className="fas fa-circle-notch fa-spin text-primaryColorBlack" />
           Redirecting…
         </div>
       </div>

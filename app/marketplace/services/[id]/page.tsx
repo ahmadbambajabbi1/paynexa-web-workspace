@@ -131,7 +131,7 @@
 //       </div>
 //       {!viewerIsOwner && (contact?.phone || contact?.email) ? (
 //         <div className="mt-3 rounded-lg border border-gray-100 bg-white px-3 py-2 text-xs text-gray-800 shadow-sm">
-//           <p className="font-semibold text-gambian-blue">Contact provider</p>
+//           <p className="font-semibold text-primaryColorBlack">Contact provider</p>
 //           <div className="mt-1.5 space-y-1">
 //             {contact?.phone ? (
 //               <a className="block font-medium hover:underline" href={`tel:${contact.phone}`}>
@@ -162,7 +162,7 @@
 //   return (
 //     <div className="flex min-w-0 gap-4">
 //       <div
-//         className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gambian-blue/15 to-white text-sm font-bold text-gambian-blue ring-1 ring-gambian-blue/20 md:h-[4.25rem] md:w-[4.25rem]"
+//         className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primaryColorBlack/15 to-white text-sm font-bold text-primaryColorBlack ring-1 ring-primaryColorBlack/20 md:h-[4.25rem] md:w-[4.25rem]"
 //         aria-hidden
 //       >
 //         {letters}
@@ -171,7 +171,7 @@
 //         <h1 className="font-display text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
 //           {listing.title}
 //         </h1>
-//         <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-gambian-blue">
+//         <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-primaryColorBlack">
 //           {listing.category?.name ?? "Service"}
 //         </p>
 //       </div>
@@ -273,7 +273,7 @@
 //           <select
 //             value={sort}
 //             onChange={(e) => setSort(e.target.value as ReviewSort)}
-//             className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:ring-2 focus:ring-gambian-blue/30"
+//             className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none focus:ring-2 focus:ring-primaryColorBlack/30"
 //           >
 //             <option value="newest">Newest</option>
 //             <option value="oldest">Oldest</option>
@@ -445,7 +445,7 @@
 //               <div className="py-2">
 //                 <Link
 //                   href={searchParams.get("from") === "store-services" || viewerIsOwner ? "/store?tab=services" : "/marketplace/services"}
-//                   className="inline-flex items-center gap-2 text-sm font-semibold text-gambian-blue hover:underline"
+//                   className="inline-flex items-center gap-2 text-sm font-semibold text-primaryColorBlack hover:underline"
 //                 >
 //                   <i className="fas fa-arrow-left text-xs opacity-90" aria-hidden />
 //                   {searchParams.get("from") === "store-services" || viewerIsOwner ? "Back to my services" : "All services"}
@@ -482,7 +482,7 @@
 //                 <aside className="flex flex-col gap-4 md:sticky md:top-[4.75rem] md:self-start">
 //                   <div className="overflow-hidden rounded-2xl border-0 bg-white shadow-[0_2px_20px_-4px_rgba(15,23,42,0.08)]">
 //                     <div className="border-b border-gray-100 bg-white px-4 py-4 sm:px-5">
-//                       <p className="text-[11px] font-semibold uppercase tracking-wider text-gambian-blue">Booking</p>
+//                       <p className="text-[11px] font-semibold uppercase tracking-wider text-primaryColorBlack">Booking</p>
 //                       <div className="mt-2 flex flex-wrap items-end gap-3">
 //                         <p className="font-display text-2xl font-bold text-gray-900 sm:text-[1.75rem]">
 //                           {listing.priceType === "FIXED"
@@ -503,7 +503,7 @@
 //                             <span className="font-semibold">Bookings ({ownerBookings.length})</span>
 //                             <Link
 //                               href="/store?tab=my-bookings"
-//                               className="rounded-lg bg-gambian-blue px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-950"
+//                               className="rounded-lg bg-primaryColorBlack px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-950"
 //                             >
 //                               Open bookings
 //                             </Link>
@@ -581,7 +581,7 @@
 //                             type="button"
 //                             onClick={() => void book()}
 //                             disabled={submitting || !pickedLocation}
-//                             className="w-full rounded-xl bg-gambian-blue px-4 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-950 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none"
+//                             className="w-full rounded-xl bg-primaryColorBlack px-4 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-950 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none"
 //                           >
 //                             {submitting ? "Booking…" : token ? "Request booking" : "Sign in to book"}
 //                           </button>
@@ -681,8 +681,8 @@ function StarRow({ rating }: { rating: number }) {
 function BackgroundDecor() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute -top-60 -right-60 h-[500px] w-[500px] rounded-full bg-gambian-blue/[0.02] blur-3xl" />
-      <div className="absolute -bottom-60 -left-60 h-[500px] w-[500px] rounded-full bg-gambian-blue/[0.015] blur-3xl" />
+      <div className="absolute -top-60 -right-60 h-[500px] w-[500px] rounded-full bg-primaryColorBlack/[0.02] blur-3xl" />
+      <div className="absolute -bottom-60 -left-60 h-[500px] w-[500px] rounded-full bg-primaryColorBlack/[0.015] blur-3xl" />
     </div>
   );
 }
@@ -710,7 +710,7 @@ function ProviderCard({
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gambian-blue/10 text-lg font-bold text-gambian-blue">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primaryColorBlack/10 text-lg font-bold text-primaryColorBlack">
           {letters}
         </div>
         <div className="min-w-0 flex-1">
@@ -744,15 +744,15 @@ function ProviderCard({
 
       {!viewerIsOwner && (contact?.phone || contact?.email) ? (
         <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gambian-blue/70">Contact</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-primaryColorBlack/70">Contact</p>
           {contact?.phone ? (
-            <a href={`tel:${contact.phone}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-gambian-blue">
+            <a href={`tel:${contact.phone}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-primaryColorBlack">
               <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
               {contact.phone}
             </a>
           ) : null}
           {contact?.email ? (
-            <a href={`mailto:${contact.email}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-gambian-blue">
+            <a href={`mailto:${contact.email}`} className="flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-primaryColorBlack">
               <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
               <span className="truncate">{contact.email}</span>
             </a>
@@ -767,7 +767,7 @@ function ProviderCard({
 function ServiceHeader({ listing }: { listing: sm.ServiceListing }) {
   return (
     <div className="space-y-2">
-      <span className="inline-flex items-center rounded-full bg-gambian-blue/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gambian-blue ring-1 ring-gambian-blue/10">
+      <span className="inline-flex items-center rounded-full bg-primaryColorBlack/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primaryColorBlack ring-1 ring-primaryColorBlack/10">
         {listing.category?.name ?? "Service"}
       </span>
       <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
@@ -854,7 +854,7 @@ function GigReviewsPanel({ listing }: { listing: sm.ServiceListing }) {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as ReviewSort)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:ring-2 focus:ring-gambian-blue/30"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:ring-2 focus:ring-primaryColorBlack/30"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -867,7 +867,7 @@ function GigReviewsPanel({ listing }: { listing: sm.ServiceListing }) {
           <li key={rev.id} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)]">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gambian-blue/10 text-sm font-bold text-gambian-blue">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primaryColorBlack/10 text-sm font-bold text-primaryColorBlack">
                   {(rev?.clientUserId || "C").charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -938,7 +938,7 @@ function BookingSidebar({
     <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
       {/* Price Header */}
       <div className="border-b border-slate-100 bg-white px-5 py-5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-gambian-blue/70">Price</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-primaryColorBlack/70">Price</p>
         <div className="mt-2 flex flex-wrap items-end gap-3">
           <p className="font-display text-3xl font-bold text-slate-900">
             {listing.priceType === "FIXED"
@@ -955,7 +955,7 @@ function BookingSidebar({
         {viewerIsOwner ? (
           <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 text-sm text-slate-800">
             <div className="flex items-center gap-2 mb-2">
-              <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
               </svg>
               <p className="font-semibold">This is your listing</p>
@@ -964,7 +964,7 @@ function BookingSidebar({
               <span className="text-slate-600">{ownerBookings.length} booking{ownerBookings.length === 1 ? "" : "s"}</span>
               <Link
                 href="/store?tab=my-bookings"
-                className="rounded-lg bg-gambian-blue px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-gambian-blue/90 hover:shadow-md"
+                className="rounded-lg bg-primaryColorBlack px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primaryColorBlack/90 hover:shadow-md"
               >
                 View bookings
               </Link>
@@ -999,7 +999,7 @@ function BookingSidebar({
 
             <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
               <div className="flex items-center gap-2 mb-1">
-                <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
                 <p className="text-sm font-semibold text-slate-800">Service location</p>
@@ -1043,7 +1043,7 @@ function BookingSidebar({
               type="button"
               onClick={() => void onBook()}
               disabled={submitting || !pickedLocation}
-              className="w-full rounded-xl bg-gambian-blue px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-gambian-blue/20 transition-all hover:-translate-y-0.5 hover:bg-gambian-blue/90 hover:shadow-xl disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
+              className="w-full rounded-xl bg-primaryColorBlack px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primaryColorBlack/20 transition-all hover:-translate-y-0.5 hover:bg-primaryColorBlack/90 hover:shadow-xl disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
             >
               {submitting ? (
                 <span className="flex items-center justify-center gap-2">
@@ -1182,7 +1182,7 @@ export default function ServiceListingDetailPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-24">
-              <div className="h-10 w-10 animate-spin rounded-full border-3 border-gambian-blue border-t-transparent" />
+              <div className="h-10 w-10 animate-spin rounded-full border-3 border-primaryColorBlack border-t-transparent" />
               <p className="mt-4 text-sm text-slate-500">Loading service details...</p>
             </div>
           ) : err ? (
@@ -1205,7 +1205,7 @@ export default function ServiceListingDetailPage() {
               <div className="py-2">
                 <Link
                   href={searchParams.get("from") === "store-services" || viewerIsOwner ? "/store?tab=services" : "/marketplace/services"}
-                  className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-gambian-blue"
+                  className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-primaryColorBlack"
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm transition-all group-hover:shadow-md">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1232,8 +1232,8 @@ export default function ServiceListingDetailPage() {
                   {/* Description */}
                   <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)]">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gambian-blue/10">
-                        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primaryColorBlack/10">
+                        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                         </svg>
                       </div>
@@ -1247,8 +1247,8 @@ export default function ServiceListingDetailPage() {
                   {/* Gallery */}
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gambian-blue/10">
-                        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primaryColorBlack/10">
+                        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 6v12a2.25 2.25 0 002.25 2.25zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                         </svg>
                       </div>
@@ -1260,8 +1260,8 @@ export default function ServiceListingDetailPage() {
                   {/* Reviews */}
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gambian-blue/10">
-                        <svg className="h-4 w-4 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primaryColorBlack/10">
+                        <svg className="h-4 w-4 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
                         </svg>
                       </div>

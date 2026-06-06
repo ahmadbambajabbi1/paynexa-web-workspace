@@ -68,7 +68,7 @@ export function ListingImageUploader({
             </div>
           ) : (
             <label className="flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-2 px-6 py-10 text-center transition hover:bg-gray-100/80">
-              <i className="fas fa-image text-3xl text-gambian-blue/80" aria-hidden />
+              <i className="fas fa-image text-3xl text-primaryColorBlack/80" aria-hidden />
               <span className="text-sm font-medium text-gray-700">
                 Tap to choose cover photo
               </span>
@@ -105,7 +105,7 @@ export function ListingImageUploader({
           )}
         </div>
         <div className="flex flex-wrap gap-3">
-          <label className="flex h-24 w-24 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 transition hover:border-gambian-blue/50 hover:bg-white hover:text-gambian-blue">
+          <label className="flex h-24 w-24 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 transition hover:border-primaryColorBlack/50 hover:bg-white hover:text-primaryColorBlack">
             <i className="fas fa-plus text-lg" aria-hidden />
             <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide">
               Add

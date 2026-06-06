@@ -92,7 +92,7 @@
 //       <div className="mb-8 flex items-center justify-between">
 //         <div>
 //           <h2 className="font-display text-3xl font-bold text-gray-900">
-//             Professional Pricing
+//             personal Pricing
 //           </h2>
 //           <p className="mt-2 text-base text-gray-600">
 //             Set your service rates for each category
@@ -101,7 +101,7 @@
 //         <button
 //           type="button"
 //           onClick={() => setShowAddModal(true)}
-//           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-gambian-blue to-blue-700 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:shadow-xl hover:scale-105 active:scale-95"
+//           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primaryColorBlack to-blue-700 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:shadow-xl hover:scale-105 active:scale-95"
 //         >
 //           <svg
 //             className="h-5 w-5"
@@ -123,9 +123,9 @@
 //       <div className="grid gap-4 sm:grid-cols-2">
 //         {items.length === 0 ? (
 //           <div className="col-span-full">
-//             <div className="rounded-2xl border-2 border-dashed border-gambian-blue/20 bg-gradient-to-br from-gambian-blue/5 to-blue-50/50 px-8 py-16 text-center">
-//               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gambian-blue/10">
-//                 <svg className="h-8 w-8 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//             <div className="rounded-2xl border-2 border-dashed border-primaryColorBlack/20 bg-gradient-to-br from-primaryColorBlack/5 to-blue-50/50 px-8 py-16 text-center">
+//               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primaryColorBlack/10">
+//                 <svg className="h-8 w-8 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 //                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 //                 </svg>
 //               </div>
@@ -139,17 +139,17 @@
 //           items.map((item) => (
 //             <div
 //               key={item.productTypeId}
-//               className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:border-gambian-blue/30"
+//               className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:border-primaryColorBlack/30"
 //             >
-//               <div className="absolute inset-0 bg-gradient-to-br from-gambian-blue/0 to-gambian-blue/5 transition-all group-hover:from-gambian-blue/5 group-hover:to-gambian-blue/10"></div>
+//               <div className="absolute inset-0 bg-gradient-to-br from-primaryColorBlack/0 to-primaryColorBlack/5 transition-all group-hover:from-primaryColorBlack/5 group-hover:to-primaryColorBlack/10"></div>
               
 //               <div className="relative flex items-start justify-between gap-4">
 //                 <div className="flex-1">
-//                   <div className="inline-flex items-center gap-2 rounded-full bg-gambian-blue/10 px-3 py-1 mb-3">
-//                     <span className="text-xs font-bold text-gambian-blue uppercase tracking-wider">{item.code}</span>
+//                   <div className="inline-flex items-center gap-2 rounded-full bg-primaryColorBlack/10 px-3 py-1 mb-3">
+//                     <span className="text-xs font-bold text-primaryColorBlack uppercase tracking-wider">{item.code}</span>
 //                   </div>
 //                   <h3 className="font-display text-lg font-bold text-gray-900">{item.name}</h3>
-//                   <p className="mt-3 text-3xl font-bold text-gambian-blue">
+//                   <p className="mt-3 text-3xl font-bold text-primaryColorBlack">
 //                     {CURRENCY_PREFIX}
 //                     {item.feeAmount ?? "—"}
 //                   </p>
@@ -158,7 +158,7 @@
 //                 <button
 //                   type="button"
 //                   onClick={() => startEdit(item)}
-//                   className="flex-shrink-0 rounded-xl bg-gray-100 p-2.5 text-gray-700 shadow-sm transition-all hover:bg-gambian-blue/20 hover:text-gambian-blue active:scale-90"
+//                   className="flex-shrink-0 rounded-xl bg-gray-100 p-2.5 text-gray-700 shadow-sm transition-all hover:bg-primaryColorBlack/20 hover:text-primaryColorBlack active:scale-90"
 //                   title="Edit pricing"
 //                 >
 //                   <svg
@@ -257,7 +257,7 @@
 //                 <input
 //                   type="text"
 //                   inputMode="decimal"
-//                   className="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-base placeholder-gray-400 transition focus:border-gambian-blue focus:shadow-lg focus:outline-none"
+//                   className="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-base placeholder-gray-400 transition focus:border-primaryColorBlack focus:shadow-lg focus:outline-none"
 //                   value={value}
 //                   onChange={(e) => onChange(e.target.value)}
 //                   placeholder="0.00"
@@ -284,7 +284,7 @@
 //               type="button"
 //               onClick={onSubmit}
 //               disabled={disabled || isLoading || !value.trim()}
-//               className="flex-1 rounded-lg bg-gradient-to-r from-gambian-blue to-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+//               className="flex-1 rounded-lg bg-gradient-to-r from-primaryColorBlack to-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
 //             >
 //               {isLoading ? (
 //                 <span className="inline-flex items-center gap-2">
@@ -321,7 +321,7 @@
 //     ? approvedApp.role === "LAWYER"
 //       ? "Lawyer"
 //       : "Agent"
-//     : "Professional account";
+//     : "personal account";
 //   const displayName =
 //     user.displayName?.trim() || user.fullName?.trim() || user.phone || user.email || "Your account";
 //   const initials = displayName
@@ -336,7 +336,7 @@
 //   return (
 //     <>
 //       {/* Profile Header */}
-//       <div className="mb-8 rounded-2xl bg-gradient-to-br from-gambian-blue via-gambian-blue/90 to-blue-800 p-8 text-white shadow-lg">
+//       <div className="mb-8 rounded-2xl bg-gradient-to-br from-primaryColorBlack via-primaryColorBlack/90 to-blue-800 p-8 text-white shadow-lg">
 //         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:gap-8">
 //           {/* Avatar */}
 //           <div className="flex shrink-0 justify-center sm:justify-start">
@@ -377,7 +377,7 @@
 //               <button
 //                 type="button"
 //                 onClick={() => setOpenRolePicker(true)}
-//                 className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-2.5 font-semibold text-gambian-blue shadow-lg transition hover:shadow-xl hover:scale-105 active:scale-95"
+//                 className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-2.5 font-semibold text-primaryColorBlack shadow-lg transition hover:shadow-xl hover:scale-105 active:scale-95"
 //               >
 //                 <svg
 //                   className="h-5 w-5"
@@ -392,7 +392,7 @@
 //                     d="M12 4v16m8-8H4"
 //                   />
 //                 </svg>
-//                 Apply for Professional
+//                 Apply for personal
 //               </button>
 //             )}
 //           </div>
@@ -446,7 +446,7 @@
 //         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
 //           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
 //             <h2 className="font-display text-xl font-bold text-gray-900">
-//               Apply for Professional Role
+//               Apply for personal Role
 //             </h2>
 //             <p className="mt-2 text-sm text-gray-600">
 //               Select which professional role you'd like to apply for
@@ -456,7 +456,7 @@
 //               {canLawyer && (
 //                 <Link
 //                   href="/kyc/apply?role=LAWYER"
-//                   className="block rounded-xl border-2 border-gray-200 bg-white p-4 text-center transition hover:border-gambian-blue hover:bg-gambian-blue/5"
+//                   className="block rounded-xl border-2 border-gray-200 bg-white p-4 text-center transition hover:border-primaryColorBlack hover:bg-primaryColorBlack/5"
 //                 >
 //                   <p className="font-semibold text-gray-900">Lawyer</p>
 //                   <p className="mt-1 text-xs text-gray-500">
@@ -467,7 +467,7 @@
 //               {canAgent && (
 //                 <Link
 //                   href="/kyc/apply?role=AGENT"
-//                   className="block rounded-xl border-2 border-gray-200 bg-white p-4 text-center transition hover:border-gambian-blue hover:bg-gambian-blue/5"
+//                   className="block rounded-xl border-2 border-gray-200 bg-white p-4 text-center transition hover:border-primaryColorBlack hover:bg-primaryColorBlack/5"
 //                 >
 //                   <p className="font-semibold text-gray-900">Agent</p>
 //                   <p className="mt-1 text-xs text-gray-500">
@@ -517,7 +517,7 @@ export default function ProfilePage() {
 }
 
 /* ───────────────────────────────
-   Professional Pricing Section
+   personal Pricing Section
    ─────────────────────────────── */
 function ProfilePricingSection({ token }: { token: string }) {
   const [items, setItems] = useState<ProfessionalFeeItem[]>([]);
@@ -589,7 +589,7 @@ function ProfilePricingSection({ token }: { token: string }) {
         <button
           type="button"
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-gambian-blue px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-gambian-blue/90"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primaryColorBlack px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-primaryColorBlack/90"
         >
           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -613,15 +613,15 @@ function ProfilePricingSection({ token }: { token: string }) {
           {items.map((item) => (
             <div
               key={item.productTypeId}
-              className="group relative rounded-xl border border-gray-200 bg-white p-4 transition-all hover:shadow-md hover:border-gambian-blue/20"
+              className="group relative rounded-xl border border-gray-200 bg-white p-4 transition-all hover:shadow-md hover:border-primaryColorBlack/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <span className="rounded-md bg-gambian-blue/10 px-2 py-0.5 text-[10px] font-bold text-gambian-blue uppercase tracking-wide">
+                  <span className="rounded-md bg-primaryColorBlack/10 px-2 py-0.5 text-[10px] font-bold text-primaryColorBlack uppercase tracking-wide">
                     {item.code}
                   </span>
                   <h4 className="mt-2 text-sm font-bold text-gray-900 truncate">{item.name}</h4>
-                  <p className="mt-1.5 text-xl font-bold text-gambian-blue">
+                  <p className="mt-1.5 text-xl font-bold text-primaryColorBlack">
                     {CURRENCY_PREFIX}{item.feeAmount ?? "—"}
                   </p>
                   <p className="mt-0.5 text-[11px] text-gray-500">per engagement</p>
@@ -726,7 +726,7 @@ function PricingModal({
                 <input
                   type="text"
                   inputMode="decimal"
-                  className="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-base placeholder-gray-400 transition focus:border-gambian-blue focus:outline-none"
+                  className="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-base placeholder-gray-400 transition focus:border-primaryColorBlack focus:outline-none"
                   value={value}
                   onChange={(e) => onChange(e.target.value)}
                   placeholder="0.00"
@@ -753,7 +753,7 @@ function PricingModal({
               type="button"
               onClick={onSubmit}
               disabled={disabled || isLoading || !value.trim()}
-              className="flex-1 rounded-lg bg-gambian-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gambian-blue/90 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-primaryColorBlack px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primaryColorBlack/90 disabled:opacity-50"
             >
               {isLoading ? (
                 <span className="inline-flex items-center gap-2">
@@ -797,7 +797,7 @@ function ProfileInner() {
     ? approvedApp.role === "LAWYER"
       ? "Lawyer"
       : "Agent"
-    : "Professional account";
+    : "personal account";
 
   const displayName =
     user.displayName?.trim() || user.fullName?.trim() || user.phone || user.email || "Your account";
@@ -813,9 +813,9 @@ function ProfileInner() {
     Boolean(user.fullName?.trim()) && user.displayName?.trim() !== user.fullName?.trim();
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       {/* ── Profile Header Card ── */}
-      <div className="relative overflow-hidden bg-gambian-blue">
+      <div className="relative overflow-hidden bg-primaryColorBlack">
         {/* Subtle dot pattern */}
         <div className="absolute inset-0 opacity-5">
           <svg width="100%" height="100%">
@@ -835,7 +835,7 @@ function ProfileInner() {
               <div className="flex h-20 w-20 items-center justify-center rounded-full border-3 border-white/25 bg-white/15 text-xl font-bold text-white backdrop-blur sm:h-24 sm:w-24 sm:text-2xl">
                 {initials || "U"}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-gambian-blue bg-green-500">
+              <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-primaryColorBlack bg-green-500">
                 <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
@@ -870,7 +870,7 @@ function ProfileInner() {
               <button
                 type="button"
                 onClick={() => setOpenRolePicker(true)}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-bold text-gambian-blue shadow-lg transition hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-bold text-primaryColorBlack shadow-lg transition hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -890,7 +890,7 @@ function ProfileInner() {
             onClick={() => setActiveTab("profile")}
             className={`border-b-2 pb-3 pt-4 text-sm font-semibold transition ${
               activeTab === "profile"
-                ? "border-gambian-blue text-gambian-blue"
+                ? "border-primaryColorBlack text-primaryColorBlack"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -902,7 +902,7 @@ function ProfileInner() {
               onClick={() => setActiveTab("pricing")}
               className={`border-b-2 pb-3 pt-4 text-sm font-semibold transition ${
                 activeTab === "pricing"
-                  ? "border-gambian-blue text-gambian-blue"
+                  ? "border-primaryColorBlack text-primaryColorBlack"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -913,7 +913,7 @@ function ProfileInner() {
       </div>
 
       {/* ── Tab Content ── */}
-      <div className="px-5 py-5 sm:px-8">
+      <div className="px-2 py-5 sm:px-3">
         {activeTab === "profile" ? (
           <div className="space-y-6">
             {/* Contact Information */}
@@ -1014,7 +1014,7 @@ function ProfileInner() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
                         </div>
-                        <span className="text-sm text-gray-600">Professional Role</span>
+                        <span className="text-sm text-gray-600">personal Role</span>
                       </div>
                       <span className="text-sm font-semibold text-gray-900">{approvedApp.role}</span>
                     </div>
@@ -1032,23 +1032,23 @@ function ProfileInner() {
       {openRolePicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mb-1">
+            {/* <div className="mb-1">
               <h2 className="font-display text-lg font-bold text-gray-900">
-                Apply for Professional Role
+                Apply for Profesional Role
               </h2>
               <p className="mt-1 text-sm text-gray-500">
                 Select which professional role you would like to apply for
               </p>
-            </div>
+            </div> */}
 
             <div className="mt-5 space-y-3">
               {canLawyer && (
                 <Link
                   href="/kyc/apply?role=LAWYER"
-                  className="group flex items-center gap-4 rounded-xl border-2 border-gray-100 bg-white p-4 transition hover:border-gambian-blue/30 hover:bg-gambian-blue/5"
+                  className="group flex items-center gap-4 rounded-xl border-2 border-gray-100 bg-white p-4 transition hover:border-primaryColorBlack/30 hover:bg-primaryColorBlack/5"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gambian-blue/10 transition group-hover:bg-gambian-blue/20">
-                    <svg className="h-6 w-6 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primaryColorBlack/10 transition group-hover:bg-primaryColorBlack/20">
+                    <svg className="h-6 w-6 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                     </svg>
                   </div>
@@ -1056,7 +1056,7 @@ function ProfileInner() {
                     <p className="font-semibold text-gray-900">Lawyer</p>
                     <p className="text-xs text-gray-500">Provide legal services and consultations</p>
                   </div>
-                  <svg className="h-5 w-5 text-gray-300 group-hover:text-gambian-blue transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-gray-300 group-hover:text-primaryColorBlack transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -1064,10 +1064,10 @@ function ProfileInner() {
               {canAgent && (
                 <Link
                   href="/kyc/apply?role=AGENT"
-                  className="group flex items-center gap-4 rounded-xl border-2 border-gray-100 bg-white p-4 transition hover:border-gambian-blue/30 hover:bg-gambian-blue/5"
+                  className="group flex items-center gap-4 rounded-xl border-2 border-gray-100 bg-white p-4 transition hover:border-primaryColorBlack/30 hover:bg-primaryColorBlack/5"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gambian-blue/10 transition group-hover:bg-gambian-blue/20">
-                    <svg className="h-6 w-6 text-gambian-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primaryColorBlack/10 transition group-hover:bg-primaryColorBlack/20">
+                    <svg className="h-6 w-6 text-primaryColorBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
@@ -1075,7 +1075,7 @@ function ProfileInner() {
                     <p className="font-semibold text-gray-900">Agent</p>
                     <p className="text-xs text-gray-500">Provide escrow facilitation services</p>
                   </div>
-                  <svg className="h-5 w-5 text-gray-300 group-hover:text-gambian-blue transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-gray-300 group-hover:text-primaryColorBlack transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>

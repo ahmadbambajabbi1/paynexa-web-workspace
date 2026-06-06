@@ -1,4 +1,4 @@
-const packageName = process.env.ANDROID_APP_PACKAGE ?? "com.example.escrow_app";
+const packageName = process.env.ANDROID_APP_PACKAGE ?? "com.paynexa.paynexa";
 const fingerprints = (process.env.ANDROID_SHA256_CERT_FINGERPRINTS ?? "")
   .split(",")
   .map((value) => value.trim())
