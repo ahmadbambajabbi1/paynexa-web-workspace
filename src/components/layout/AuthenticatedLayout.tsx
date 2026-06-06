@@ -85,8 +85,8 @@ export function AuthenticatedLayout({ children }: { children: React.ReactNode })
         </main> */}
         <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
   <div
-    className={`mx-auto max-w-7xl pb-12 pt-6 lg:pt-8 ${
-      isProfilePage ? "" : "px-4 sm:px-6 lg:px-8"
+    className={`mx-auto max-w-7xl pb-12 ${
+      isProfilePage ? "" : "px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8"
     }`}
   >
     {children}
