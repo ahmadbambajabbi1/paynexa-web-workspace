@@ -45,6 +45,29 @@ const FUNDED_STATUSES = [
   "DISPUTED",
 ];
 
+// --- Status transition map (exactly as in the Flutter app) ---
+const kStatusTransitions: Record<string, string[]> = {
+  "AWAITING_ACCEPTANCE": ["AWAITING_FUNDING"],
+  "AWAITING_FUNDING": ["FUNDED"],
+  "FUNDED": ["IN_PROGRESS"],
+  "IN_PROGRESS": ["INSPECTION"],
+  "INSPECTION": ["COMPLETED", "DISPUTED"],
+  "COMPLETED": [],
+  "CLOSED": [],
+  "DISPUTED": [],
+};
+
+function visibleTransitions(status: string, role: SelfRole): string[] {
+  const all = kStatusTransitions[status] || [];
+  if (role === "buyer") {
+    return all.filter(s => ["COMPLETED", "DISPUTED"].includes(s));
+  }
+  if (role === "seller") {
+    return all.filter(s => ["IN_PROGRESS", "INSPECTION", "DISPUTED"].includes(s));
+  }
+  return [];
+}
+
 function selfRoleFor(room: TransactionRoom, userId: string): SelfRole {
   const tx = room.transaction;
   if (userId === tx.buyerId) return "buyer";
@@ -721,15 +744,10 @@ function PublicShareableRoom({
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const currentTab = tabs.some((t) => t.id === activeTab) ? activeTab : tabs[0].id;
 
-  // Determine available actions for overview
+  // Determine available actions for overview – using the same transition logic as mobile
   const canAccept = false; // not applicable in public shareable for seller
   const canClose = canBuyerCloseTransaction(role, tx);
-  const nextStates = (() => {
-    if (role === "seller" && tx.status === "FUNDED") return ["IN_PROGRESS"];
-    if (role === "seller" && tx.status === "IN_PROGRESS") return ["INSPECTION"];
-    if (role === "buyer" && tx.status === "INSPECTION") return ["COMPLETED"];
-    return [];
-  })();
+  const nextStates = visibleTransitions(tx.status, role);
 
   return (
     <div className="space-y-5">
@@ -807,7 +825,8 @@ function PublicShareableRoom({
                 }}
               />
             ) : (
-              !isSeller && (
+              // Show actions for any role that has available transitions (including seller)
+              (nextStates.length > 0 || canClose) && (
                 <ActionsGroup
                   canAccept={canAccept}
                   canPay={false}
@@ -878,24 +897,8 @@ function SecureEscrowRoom({
   const canAccept = role === "buyer" && tx.status === "AWAITING_ACCEPTANCE" && !tx.acceptedPartyIds.includes(selfId);
   const canPay = role === "buyer" && tx.status === "AWAITING_FUNDING";
 
-  // Determine next states based on role (same logic as mobile)
-  const getNextStates = () => {
-    if (role === "buyer") {
-      if (tx.status === "AWAITING_ACCEPTANCE") return [];
-      if (tx.status === "AWAITING_FUNDING") return [];
-      if (tx.status === "FUNDED") return [];
-      if (tx.status === "IN_PROGRESS") return [];
-      if (tx.status === "INSPECTION") return ["COMPLETED"];
-      return [];
-    }
-    if (role === "seller") {
-      if (tx.status === "FUNDED") return ["IN_PROGRESS"];
-      if (tx.status === "IN_PROGRESS") return ["INSPECTION"];
-      return [];
-    }
-    return [];
-  };
-  const nextStates = getNextStates();
+  // Use the same transition logic as the Flutter app
+  const nextStates = visibleTransitions(tx.status, role);
   const canClose = canBuyerCloseTransaction(role, tx);
 
   const tabs = [

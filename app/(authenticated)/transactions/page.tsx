@@ -143,18 +143,18 @@ function TransactionsInner() {
       <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <Stat
           icon="fa-layer-group"
-          label="Total Rooms"
+          label="Total Transactions"
           value={String(counts.all)}
         />
         <Stat
           icon="fa-link"
-          label="Shareable Links"
+          label="Shareable Transactions"
           value={String(counts.public)}
         />
         {/* <Stat icon="fa-shield-alt" label="Two-Party Escrows" value={String(counts.escrow)} /> */}
         <Stat
           icon="fa-lock"
-          label="Currently in Escrow"
+          label="in Escrow"
           value={String(counts.active)}
         />
       </div>
