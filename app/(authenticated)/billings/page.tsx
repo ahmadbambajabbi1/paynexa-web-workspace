@@ -5,6 +5,7 @@ import { cardPanel, fieldInput, fieldLabel } from "@/src/components/ui/form-clas
 import { useAuth } from "@/src/lib/auth/auth-context";
 import * as escrowApi from "@/src/lib/api/escrow";
 import { currencySymbol, formatMoney } from "@/src/lib/currency";
+import { buildWalletActivity } from "@/src/lib/wallet-activity";
 import { loadStripe } from "@stripe/stripe-js";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -283,41 +284,10 @@ function BillingsInner() {
     }
   }
 
-  // Derived data
-  // Only use walletTransfer records for the combined activity view.
-  // Ledger entries are internal accounting records — showing both would create
-  // duplicate rows for every deposit (one walletTransfer + one ledger entry).
-  const walletActivity = useMemo(() => {
-    type Row = {
-      id: string;
-      label: string;
-      createdAt: string;
-      signedAmount: number;
-      status?: string;
-      isEscrow: boolean;
-    };
-
-    const friendlyLabel = (item: escrowApi.WalletTransferSummary): string => {
-      if (item.kind === "DEPOSIT") {
-        return item.provider === "STRIPE"
-          ? "Deposited through card"
-          : "Deposited through mobile wallet";
-      }
-      if (item.kind === "PAYOUT") return "Withdrawn through Modem Pay";
-      return item.kind;
-    };
-
-    const rows: Row[] = transfers.map((item) => ({
-      id: `transfer-${item.id}`,
-      label: friendlyLabel(item),
-      createdAt: item.createdAt,
-      signedAmount: item.kind === "DEPOSIT" ? Number(item.amount) : -Number(item.amount),
-      status: item.status,
-      isEscrow: false,
-    }));
-
-    return rows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [transfers]);
+  const walletActivity = useMemo(
+    () => buildWalletActivity(transfers, ledger),
+    [transfers, ledger],
+  );
 
   const recentTransfers = walletActivity.slice(0, 5);
   const cardMethods = methods.filter((m) => m.provider === "STRIPE");

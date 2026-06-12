@@ -40,13 +40,14 @@ export function SiteHeader() {
           </div>
           <span className="font-display text-xl font-bold tracking-tight">
             {APP_NAME}
-            <span className="text-gambian-red">GM</span>
           </span>
         </Link>
 
         {!user ? (
           <div className="hidden items-center space-x-8 md:flex">
+            {/* Marketplace — coming soon
             <NavLink href="/marketplace">Marketplace</NavLink>
+            */}
             <NavLink href="/how-it-works">How It Works</NavLink>
             <NavLink href="/security">Security</NavLink>
           </div>

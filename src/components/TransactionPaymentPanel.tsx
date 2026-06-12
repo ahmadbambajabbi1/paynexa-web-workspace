@@ -207,22 +207,32 @@ export function TransactionPaymentPanel({ token, transactionId, amount, currency
         <div className="flex flex-col gap-2">
           <button
             type="button"
-            onClick={() => void payNow()}
+            onClick={() => {
+              if (deficit > 0) {
+                setDepositAmount(String(deficit.toFixed(2)));
+                setDepositOpen(true);
+                return;
+              }
+              void payNow();
+            }}
             disabled={busy || loading || disabled}
             className="w-full rounded-xl bg-primaryColorBlack py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-950 disabled:opacity-60"
           >
-            {busy ? "Processing…" : deficit > 0 ? "Fund wallet to pay" : "Pay from wallet"}
+            {busy ? "Processing…" : deficit > 0 ? "Deposit to pay" : "Pay from wallet"}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              setDepositAmount(String(deficit > 0 ? deficit.toFixed(2) : amountNumber.toFixed(2)));
-              setDepositOpen(true);
-            }}
-            className="w-full rounded-xl border border-primaryColorBlack/20 bg-primaryColorBlack/5 py-2.5 text-sm font-semibold text-primaryColorBlack transition hover:bg-primaryColorBlack/10"
-          >
-            Fund wallet
-          </button>
+          {deficit > 0 ? (
+            <button
+              type="button"
+              onClick={() => {
+                setDepositAmount(String(deficit.toFixed(2)));
+                setDepositOpen(true);
+              }}
+              disabled={busy || loading || disabled}
+              className="w-full rounded-xl border border-primaryColorBlack/20 bg-primaryColorBlack/5 py-2.5 text-sm font-semibold text-primaryColorBlack transition hover:bg-primaryColorBlack/10 disabled:opacity-60"
+            >
+              Fund wallet ({formatMoney(deficit, currency)})
+            </button>
+          ) : null}
         </div>
 
         {/* Refresh */}

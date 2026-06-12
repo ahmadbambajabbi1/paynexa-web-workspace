@@ -135,3 +135,18 @@ export async function resendProfileEmailVerification(token: string): Promise<{
     token,
   });
 }
+
+export async function registerFcmToken(
+  token: string,
+  fcmToken: string,
+  platform?: string,
+): Promise<{ ok: boolean }> {
+  return apiFetch("/users/devices/fcm-token", {
+    method: "POST",
+    token,
+    body: JSON.stringify({
+      fcmToken,
+      ...(platform ? { platform } : {}),
+    }),
+  });
+}

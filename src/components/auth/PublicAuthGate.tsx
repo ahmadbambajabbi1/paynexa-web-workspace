@@ -27,7 +27,7 @@ export function PublicAuthGate({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center pt-24">
+      <div className="flex min-h-[12rem] items-center justify-center">
         <div className="flex items-center gap-3 text-gray-600">
           <i className="fas fa-circle-notch fa-spin text-primaryColorBlack" />
           Loading…
@@ -38,7 +38,7 @@ export function PublicAuthGate({ children }: { children: React.ReactNode }) {
 
   if (token && user) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center pt-24">
+      <div className="flex min-h-[12rem] items-center justify-center">
         <div className="flex items-center gap-3 text-gray-600">
           <i className="fas fa-circle-notch fa-spin text-primaryColorBlack" />
           Redirecting…

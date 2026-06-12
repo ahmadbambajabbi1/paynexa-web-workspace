@@ -13,7 +13,10 @@ export const APP_NAME = "Paynexa";
 export const APP_NAME_REGION = "Paynexa";
 
 export const TAGLINE =
-  "The first escrow platform built specifically for The Gambia";
+  "Share a payment link. Buyer pays into escrow. Release when the deal is done.";
+
+export const HERO_SUBTITLE =
+  "Paynexa helps two people complete a deal safely — seller shares a link, buyer pays from wallet or card, and funds stay protected until you release them.";
 
 /** Shown in create-transaction UI; adjust when pricing is wired server-side. */
 export const ESCROW_FEE_PERCENT = 1.5;

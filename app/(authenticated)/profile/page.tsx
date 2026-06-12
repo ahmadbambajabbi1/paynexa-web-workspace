@@ -374,7 +374,7 @@ function ProfileInner() {
             </div>
 
             {/* Apply Pro button */}
-            {canApplyAny && (
+            {/* {canApplyAny && (
               <button
                 type="button"
                 onClick={() => setOpenRolePicker(true)}
@@ -385,7 +385,7 @@ function ProfileInner() {
                 </svg>
                 Apply Pro
               </button>
-            )}
+            )} */}
           </div>
         </div>
       </div>
