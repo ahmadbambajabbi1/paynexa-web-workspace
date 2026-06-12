@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "@/src/components/SiteHeader";
@@ -16,23 +16,22 @@ type Step = "phone" | "code" | "pin_new" | "pin_login";
 
 export default function LoginPage() {
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <SiteHeader />
-      <main className="relative min-h-[calc(100vh-4rem)] px-4 pb-20 pt-10 sm:pt-16">
-        <div className="absolute inset-0 pattern-bg opacity-40" />
-        <div className="relative z-10 mx-auto w-full max-w-md">
+      <main className="relative flex flex-1 flex-col items-center justify-center px-4 py-8 sm:py-12">
+        <div className="pointer-events-none absolute inset-0 pattern-bg opacity-40" />
+        <div className="relative z-10 w-full max-w-md">
           <PublicAuthGate>
             <LoginFlow />
           </PublicAuthGate>
+          <p className="mt-6 text-center text-sm text-gray-600">
+            <Link href="/" className="font-medium text-primaryColorBlack hover:underline">
+              ← Back to home
+            </Link>
+          </p>
         </div>
-
-        <p className="relative z-10 mx-auto mt-8 max-w-md text-center text-sm text-gray-600">
-          <Link href="/" className="font-medium text-primaryColorBlack hover:underline">
-            ← Back to home
-          </Link>
-        </p>
       </main>
-    </>
+    </div>
   );
 }
 
@@ -56,10 +55,10 @@ function LoginFlow() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  function handlePhoneChange(e164: string, iso2: string) {
+  const handlePhoneChange = useCallback((e164: string, iso2: string) => {
     setPhoneE164(e164);
     setCountryIso2(iso2);
-  }
+  }, []);
 
   async function onSendCode(e: React.FormEvent) {
     e.preventDefault();
@@ -178,11 +177,11 @@ function LoginFlow() {
           <i className="fas fa-mobile-alt" />
         </div>
         <h1 className="font-display text-2xl font-bold text-gray-900 sm:text-3xl">
-          Sign in
+          {step === "phone" ? "Welcome to Paynexa" : "Sign in"}
         </h1>
         <p className="mt-2 text-sm text-gray-600">
           {step === "phone" &&
-            "One account for buying and selling — phone number and secure PIN."}
+            "Sign in with your phone number to create deals, pay shared links, and manage escrow."}
           {step === "code" && `Enter the code sent to ${phoneE164}`}
           {step === "pin_new" && "Create your 4-digit PIN"}
           {step === "pin_login" && "Enter your PIN"}
@@ -226,7 +225,7 @@ function LoginFlow() {
               maxLength={6}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="000000"
             />
           </div>
@@ -267,7 +266,7 @@ function LoginFlow() {
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="••••"
             />
           </div>
@@ -285,7 +284,7 @@ function LoginFlow() {
               onChange={(e) =>
                 setPinConfirm(e.target.value.replace(/\D/g, "").slice(0, 4))
               }
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="••••"
             />
           </div>
@@ -319,7 +318,7 @@ function LoginFlow() {
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none ring-primaryColorBlack/30 transition focus:border-primaryColorBlack focus:ring-2 tracking-widest"
               placeholder="••••"
             />
           </div>

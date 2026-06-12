@@ -33,7 +33,7 @@ export default function PayTransactionPage() {
     let cancelled = false;
 
     txApi
-      .getPublicTransactionSummary(ref)
+      .getPublicTransactionSummary(ref, token)
       .then((nextSummary) => {
         if (cancelled) return;
         setSummary(nextSummary);
@@ -48,7 +48,7 @@ export default function PayTransactionPage() {
     return () => {
       cancelled = true;
     };
-  }, [ref]);
+  }, [ref, token]);
 
   useEffect(() => {
     if (!token) {
@@ -81,7 +81,7 @@ export default function PayTransactionPage() {
   async function refreshSummary() {
     if (!ref) return;
     try {
-      const nextSummary = await txApi.getPublicTransactionSummary(ref);
+      const nextSummary = await txApi.getPublicTransactionSummary(ref, token);
       setSummary(nextSummary);
       setErr(null);
     } catch (e) {

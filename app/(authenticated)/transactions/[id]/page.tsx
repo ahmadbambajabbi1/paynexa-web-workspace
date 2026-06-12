@@ -128,26 +128,45 @@ function inviterLabelFromUser(user: {
 // ----------------------------------------------------------------------
 // Status Badge (exactly as mobile)
 // ----------------------------------------------------------------------
+function SectionCard({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-[18px] border border-[#E8EBF2] bg-white shadow-[0_6px_16px_rgba(0,0,0,0.035)]">
+      <div className="border-b border-[#E8EBF2] px-4 py-4 sm:px-5">
+        <h2 className="font-display text-lg font-bold text-gray-900">{title}</h2>
+        {subtitle ? (
+          <p className="mt-1 text-xs font-semibold text-gray-500">{subtitle}</p>
+        ) : null}
+      </div>
+      <div className="p-4 sm:p-5">{children}</div>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
-  let bg = "bg-amber-100";
-  let text = "text-amber-800";
-  let dot = "bg-amber-500";
+  let bg = "bg-amber-100/80";
+  let text = "text-amber-900";
   if (status === "COMPLETED" || status === "CLOSED") {
-    bg = "bg-green-100";
-    text = "text-green-800";
-    dot = "bg-green-500";
+    bg = "bg-green-100/80";
+    text = "text-green-900";
   } else if (status === "DISPUTED") {
     bg = "bg-red-100";
-    text = "text-red-800";
-    dot = "bg-red-500";
-  } else if (["FUNDED", "IN_PROGRESS", "INSPECTION"].includes(status)) {
-    bg = "bg-blue-100";
-    text = "text-blue-800";
-    dot = "bg-blue-500";
+    text = "text-red-900";
+  } else if (
+    ["AWAITING_FUNDING", "FUNDED", "IN_PROGRESS", "INSPECTION"].includes(status)
+  ) {
+    bg = "bg-blue-50";
+    text = "text-primaryColorBlack";
   }
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${bg} ${text}`}>
-      <span className={`h-2 w-2 rounded-full ${dot}`} />
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${bg} ${text}`}>
       {formatStatus(status)}
     </span>
   );
@@ -166,7 +185,7 @@ function RoomTabs({
   onChange: (id: string) => void;
 }) {
   return (
-    <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-1.5">
+    <div className="rounded-2xl border border-[#E8EBF2] bg-white p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.04)]">
       <div className="flex w-full gap-1.5">
         {tabs.map((tab) => {
           const isActive = tab.id === active;
@@ -175,14 +194,14 @@ function RoomTabs({
               key={tab.id}
               type="button"
               onClick={() => onChange(tab.id)}
-              className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 py-2.5 ${
+              className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 transition-all duration-200 ${
                 isActive
-                  ? "bg-black text-white"
-                  : "bg-transparent text-gray-500 hover:text-black"
+                  ? "bg-primaryColorBlack text-white"
+                  : "bg-transparent text-gray-500 hover:text-gray-800"
               }`}
             >
-              <i className={`fas ${tab.icon} text-lg`} />
-              <span className="text-xs font-extrabold">{tab.label}</span>
+              <i className={`fas ${tab.icon} text-base`} />
+              <span className="max-w-full truncate text-xs font-black">{tab.label}</span>
             </button>
           );
         })}
@@ -233,47 +252,38 @@ function TransactionHero({
   tx,
   title,
   role,
-  isPublicShareable,
   progressPct,
   currency,
 }: {
   tx: TransactionRoom["transaction"];
   title: string;
   role: SelfRole;
-  isPublicShareable: boolean;
   progressPct: number;
   currency: string | null;
 }) {
   const roleLabel = role === "buyer" ? "Buyer" : role === "seller" ? "Seller" : "Collaborator";
-  const workflowLabel = isPublicShareable ? "Shareable sale" : "Two-party escrow";
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-5">
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <StatusBadge status={tx.status} />
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-black">
-          {workflowLabel}
-        </span>
-        <span className="font-mono text-xs text-gray-400">
-          #{tx.id.slice(0, 8)}
-        </span>
-      </div>
-      <h1 className="text-2xl font-black text-gray-900 leading-tight">{title}</h1>
-      <div className="grid grid-cols-2 gap-3 mt-5">
-        <div className="rounded-xl bg-gray-50 border border-gray-100 p-3">
-          <p className="text-[11px] font-bold text-gray-500 uppercase">Amount</p>
-          <p className="text-lg font-black text-black mt-1">
+    <div className="rounded-[20px] border border-[#E8EBF2] bg-white p-5 shadow-[0_6px_16px_rgba(0,0,0,0.035)] sm:p-[18px]">
+      <p className="font-mono text-xs text-gray-400">#{tx.id.slice(0, 8)}</p>
+      <h1 className="mt-2.5 font-display text-2xl font-black leading-tight text-gray-900 sm:text-[25px]">
+        {title}
+      </h1>
+      <div className="mt-5 grid grid-cols-2 gap-2.5">
+        <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-3">
+          <p className="text-[11px] font-bold text-gray-600">Amount</p>
+          <p className="mt-1 text-lg font-black text-primaryColorBlack">
             {money(tx.amount, currency)}
           </p>
         </div>
-        <div className="rounded-xl bg-gray-50 border border-gray-100 p-3">
-          <p className="text-[11px] font-bold text-gray-500 uppercase">Role</p>
-          <p className="text-base font-black text-gray-900 mt-1">{roleLabel}</p>
+        <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-3">
+          <p className="text-[11px] font-bold text-gray-600">Role</p>
+          <p className="mt-1 text-sm font-black text-gray-900">{roleLabel}</p>
         </div>
       </div>
-      <div className="mt-5">
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="mt-4">
+        <div className="h-2 overflow-hidden rounded-full bg-gray-200">
           <div
-            className="h-full bg-black rounded-full transition-all"
+            className="h-full rounded-full bg-primaryColorBlack transition-all"
             style={{ width: `${Math.min(100, Math.max(0, progressPct))}%` }}
           />
         </div>
@@ -290,33 +300,48 @@ function ActionButton({
   label,
   icon,
   onClick,
+  variant = "secondary",
   destructive = false,
   busy = false,
 }: {
   label: string;
   icon: string;
   onClick: () => void;
+  variant?: "primary" | "secondary" | "destructive";
   destructive?: boolean;
   busy?: boolean;
 }) {
-  const bgColor = destructive ? "bg-red-50" : "bg-white";
-  const textColor = destructive ? "text-red-800" : "text-black";
-  const borderColor = destructive ? "border-red-200" : "border-gray-200";
-  const iconBg = destructive ? "bg-red-100" : "bg-gray-100";
+  const resolved = destructive ? "destructive" : variant;
+  const styles =
+    resolved === "destructive"
+      ? {
+          shell: "border-red-200 bg-red-50 text-red-800",
+          icon: "bg-red-100 text-red-800",
+        }
+      : resolved === "primary"
+        ? {
+            shell: "border-primaryColorBlack bg-primaryColorBlack text-white",
+            icon: "bg-white/15 text-white",
+          }
+        : {
+            shell: "border-[#E8EBF2] bg-white text-primaryColorBlack",
+            icon: "bg-primaryColorBlack/8 text-primaryColorBlack",
+          };
+
   return (
     <button
       type="button"
       disabled={busy}
       onClick={onClick}
-      className={`w-full flex items-center gap-3 rounded-xl border ${borderColor} ${bgColor} px-4 py-3 transition active:scale-95 disabled:opacity-50`}
+      className={`flex w-full min-h-[50px] items-center gap-3 rounded-[14px] border px-3.5 py-3 transition active:scale-[0.99] disabled:opacity-50 ${styles.shell}`}
     >
-      <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${iconBg}`}>
-        <i className={`fas ${icon} ${textColor} text-sm`} />
+      <div className={`flex h-8 w-8 items-center justify-center rounded-[10px] ${styles.icon}`}>
+        <i className={`fas ${icon} text-sm`} />
       </div>
-      <span className={`flex-1 text-left text-sm font-extrabold ${textColor}`}>
+      <span className="flex-1 text-left text-sm font-black">
         {busy ? "Please wait..." : label}
       </span>
-      <i className={`fas fa-chevron-right ${textColor} text-xs`} />
+      <i className="fas fa-chevron-right text-xs opacity-70" />
     </button>
   );
 }
@@ -351,6 +376,7 @@ function ActionsGroup({
         label="Accept transaction"
         icon="fa-check"
         onClick={onAccept}
+        variant="primary"
         busy={busy}
       />
     );
@@ -362,6 +388,7 @@ function ActionsGroup({
         label="Pay from wallet"
         icon="fa-wallet"
         onClick={onPay}
+        variant="primary"
         busy={busy}
       />
     );
@@ -396,71 +423,103 @@ function ActionsGroup({
   }
   if (actions.length === 0) return null;
   return (
-    <div className="rounded-2xl bg-gray-50 border border-gray-100 p-4 space-y-2">
-      <p className="text-xs font-black text-gray-500 uppercase tracking-wide">Actions</p>
-      {actions}
-    </div>
+    <SectionCard title="Actions" subtitle="Available actions">
+      <div className="space-y-2">{actions}</div>
+    </SectionCard>
   );
 }
 
 // ----------------------------------------------------------------------
 // Sale Details Panel (for public shareable)
 // ----------------------------------------------------------------------
+function SummaryRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-3">
+      <p className="text-[11px] font-extrabold text-gray-600">{label}</p>
+      <p className={`mt-1 ${strong ? "text-lg font-black text-primaryColorBlack" : "text-sm font-bold text-gray-900"}`}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
 function SaleDetailsPanel({
   tx,
   terms,
   quantity,
   unitPrice,
   currency,
+  shareUrl,
+  onCopyShareLink,
 }: {
   tx: TransactionRoom["transaction"];
   terms: ReturnType<typeof parsePublicTerms>;
   quantity: number;
   unitPrice: string;
   currency: string | null;
+  shareUrl?: string | null;
+  onCopyShareLink?: (url: string) => void;
 }) {
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 shadow-sm">
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h2 className="text-lg font-black text-gray-900">Sale Details</h2>
-      </div>
-      <div className="p-5 space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500 font-medium">Quantity</span>
-          <span className="text-sm font-bold text-gray-900">{quantity}</span>
+    <SectionCard title="Sale details" subtitle="Item, quantity, delivery, and buyer checkout link">
+      <div className="space-y-2.5">
+        <div className="grid grid-cols-2 gap-2.5">
+          <SummaryRow label="Quantity" value={String(quantity)} />
+          <SummaryRow label="Unit price" value={money(unitPrice, currency)} />
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500 font-medium">Unit price</span>
-          <span className="text-sm font-bold text-gray-900">{money(unitPrice, currency)}</span>
-        </div>
-        <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-          <span className="text-sm text-gray-500 font-medium">Total</span>
-          <span className="text-lg font-black text-black">{money(tx.amount, currency)}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500 font-medium">Delivery</span>
-          <span className="text-sm font-bold text-gray-900">
-            {terms.deliveryNeeded ? "Delivery tracked" : "Payment only"}
-          </span>
-        </div>
-        {terms.itemDescription && (
-          <div className="mt-2 rounded-xl bg-gray-50 p-4">
-            <p className="text-xs font-black text-gray-500 uppercase">Description</p>
-            <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
+        <SummaryRow label="Total" value={money(tx.amount, currency)} strong />
+        <SummaryRow
+          label="Delivery"
+          value={terms.deliveryNeeded ? "Delivery tracked" : "Payment only"}
+        />
+        {terms.itemDescription ? (
+          <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-4">
+            <p className="text-xs font-black text-gray-700">Description</p>
+            <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
               {terms.itemDescription}
             </p>
           </div>
-        )}
-        {terms.sellerNote && (
-          <div className="rounded-xl bg-amber-50 p-4">
-            <p className="text-xs font-black text-amber-600 uppercase">Seller note</p>
-            <p className="text-sm text-amber-800 mt-1 whitespace-pre-wrap">
+        ) : null}
+        {terms.sellerNote ? (
+          <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-4">
+            <p className="text-xs font-black text-gray-700">Seller note</p>
+            <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
               {terms.sellerNote}
             </p>
           </div>
-        )}
+        ) : null}
+        {shareUrl && onCopyShareLink ? (
+          <div className="mt-1 rounded-2xl border border-primaryColorBlack/15 bg-primaryColorBlack/5 p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <i className="fas fa-link text-primaryColorBlack" />
+              <p className="text-sm font-bold text-primaryColorBlack">Shareable payment link</p>
+            </div>
+            <p className="mb-3 text-xs leading-relaxed text-gray-700">
+              Send this link to the buyer via WhatsApp, SMS, or any app so they can pay into escrow securely.
+            </p>
+            <div className="flex items-center gap-2 rounded-[14px] border border-[#E8EBF2] bg-white p-3">
+              <p className="flex-1 truncate font-mono text-xs text-gray-700">{shareUrl}</p>
+              <button
+                type="button"
+                onClick={() => onCopyShareLink(shareUrl)}
+                className="text-primaryColorBlack"
+                aria-label="Copy link"
+              >
+                <i className="fas fa-copy" />
+              </button>
+            </div>
+            <div className="mt-3">
+              <ActionButton
+                label="Copy link"
+                icon="fa-link"
+                variant="primary"
+                onClick={() => onCopyShareLink(shareUrl)}
+              />
+            </div>
+          </div>
+        ) : null}
       </div>
-    </div>
+    </SectionCard>
   );
 }
 
@@ -484,18 +543,13 @@ function ProductDetails({ room, currency }: { room: TransactionRoom; currency: s
 // ----------------------------------------------------------------------
 function PartiesTab({ room, selfId }: { room: TransactionRoom; selfId: string }) {
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 shadow-sm">
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h2 className="text-lg font-black text-gray-900">Buyer and seller</h2>
-      </div>
-      <div className="p-5">
-        <TransactionRoomParties
-          buyer={room.parties?.buyer ?? null}
-          seller={room.parties?.seller ?? null}
-          selfId={selfId}
-        />
-      </div>
-    </div>
+    <SectionCard title="Buyer and seller">
+      <TransactionRoomParties
+        buyer={room.parties?.buyer ?? null}
+        seller={room.parties?.seller ?? null}
+        selfId={selfId}
+      />
+    </SectionCard>
   );
 }
 
@@ -591,11 +645,8 @@ function TeamTab({
   const agentPricing = room.product?.productType.agentPricingEnabled ?? false;
   const lawyerPricing = room.product?.productType.lawyerPricingEnabled ?? false;
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 shadow-sm">
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h2 className="text-lg font-black text-gray-900">Lawyers & Agents</h2>
-      </div>
-      <div className="p-4 grid gap-3 sm:grid-cols-2">
+    <SectionCard title="Lawyers & agents">
+      <div className="grid gap-3 sm:grid-cols-2">
         <ProfessionalSlot
           title="Buyer's Lawyer"
           role="LAWYER"
@@ -653,48 +704,52 @@ function TeamTab({
           onAcceptParticipant={onAcceptParticipant}
         />
       </div>
-    </div>
+    </SectionCard>
   );
 }
 
 // ----------------------------------------------------------------------
-// Timeline Tab (exactly as mobile design)
+// Timeline Tab (matches mobile vertical timeline)
 // ----------------------------------------------------------------------
 function TimelineTab({ room, selfId }: { room: TransactionRoom; selfId: string }) {
   const events = room.timeline ?? [];
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 shadow-sm">
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h2 className="text-lg font-black text-gray-900">Timeline</h2>
-      </div>
-      <div className="divide-y divide-gray-100 max-h-[32rem] overflow-y-auto">
-        {events.length === 0 ? (
-          <div className="px-5 py-10 text-center text-gray-400">
-            <i className="fas fa-clock text-3xl mb-2 block" />
-            <p className="text-sm">No activity yet.</p>
-          </div>
-        ) : (
-          events.map((ev, idx) => {
+    <SectionCard title="Timeline">
+      {events.length === 0 ? (
+        <div className="rounded-[14px] border border-gray-200 bg-gray-50 px-4 py-10 text-center text-gray-500">
+          No activity yet.
+        </div>
+      ) : (
+        <div className="max-h-[32rem] space-y-0 overflow-y-auto pr-1">
+          {events.map((ev, idx) => {
             const detail = formatTimelineDetail(ev.action, ev.detail);
+            const isLast = idx === events.length - 1;
             return (
-              <div key={ev.at} className="flex gap-4 px-5 py-4">
-                <div className="mt-1.5 w-2 h-2 rounded-full bg-black shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-extrabold text-gray-900">
-                    {formatTimelineAction(ev.action, ev.detail)}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">{formatDate(ev.at)}</p>
-                  {detail && <p className="text-sm text-gray-600 mt-1">{detail}</p>}
-                  <p className="text-xs text-gray-400 mt-1">
-                    By: {timelineActorLabel(ev.actorId, room, selfId)}
-                  </p>
+              <div key={`${ev.at}-${idx}`} className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-blue-50">
+                    <div className="h-[7px] w-[7px] rounded-full bg-primaryColorBlack" />
+                  </div>
+                  {!isLast ? <div className="min-h-[46px] w-0.5 flex-1 bg-gray-200" /> : null}
+                </div>
+                <div className={`min-w-0 flex-1 ${isLast ? "" : "pb-4"}`}>
+                  <div className="rounded-[14px] border border-gray-200 bg-gray-50 p-3">
+                    <p className="text-sm font-extrabold text-gray-900">
+                      {formatTimelineAction(ev.action, ev.detail)}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">{formatDate(ev.at)}</p>
+                    {detail ? <p className="mt-1.5 text-sm leading-relaxed text-gray-700">{detail}</p> : null}
+                    <p className="mt-1.5 text-xs text-gray-500">
+                      By: {timelineActorLabel(ev.actorId, room, selfId)}
+                    </p>
+                  </div>
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
-    </div>
+          })}
+        </div>
+      )}
+    </SectionCard>
   );
 }
 
@@ -733,12 +788,11 @@ function PublicShareableRoom({
     ? new URL(sharePath, window.location.origin).toString()
     : sharePath;
 
-  // Tabs exactly as mobile: Overview, Sale, Parties, (Analytics if seller), Timeline
+  // Tabs: Overview (sale details + actions), Parties, Timeline
   const tabs = [
     { id: "overview", label: "Overview", icon: "fa-tachometer-alt" },
-    { id: "sale", label: "Sale", icon: "fa-receipt" },
     { id: "parties", label: "Parties", icon: "fa-users" },
-    // ...(isSeller ? [{ id: "analytics", label: "Analytics", icon: "fa-chart-line" }] : []),
+    // { id: "analytics", label: "Analytics", icon: "fa-chart-line" },
     { id: "timeline", label: "Timeline", icon: "fa-history" },
   ];
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -755,102 +809,47 @@ function PublicShareableRoom({
         tx={tx}
         title={tx.productTitle}
         role={role}
-        isPublicShareable
         progressPct={statusApproxProgress(tx.status)}
         currency={walletCurrency}
       />
       <RoomTabs tabs={tabs} active={currentTab} onChange={setActiveTab} />
 
       {currentTab === "overview" && (
-        <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-5">
-            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm">
-              <div className="p-5">
-                <div className="flex flex-wrap items-center gap-2 mb-4">
-                  <StatusBadge status={tx.status} />
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-black">
-                    Shareable sale
-                  </span>
-                </div>
-                <h2 className="text-base font-black text-gray-900">Overview</h2>
-                <p className="text-sm text-gray-500 mt-1">{tx.productTitle}</p>
-                <ProgressCircles progressPct={statusApproxProgress(tx.status)} />
-              </div>
-            </div>
-            {/* <SaleDetailsPanel
-              tx={tx}
-              terms={terms}
-              quantity={quantity}
-              unitPrice={unitPrice}
+        <div className="w-full space-y-5">
+          <SaleDetailsPanel
+            tx={tx}
+            terms={terms}
+            quantity={quantity}
+            unitPrice={unitPrice}
+            currency={walletCurrency}
+            shareUrl={isSeller ? shareUrl : null}
+            onCopyShareLink={onCopyShareLink}
+          />
+          {canPay ? (
+            <TransactionPaymentPanel
+              token={token}
+              transactionId={tx.id}
+              amount={tx.amount}
               currency={walletCurrency}
-            /> */}
-          </div>
-          <aside className="space-y-4">
-            <div className="rounded-2xl bg-black p-5 text-white">
-              <p className="text-xs font-bold text-blue-200 uppercase">Total Amount</p>
-              <p className="text-4xl font-black mt-1">{money(tx.amount, walletCurrency)}</p>
-            </div>
-            {isSeller && shareUrl && (
-              <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-                <div className="bg-black px-5 py-3">
-                  <p className="text-xs font-bold text-blue-200 uppercase">Shareable Payment Link</p>
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="flex items-center gap-2 rounded-xl bg-gray-50 p-3">
-                    <p className="flex-1 truncate text-xs font-mono">{shareUrl}</p>
-                    <button
-                      onClick={() => onCopyShareLink(shareUrl)}
-                      className="text-black"
-                    >
-                      <i className="fas fa-copy" />
-                    </button>
-                  </div>
-                  <ActionButton
-                    label="Copy Link"
-                    icon="fa-link"
-                    onClick={() => onCopyShareLink(shareUrl)}
-                  />
-                </div>
-              </div>
-            )}
-            {canPay ? (
-              <TransactionPaymentPanel
-                token={token}
-                transactionId={tx.id}
-                amount={tx.amount}
-                currency={walletCurrency}
-                onPaid={async (paidId) => {
-                  if (paidId !== tx.id) window.location.href = `/transactions/${paidId}`;
-                  else await onReload();
-                }}
-              />
-            ) : (
-              // Show actions for any role that has available transitions (including seller)
-              (nextStates.length > 0 || canClose) && (
-                <ActionsGroup
-                  canAccept={canAccept}
-                  canPay={false}
-                  nextStates={nextStates}
-                  canClose={canClose}
-                  busy={busy}
-                  onAccept={() => {}}
-                  onPay={() => {}}
-                  onTransition={onTransition}
-                />
-              )
-            )}
-          </aside>
+              onPaid={async (paidId) => {
+                if (paidId !== tx.id) window.location.href = `/transactions/${paidId}`;
+                else await onReload();
+              }}
+            />
+          ) : null}
+          {(nextStates.length > 0 || canClose) && !canPay ? (
+            <ActionsGroup
+              canAccept={canAccept}
+              canPay={false}
+              nextStates={nextStates}
+              canClose={canClose}
+              busy={busy}
+              onAccept={() => {}}
+              onPay={() => {}}
+              onTransition={onTransition}
+            />
+          ) : null}
         </div>
-      )}
-
-      {currentTab === "sale" && (
-        <SaleDetailsPanel
-          tx={tx}
-          terms={terms}
-          quantity={quantity}
-          unitPrice={unitPrice}
-          currency={walletCurrency}
-        />
       )}
       {currentTab === "parties" && <PartiesTab room={room} selfId={selfId} />}
       {/* {currentTab === "analytics" && isSeller && (
@@ -917,77 +916,41 @@ function SecureEscrowRoom({
         tx={tx}
         title={heading}
         role={role}
-        isPublicShareable={false}
         progressPct={progressPct}
         currency={walletCurrency}
       />
       <RoomTabs tabs={tabs} active={currentTab} onChange={setActiveTab} />
 
       {currentTab === "overview" && (
-        <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-5">
-            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-5">
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <StatusBadge status={tx.status} />
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-black">
-                  Secure Escrow
-                </span>
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">
-                  {role === "buyer" ? "You are the Buyer" : role === "seller" ? "You are the Seller" : "Collaborator"}
-                </span>
-              </div>
-              <h1 className="text-xl font-black text-gray-900">{heading}</h1>
-              <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-black rounded-full" style={{ width: `${progressPct}%` }} />
-              </div>
-              <ProgressCircles progressPct={progressPct} />
+        <div className="w-full space-y-5">
+          <SectionCard title="Deal summary" subtitle="Funding and amount for this escrow">
+            <div className="space-y-2.5">
+              <SummaryRow label="Amount" value={money(tx.amount, walletCurrency)} strong />
+              <SummaryRow label="Type" value={formatTransactionType(tx.type)} />
+              <SummaryRow label="Funding" value="Buyer payment" />
             </div>
-          </div>
-          <aside className="space-y-4">
-            <div className="rounded-2xl bg-black p-5 text-white">
-              <p className="text-xs font-bold text-blue-200 uppercase">Total Amount</p>
-              <p className="text-4xl font-black mt-1">{money(tx.amount, walletCurrency)}</p>
-            </div>
-            {canPay ? (
-              <TransactionPaymentPanel
-                token={token}
-                transactionId={tx.id}
-                amount={tx.amount}
-                currency={walletCurrency}
-                onPaid={async () => await onReload()}
-              />
-            ) : (
-              <ActionsGroup
-                canAccept={canAccept}
-                canPay={false}
-                nextStates={nextStates}
-                canClose={canClose}
-                busy={busy}
-                onAccept={onAccept}
-                onPay={() => {}}
-                onTransition={onTransition}
-              />
-            )}
-            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm">
-              <div className="px-5 py-3 border-b border-gray-100">
-                <h3 className="text-base font-black text-gray-900">Deal Summary</h3>
-              </div>
-              <div className="p-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Amount</span>
-                  <span className="text-sm font-black text-black">{money(tx.amount, walletCurrency)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Type</span>
-                  <span className="text-sm font-bold text-gray-900">{formatTransactionType(tx.type)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Funding</span>
-                  <span className="text-sm font-bold text-gray-900">Buyer payment</span>
-                </div>
-              </div>
-            </div>
-          </aside>
+          </SectionCard>
+          {canPay ? (
+            <TransactionPaymentPanel
+              token={token}
+              transactionId={tx.id}
+              amount={tx.amount}
+              currency={walletCurrency}
+              onPaid={async () => await onReload()}
+            />
+          ) : null}
+          {(canAccept || nextStates.length > 0 || canClose) && !canPay ? (
+            <ActionsGroup
+              canAccept={canAccept}
+              canPay={false}
+              nextStates={nextStates}
+              canClose={canClose}
+              busy={busy}
+              onAccept={onAccept}
+              onPay={() => {}}
+              onTransition={onTransition}
+            />
+          ) : null}
         </div>
       )}
 
@@ -1101,7 +1064,7 @@ export default function TransactionDetailPage() {
 
   if (loading || !user || !token) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-[#F4F6FB]">
         <div className="text-center">
           <i className="fas fa-circle-notch fa-spin text-3xl text-black mb-3" />
           <p className="text-gray-500 font-medium">Loading...</p>
@@ -1114,8 +1077,8 @@ export default function TransactionDetailPage() {
   const isPublicShareable = tx?.workflow === "PUBLIC_SHAREABLE";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-[#F4F6FB]">
+      <div className="mx-auto max-w-5xl px-4 py-6">
         {toast && (
           <div className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-bold text-white shadow-xl">
             <i className="fas fa-check-circle" />

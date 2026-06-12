@@ -148,7 +148,7 @@ function NotificationsInner() {
                   All caught up!
                 </h3>
                 <p className="mt-2 text-sm text-gray-600">
-                  No notifications at the moment. New transaction invitations will appear here.
+                  No notifications at the moment. PayNexa transaction updates will appear here.
                 </p>
               </div>
             </div>
@@ -238,43 +238,45 @@ function NotificationsInner() {
                           </svg>
                           Review Details
                         </Link>
-                        <button
-                          type="button"
-                          disabled={processingId === item.id}
-                          onClick={() => handleAccept(item.id, item.transactionId)}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gambian-green bg-gambian-green/5 px-5 py-2.5 text-sm font-semibold text-gambian-green shadow-sm transition-all hover:bg-gambian-green/10 hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {processingId === item.id ? (
-                            <>
-                              <svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
-                              </svg>
-                              Accepting...
-                            </>
-                          ) : (
-                            <>
-                              <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                              Accept
-                            </>
-                          )}
-                        </button>
+                        {item.status === "AWAITING_ACCEPTANCE" ? (
+                          <button
+                            type="button"
+                            disabled={processingId === item.id}
+                            onClick={() => handleAccept(item.id, item.transactionId)}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gambian-green bg-gambian-green/5 px-5 py-2.5 text-sm font-semibold text-gambian-green shadow-sm transition-all hover:bg-gambian-green/10 hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {processingId === item.id ? (
+                              <>
+                                <svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  />
+                                </svg>
+                                Accepting...
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                                Accept
+                              </>
+                            )}
+                          </button>
+                        ) : null}
                       </div>
                     </div>
                   </div>

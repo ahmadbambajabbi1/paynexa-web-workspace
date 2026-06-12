@@ -195,7 +195,10 @@ export async function claimPublicTransaction(
   });
 }
 
-export async function getPublicTransactionSummary(id: string): Promise<{
+export async function getPublicTransactionSummary(
+  id: string,
+  token?: string | null,
+): Promise<{
   id: string;
   workflow: string;
   shareToken: string | null;
@@ -214,5 +217,8 @@ export async function getPublicTransactionSummary(id: string): Promise<{
   status: string;
   sellerNote: string | null;
 }> {
-  return apiFetch(`/transactions/public/${encodeURIComponent(id)}`, { method: "GET" });
+  return apiFetch(`/transactions/public/${encodeURIComponent(id)}`, {
+    method: "GET",
+    token: token ?? undefined,
+  });
 }

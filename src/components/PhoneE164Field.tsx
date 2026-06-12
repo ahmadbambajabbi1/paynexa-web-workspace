@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type CountryDial } from "@/src/data/countryDialCodes";
 import * as countriesApi from "@/src/lib/api/countries";
 import { fieldInput, fieldLabel, fieldSelect } from "@/src/components/ui/form-classes";
@@ -61,7 +61,9 @@ export function PhoneE164Field({
   const [national, setNational] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const initialValueRef = useRef(value);
 
+  // Load operating countries once — do not re-fetch when `value` changes (fixes mobile keyboard dismissal).
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -76,11 +78,16 @@ export function PhoneE164Field({
           dial: c.dialCode,
         }));
         setCountries(next);
-        const parsed = parseE164ToCountryNational(value, defaultCountryIso2, next);
-        if (parsed.country) {
-          setCountryIso2(parsed.country.iso2);
-          setNational(parsed.national);
-          onChange(buildE164(parsed.country, parsed.national), parsed.country.iso2);
+        if (next.length > 0) {
+          const parsed = parseE164ToCountryNational(
+            initialValueRef.current,
+            defaultCountryIso2,
+            next,
+          );
+          if (parsed.country) {
+            setCountryIso2(parsed.country.iso2);
+            setNational(parsed.national);
+          }
         }
       })
       .catch(() => {
@@ -95,7 +102,7 @@ export function PhoneE164Field({
     return () => {
       cancelled = true;
     };
-  }, [defaultCountryIso2, value]);
+  }, [defaultCountryIso2]);
 
   const country = useMemo(
     () => dialByIso(countries, countryIso2) ?? countries[0] ?? null,
@@ -135,7 +142,7 @@ export function PhoneE164Field({
               setCountryIso2(iso);
               emit(iso, national);
             }}
-            className={`${fieldSelect} !w-[min(7.25rem,32vw)] cursor-pointer py-3 pl-3 text-sm font-medium tabular-nums sm:!w-[7.75rem]`}
+            className={`${fieldSelect} !w-[min(7.25rem,32vw)] cursor-pointer py-3 pl-3 text-base font-medium tabular-nums sm:!w-[7.75rem]`}
             aria-label="Country calling code"
           >
             {countries.map((c) => (
@@ -165,17 +172,12 @@ export function PhoneE164Field({
         <p className="text-xs leading-relaxed text-red-600">
           {loadError ?? "No operating countries are configured."}
         </p>
-      ) : (
+      ) : national.length > 0 ? (
         <p className="text-xs leading-relaxed text-gray-500">
-          <span className="font-medium text-gray-600">{country.name}</span> ({country.iso2}) is saved to your profile.
-          {national.length > 0 ? (
-            <>
-              {" "}
-              Full number: <span className="font-mono text-gray-700">{buildE164(country, national)}</span>
-            </>
-          ) : null}
+          Full number:{" "}
+          <span className="font-mono text-gray-700">{buildE164(country, national)}</span>
         </p>
-      )}
+      ) : null}
     </div>
   );
 }
