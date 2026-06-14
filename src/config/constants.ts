@@ -3,8 +3,8 @@ const rawBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
 export const API_BASE_URL =
   rawBase && rawBase.length > 0
     ? rawBase.replace(/\/$/, "")
-    : "https://paynexa-api-gateway-production.up.railway.app"
-// : "http://127.0.0.1:5000";
+    // : "https://paynexa-api-gateway-production.up.railway.app"
+: "http://127.0.0.1:5000";
 
 export const STORAGE_ACCESS_TOKEN = "paynexa_access_token";
 export const STORAGE_DEVICE_ID = "paynexa_device_id";

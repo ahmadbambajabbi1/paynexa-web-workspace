@@ -168,9 +168,16 @@ export function PhoneE164Field({
           placeholder={loading ? "Loading countries" : "National number"}
         />
       </div>
-      {loadError || countries.length === 0 ? (
+      {loading ? (
+        <p className="text-xs leading-relaxed text-gray-500">
+          <i className="fas fa-circle-notch fa-spin mr-1.5 text-primaryColorBlack" />
+          Loading operating countries…
+        </p>
+      ) : loadError ? (
+        <p className="text-xs leading-relaxed text-red-600">{loadError}</p>
+      ) : countries.length === 0 ? (
         <p className="text-xs leading-relaxed text-red-600">
-          {loadError ?? "No operating countries are configured."}
+          No operating countries are configured.
         </p>
       ) : national.length > 0 ? (
         <p className="text-xs leading-relaxed text-gray-500">

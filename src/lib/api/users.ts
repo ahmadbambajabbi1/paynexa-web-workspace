@@ -99,14 +99,13 @@ export async function personalKycStatus(
 
 export type CompleteProfileResponse = {
   ok: boolean;
-  needsEmailVerification: boolean;
   profileComplete?: boolean;
   profileCompletedAt?: string;
 };
 
 export async function completeProfile(
   token: string,
-  body: { displayName: string; fullName: string; email: string },
+  body: { displayName: string; fullName: string },
 ): Promise<CompleteProfileResponse> {
   return apiFetch("/users/profile/complete", {
     method: "POST",

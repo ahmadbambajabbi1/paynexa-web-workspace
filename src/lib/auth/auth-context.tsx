@@ -19,7 +19,7 @@ type AuthContextValue = {
   token: string | null;
   user: MeUser | null;
   loading: boolean;
-  /** True when profile is finished and email is verified (dashboard-ready). */
+  /** True when profile is finished (dashboard-ready). */
   profileReady: boolean;
   /** Store gateway session after phone + PIN steps. */
   applySessionToken: (accessToken: string) => Promise<void>;
@@ -28,7 +28,6 @@ type AuthContextValue = {
   submitProfileDetails: (input: {
     displayName: string;
     fullName: string;
-    email: string;
   }) => Promise<userApi.CompleteProfileResponse>;
   verifyEmailCode: (code: string) => Promise<void>;
   resendEmailVerification: () => Promise<void>;
@@ -120,7 +119,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (input: {
       displayName: string;
       fullName: string;
-      email: string;
     }) => {
       const t = window.localStorage.getItem(STORAGE_ACCESS_TOKEN);
       if (!t) {

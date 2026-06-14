@@ -1,8 +1,8 @@
 import type { MeUser } from "@/src/lib/api/types";
 
-/** Profile + verified email — required before dashboard and escrow actions. */
+/** Profile complete — display name and legal full name only. */
 export function isProfileComplete(user: MeUser | null | undefined): boolean {
-  return Boolean(user?.profileCompletedAt && user?.emailVerifiedAt);
+  return Boolean(user?.profileCompletedAt);
 }
 
 export function applicationForRole(
