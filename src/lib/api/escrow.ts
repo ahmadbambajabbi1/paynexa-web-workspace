@@ -99,7 +99,12 @@ export async function createStripeDepositIntent(
 
 export async function createModernPayDepositIntent(
   token: string,
-  body: { amount: number; clientRequestId?: string },
+  body: {
+    amount: number;
+    clientRequestId?: string;
+    returnUrl?: string;
+    cancelUrl?: string;
+  },
 ): Promise<{ transferId: string; checkoutUrl: string; currency: string; status: string }> {
   return apiFetch("/escrow/wallet/deposits/modernpay", {
     method: "POST",
