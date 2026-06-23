@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/src/lib/auth/auth-context";
 import { AppSidebar } from "@/src/components/layout/AppSidebar";
+import { TransactionNotificationsLive } from "@/src/components/TransactionNotificationsLive";
 import { APP_NAME } from "@/src/config/constants";
 
 export function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -44,6 +45,7 @@ export function AuthenticatedLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen bg-app-canvas">
+      <TransactionNotificationsLive />
       {mobileOpen && (
         <button
           type="button"

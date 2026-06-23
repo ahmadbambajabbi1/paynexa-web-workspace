@@ -138,6 +138,12 @@ export type TransactionRoom = {
     quantity?: number;
     unitPrice?: string | null;
     amount: string;
+    currencyCode?: string;
+    platformFeeAmount?: string | null;
+    platformFeeType?: string | null;
+    platformFeeTypeLabel?: string | null;
+    sellerNetAmount?: string | null;
+    deliveryDetails?: Record<string, unknown> | null;
     fundedBy: string;
     buyerId: string | null;
     sellerId: string;
@@ -172,6 +178,42 @@ export type TransactionRoom = {
     action: string;
     actorId: string;
     detail: string;
+  }>;
+  payment?: {
+    paymentMethod?: string;
+    transactionCurrency?: string;
+    transactionAmount?: string;
+    paidCurrency?: string;
+    paidAmount?: string;
+    exchangeRate?: string | null;
+    stripeFeeAmount?: string | null;
+    netReceivedAmount?: string | null;
+  } | null;
+  disputes?: Array<{
+    id: string;
+    raisedByUserId?: string;
+    raisedByRole: string;
+    description: string;
+    parentDisputeId?: string | null;
+    status: string;
+    resolution?: string | null;
+    resolutionReason?: string | null;
+    resolvedAt?: string | null;
+    createdAt: string;
+    thread?: Array<{
+      id: string;
+      actorRole: string;
+      message: string;
+      createdAt: string;
+      kind: "opening" | "reply" | "resolution";
+    }>;
+    responses?: Array<{
+      id: string;
+      actorId: string;
+      actorRole: string;
+      message: string;
+      createdAt: string;
+    }>;
   }>;
 };
 

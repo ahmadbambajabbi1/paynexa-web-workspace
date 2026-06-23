@@ -3,14 +3,17 @@ const rawBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
 export const API_BASE_URL =
   rawBase && rawBase.length > 0
     ? rawBase.replace(/\/$/, "")
-    : "https://paynexa-api-gateway-production.up.railway.app"
-// : "http://127.0.0.1:5000";
+    // : "https://paynexa-api-gateway-production.up.railway.app"
+: "http://127.0.0.1:5000";
 
 export const STORAGE_ACCESS_TOKEN = "paynexa_access_token";
 export const STORAGE_DEVICE_ID = "paynexa_device_id";
 
-export const APP_NAME = "Paynexa";
-export const APP_NAME_REGION = "Paynexa";
+export const APP_NAME = "PayNexa";
+export const APP_NAME_REGION = "";
+
+/** Custom URL scheme for deep links back into the mobile app after external checkout. */
+export const APP_DEEP_LINK_SCHEME = "paynexa";
 
 export const TAGLINE =
   "Share a payment link. Buyer pays into escrow. Release when the deal is done.";

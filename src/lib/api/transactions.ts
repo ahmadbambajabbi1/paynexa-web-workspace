@@ -211,6 +211,10 @@ export async function getPublicTransactionSummary(
   quantity: number;
   unitPrice: string;
   amount: string;
+  currencyCode?: string;
+  platformFeeAmount?: string | null;
+  feeTypeLabel?: string | null;
+  sellerNetAmount?: string | null;
   protectionFee: string;
   totalBuyerPays: string;
   deliveryNeeded: boolean;
@@ -221,4 +225,67 @@ export async function getPublicTransactionSummary(
     method: "GET",
     token: token ?? undefined,
   });
+}
+
+export async function raiseTransactionDispute(
+  token: string,
+  transactionId: string,
+  body: { actorId: string; reason: string; parentDisputeId?: string },
+) {
+  return apiFetch(`/transactions/${encodeURIComponent(transactionId)}/dispute`, {
+    method: "POST",
+    token,
+    body: JSON.stringify(body),
+  });
+}
+
+export async function respondToTransactionDispute(
+  token: string,
+  transactionId: string,
+  disputeId: string,
+  body: { actorId: string; message: string },
+) {
+  return apiFetch(
+    `/transactions/${encodeURIComponent(transactionId)}/dispute/${encodeURIComponent(disputeId)}/respond`,
+    { method: "POST", token, body: JSON.stringify(body) },
+  );
+}
+
+export async function approveDisputeRelease(
+  token: string,
+  transactionId: string,
+  actorId: string,
+) {
+  return apiFetch(`/transactions/${encodeURIComponent(transactionId)}/dispute/approve-release`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ actorId }),
+  });
+}
+
+export async function saveDeliveryDetails(
+  token: string,
+  transactionId: string,
+  body: {
+    actorId: string;
+    fullName: string;
+    phone: string;
+    email: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    stateRegion: string;
+    postalCode: string;
+    country: string;
+    deliveryInstructions?: string;
+  },
+) {
+  return apiFetch<{ transactionId: string; deliveryDetails: Record<string, unknown> }>(
+    `/transactions/${encodeURIComponent(transactionId)}/delivery`,
+    {
+      method: "POST",
+      token,
+      body: JSON.stringify(body),
+    },
+  );
 }

@@ -25,7 +25,8 @@ function isEscrowLedgerEntry(entry: WalletLedgerEntry): boolean {
   return (
     action.startsWith("Paid transaction") ||
     action.startsWith("Received for transaction") ||
-    action.startsWith("Refunded for transaction")
+    action.startsWith("Refunded for transaction") ||
+    action.startsWith("Refunded transaction")
   );
 }
 
@@ -35,7 +36,12 @@ function ledgerLabel(action: string): string {
     const title = parts[1];
     if (action.startsWith("Paid transaction")) return `Escrow payment · ${title}`;
     if (action.startsWith("Received for transaction")) return `Escrow payout · ${title}`;
-    if (action.startsWith("Refunded for transaction")) return `Escrow refund · ${title}`;
+    if (
+      action.startsWith("Refunded for transaction") ||
+      action.startsWith("Refunded transaction")
+    ) {
+      return `Escrow refund · ${title}`;
+    }
   }
   return action;
 }
