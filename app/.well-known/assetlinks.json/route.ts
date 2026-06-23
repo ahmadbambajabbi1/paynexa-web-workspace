@@ -14,8 +14,9 @@ export function GET() {
       target: {
         namespace: "android_app",
         package_name: packageName,
-        sha256_cert_fingerprints: [fingerprints],
+        sha256_cert_fingerprints: [["5B:47:4C:87:3D:61:58:F5:51:41:CA:E1:6B:0C:28:4A:08:72:2A:59:52:79:5F:38:50:0E:4B:FF:66:48:20:D6"],"5B:47:4C:87:3D:61:58:F5:51:41:CA:E1:6B:0C:28:4A:08:72:2A:59:52:79:5F:38:50:0E:4B:FF:66:48:20:D6"],
       },
     },
   ]);
 }
+
