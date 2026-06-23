@@ -171,6 +171,22 @@ export async function payTransactionFromWallet(
   });
 }
 
+export async function getTransactionPaymentQuote(token: string, transactionId: string) {
+  return apiFetch<{
+    transactionCurrency: string;
+    transactionAmount: string;
+    buyerCurrency: string;
+    buyerAmount: string;
+    exchangeRate: string;
+    displayRate: string;
+    spreadPercent?: number;
+    conversionApplied: boolean;
+  }>(`/escrow/wallet/transactions/${encodeURIComponent(transactionId)}/payment-quote`, {
+    method: "GET",
+    token,
+  });
+}
+
 /** Client wallet → provider (+ platform fee wallet) using amounts from product-service (idempotent per booking). */
 export async function payMarketplaceServiceBooking(
   token: string,

@@ -30,6 +30,8 @@ import { TransactionRoomParties } from "@/src/components/TransactionRoomParties"
 import { TransactionRoomProduct } from "@/src/components/TransactionRoomProduct";
 import { InviteParticipantModal } from "@/src/components/InviteParticipantModal";
 import { TransactionPaymentPanel } from "@/src/components/TransactionPaymentPanel";
+import { RaiseDisputeModal } from "@/src/components/RaiseDisputeModal";
+import { DisputeThreadPanel } from "@/src/components/DisputeThreadPanel";
 import { formatMoney } from "@/src/lib/currency";
 
 type ParticipantRole = "LAWYER" | "AGENT";
@@ -443,6 +445,105 @@ function SummaryRow({ label, value, strong }: { label: string; value: string; st
   );
 }
 
+function TransactionFinancialSummary({
+  tx,
+  payment,
+  currency,
+  viewerRole,
+}: {
+  tx: TransactionRoom["transaction"];
+  payment: TransactionRoom["payment"];
+  currency: string | null;
+  viewerRole?: SelfRole | null;
+}) {
+  const txCurrency = tx.currencyCode ?? currency;
+  const isSeller = viewerRole === "seller";
+  const hasPlatformFee =
+    isSeller && tx.platformFeeAmount != null && Number(tx.platformFeeAmount) > 0;
+  const hasPayment = payment != null;
+  const showFx =
+    hasPayment &&
+    payment.paidCurrency &&
+    payment.transactionCurrency &&
+    payment.paidCurrency.toUpperCase() !== payment.transactionCurrency.toUpperCase();
+
+  if (!hasPlatformFee && !hasPayment && !(isSeller && tx.sellerNetAmount)) return null;
+
+  return (
+    <SectionCard
+      title="Fees & payment"
+      subtitle={
+        isSeller
+          ? "Platform fees are separate from Stripe card processing costs"
+          : "Payment details for this transaction"
+      }
+    >
+      <div className="space-y-2.5">
+        <SummaryRow
+          label="Transaction list price"
+          value={money(tx.amount, txCurrency)}
+          strong
+        />
+        {isSeller ? (
+          hasPlatformFee ? (
+            <SummaryRow
+              label={`Platform fee${tx.platformFeeTypeLabel ? ` (${tx.platformFeeTypeLabel})` : ""}`}
+              value={money(tx.platformFeeAmount, txCurrency)}
+            />
+          ) : (
+            <SummaryRow label="Platform fee" value="None" />
+          )
+        ) : null}
+        {isSeller && tx.sellerNetAmount ? (
+          <SummaryRow
+            label="Seller payout (estimated)"
+            value={money(tx.sellerNetAmount, txCurrency)}
+          />
+        ) : null}
+        {hasPayment ? (
+          <>
+            <div className="border-t border-[#E8EBF2] pt-3">
+              <p className="mb-2 text-xs font-bold text-gray-600">Buyer payment</p>
+            </div>
+            <SummaryRow
+              label="Payment method"
+              value={payment.paymentMethod === "WALLET" ? "Wallet" : payment.paymentMethod ?? "—"}
+            />
+            {showFx ? (
+              <>
+                <SummaryRow
+                  label="Paid amount"
+                  value={money(payment.paidAmount, payment.paidCurrency ?? currency)}
+                />
+                <SummaryRow
+                  label="Exchange rate"
+                  value={
+                    payment.exchangeRate
+                      ? `1 ${payment.transactionCurrency} = ${payment.exchangeRate} ${payment.paidCurrency}`
+                      : "—"
+                  }
+                />
+              </>
+            ) : null}
+            {payment.stripeFeeAmount && Number(payment.stripeFeeAmount) > 0 ? (
+              <SummaryRow
+                label="Stripe processing fee"
+                value={money(payment.stripeFeeAmount, payment.paidCurrency ?? currency)}
+              />
+            ) : null}
+            {payment.netReceivedAmount ? (
+              <SummaryRow
+                label="Net received in escrow"
+                value={money(payment.netReceivedAmount, payment.transactionCurrency ?? currency)}
+              />
+            ) : null}
+          </>
+        ) : null}
+      </div>
+    </SectionCard>
+  );
+}
+
 function SaleDetailsPanel({
   tx,
   terms,
@@ -765,6 +866,7 @@ function PublicShareableRoom({
   onCopyShareLink,
   onTransition,
   onReload,
+  onOpenDispute,
 }: {
   room: TransactionRoom;
   token: string;
@@ -774,6 +876,7 @@ function PublicShareableRoom({
   onCopyShareLink: (url: string) => Promise<void>;
   onTransition: (next: string) => Promise<void>;
   onReload: () => Promise<void> | void;
+  onOpenDispute: () => void;
 }) {
   const tx = room.transaction;
   const role = selfRoleFor(room, selfId);
@@ -825,6 +928,24 @@ function PublicShareableRoom({
             shareUrl={isSeller ? shareUrl : null}
             onCopyShareLink={onCopyShareLink}
           />
+          <TransactionFinancialSummary
+            tx={tx}
+            payment={room.payment}
+            currency={walletCurrency}
+            viewerRole={role}
+          />
+          {(room.disputes?.length ?? 0) > 0 || tx.status === "DISPUTED" ? (
+            <DisputeThreadPanel
+              token={token}
+              transactionId={tx.id}
+              actorId={selfId}
+              selfRole={role === "buyer" || role === "seller" ? role : null}
+              disputes={room.disputes ?? []}
+              busy={busy}
+              onReload={onReload}
+              onOpenNewDispute={onOpenDispute}
+            />
+          ) : null}
           {canPay ? (
             <TransactionPaymentPanel
               token={token}
@@ -877,6 +998,7 @@ function SecureEscrowRoom({
   openInvite,
   onAcceptParticipant,
   onReload,
+  onOpenDispute,
 }: {
   room: TransactionRoom;
   token: string;
@@ -888,6 +1010,7 @@ function SecureEscrowRoom({
   openInvite: (role: ParticipantRole, partySide: PartySide) => void;
   onAcceptParticipant: (role: ParticipantRole, partySide: PartySide) => Promise<void>;
   onReload: () => Promise<void> | void;
+  onOpenDispute: () => void;
 }) {
   const tx = room.transaction;
   const role = selfRoleFor(room, selfId);
@@ -930,6 +1053,24 @@ function SecureEscrowRoom({
               <SummaryRow label="Funding" value="Buyer payment" />
             </div>
           </SectionCard>
+          <TransactionFinancialSummary
+            tx={tx}
+            payment={room.payment}
+            currency={walletCurrency}
+            viewerRole={role}
+          />
+          {(room.disputes?.length ?? 0) > 0 || tx.status === "DISPUTED" ? (
+            <DisputeThreadPanel
+              token={token}
+              transactionId={tx.id}
+              actorId={selfId}
+              selfRole={role === "buyer" || role === "seller" ? role : null}
+              disputes={room.disputes ?? []}
+              busy={busy}
+              onReload={onReload}
+              onOpenNewDispute={onOpenDispute}
+            />
+          ) : null}
           {canPay ? (
             <TransactionPaymentPanel
               token={token}
@@ -987,6 +1128,7 @@ export default function TransactionDetailPage() {
   const [inviteRole, setInviteRole] = useState<ParticipantRole>("AGENT");
   const [invitePartySide, setInvitePartySide] = useState<PartySide>("buyer");
   const [walletCurrency, setWalletCurrency] = useState<string | null>(null);
+  const [disputeOpen, setDisputeOpen] = useState(false);
 
   const load = useCallback(async () => {
     if (!id || !token) return;
@@ -1030,10 +1172,26 @@ export default function TransactionDetailPage() {
 
   async function onTransition(next: string) {
     if (!user || !room || !token) return;
+    if (next === "DISPUTED") {
+      setDisputeOpen(true);
+      return;
+    }
     setBusy(true);
     setErr(null);
     try {
       await txApi.updateTransactionState(token, room.transaction.id, user.id, next);
+      await load();
+    } catch (e) { setErr(errorMessage(e)); }
+    finally { setBusy(false); }
+  }
+
+  async function submitDispute(reason: string) {
+    if (!user || !room || !token) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      await txApi.raiseTransactionDispute(token, room.transaction.id, { actorId: user.id, reason });
+      setDisputeOpen(false);
       await load();
     } catch (e) { setErr(errorMessage(e)); }
     finally { setBusy(false); }
@@ -1119,6 +1277,7 @@ export default function TransactionDetailPage() {
               onCopyShareLink={copyShareLink}
               onTransition={onTransition}
               onReload={load}
+              onOpenDispute={() => setDisputeOpen(true)}
             />
           ) : (
             <>
@@ -1133,6 +1292,7 @@ export default function TransactionDetailPage() {
                 openInvite={openInvite}
                 onAcceptParticipant={onAcceptParticipant}
                 onReload={load}
+                onOpenDispute={() => setDisputeOpen(true)}
               />
               <InviteParticipantModal
                 open={inviteOpen}
@@ -1150,6 +1310,13 @@ export default function TransactionDetailPage() {
             </>
           )
         )}
+        {disputeOpen ? (
+          <RaiseDisputeModal
+            busy={busy}
+            onClose={() => setDisputeOpen(false)}
+            onSubmit={submitDispute}
+          />
+        ) : null}
       </div>
     </div>
   );

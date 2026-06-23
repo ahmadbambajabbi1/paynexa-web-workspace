@@ -1,4 +1,4 @@
-/** Shared field styles aligned with the SafeTrade UI kit. */
+/** Shared field styles aligned with the PayNexa UI kit. */
 export const fieldLabel =
   "block text-sm font-medium text-gray-700 mb-2 tracking-tight";
 

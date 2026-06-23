@@ -149,3 +149,51 @@ export async function registerFcmToken(
     }),
   });
 }
+
+export type DeliveryAddress = {
+  id: string;
+  label: string | null;
+  fullName: string;
+  phone: string;
+  email: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  stateRegion: string;
+  postalCode: string;
+  country: string;
+  deliveryInstructions: string | null;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type DeliveryAddressInput = {
+  label?: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  stateRegion: string;
+  postalCode: string;
+  country: string;
+  deliveryInstructions?: string;
+  isDefault?: boolean;
+};
+
+export async function listDeliveryAddresses(token: string) {
+  return apiFetch<{ items: DeliveryAddress[] }>("/users/me/delivery-addresses", {
+    method: "GET",
+    token,
+  });
+}
+
+export async function createDeliveryAddress(token: string, body: DeliveryAddressInput) {
+  return apiFetch<DeliveryAddress>("/users/me/delivery-addresses", {
+    method: "POST",
+    token,
+    body: JSON.stringify(body),
+  });
+}

@@ -142,7 +142,7 @@ function CreateServiceInner() {
         method: "POST",
         headers: {
           Authorization: `Bearer ${t}`,
-          "X-Device-Id": window.localStorage.getItem("safetrade_device_id") ?? "",
+          "X-Device-Id": window.localStorage.getItem("paynexa_device_id") ?? "",
           "Cache-Control": "no-cache",
           Pragma: "no-cache",
         },

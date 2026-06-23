@@ -11,7 +11,7 @@ export function buildParticipantInviteMessageTemplate(opts: {
   return [
     "Hello,",
     "",
-    `${opts.inviterLabel} (${opts.partySide}) would like to invite you to act as the ${roleWord} for their side of an escrow transaction on SafeTrade.`,
+    `${opts.inviterLabel} (${opts.partySide}) would like to invite you to act as the ${roleWord} for their side of an escrow transaction on PayNexa.`,
     "",
     `Product: ${opts.productTitle}`,
     `Amount: ${opts.amount}`,
