@@ -8,8 +8,9 @@ import { currencySymbol, formatMoney } from "@/src/lib/currency";
 import { buildWalletActivity } from "@/src/lib/wallet-activity";
 import { loadStripe } from "@stripe/stripe-js";
 import Link from "next/link";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { buildModernPayReturnUrls } from "@/src/lib/modempay-return-urls";
 
 function publicErrorMessage(value: unknown): string {
   const raw = value instanceof Error ? value.message : String(value ?? "");
@@ -28,7 +29,15 @@ function publicErrorMessage(value: unknown): string {
 export default function BillingsPage() {
   return (
     <RequireAuth requireProfileComplete>
-      <BillingsInner />
+      <Suspense
+        fallback={
+          <div className="flex min-h-[40vh] items-center justify-center text-sm text-gray-500">
+            Loading wallet…
+          </div>
+        }
+      >
+        <BillingsInner />
+      </Suspense>
     </RequireAuth>
   );
 }
@@ -54,7 +63,6 @@ function BillingsInner() {
   const [depositAmount, setDepositAmount] = useState("100");
   const [depositSource, setDepositSource] = useState<"card" | "mobile">("card");
   const [depositPaymentMethodId, setDepositPaymentMethodId] = useState<string>("");
-  const [pendingModernPayTransferId, setPendingModernPayTransferId] = useState<string>("");
   const [requestId, setRequestId] = useState<string>("");
   const [redirectHandled, setRedirectHandled] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "transactions">("overview");
@@ -122,12 +130,15 @@ function BillingsInner() {
     }
     try {
       if (depositSource === "mobile") {
+        const urls = buildModernPayReturnUrls("/billings");
         const res = await escrowApi.createModernPayDepositIntent(token, {
           amount,
           clientRequestId: requestId || undefined,
+          returnUrl: urls.returnUrl,
+          cancelUrl: urls.cancelUrl,
         });
-        setPendingModernPayTransferId(res.transferId);
-        window.open(res.checkoutUrl, "_blank", "noopener,noreferrer");
+        setDepositOpen(false);
+        window.location.href = res.checkoutUrl;
         return;
       }
 
@@ -166,7 +177,6 @@ function BillingsInner() {
         return;
       }
       setDepositOpen(false);
-      setPendingModernPayTransferId("");
       setRequestId("");
       await refresh();
     } catch (e) {
@@ -194,35 +204,9 @@ function BillingsInner() {
     if (depositState !== "success") return;
 
     void (async () => {
-      try {
-        const list = await escrowApi.getWalletTransfers(token, 20);
-        const candidate = (list.transfers ?? []).find(
-          (t) =>
-            t.kind === "DEPOSIT" &&
-            t.provider === "MODERNPAY" &&
-            (t.status === "REQUIRES_ACTION" || t.status === "PROCESSING"),
-        );
-        if (!candidate) {
-          await refresh();
-          window.history.replaceState({}, "", "/billings");
-          return;
-        }
-        const res = await escrowApi.confirmModernPayDeposit(token, {
-          transferId: candidate.id,
-        });
-        if (res.status === "SUCCEEDED") {
-          setError(null);
-        } else if (res.status === "FAILED" || res.status === "CANCELED") {
-          setError("Mobile wallet payment did not complete.");
-        } else {
-          setError("Payment is still processing. It will update shortly.");
-        }
-        await refresh();
-      } catch (e) {
-        setError(publicErrorMessage(e));
-      } finally {
-        window.history.replaceState({}, "", "/billings");
-      }
+      setError(null);
+      await refresh();
+      window.history.replaceState({}, "", "/billings");
     })();
   }, [redirectHandled, refresh, searchParams, token]);
 
@@ -234,29 +218,6 @@ function BillingsInner() {
       window.history.replaceState({}, "", "/billings");
     }
   }, [refresh, searchParams]);
-
-  async function confirmMobileDeposit() {
-    if (!token || !pendingModernPayTransferId) return;
-    setError(null);
-    try {
-      const res = await escrowApi.confirmModernPayDeposit(token, {
-        transferId: pendingModernPayTransferId,
-      });
-      if (res.status === "SUCCEEDED") {
-        setDepositOpen(false);
-        setPendingModernPayTransferId("");
-        await refresh();
-        return;
-      }
-      if (res.status === "FAILED" || res.status === "CANCELED") {
-        setError("Mobile wallet payment was not successful.");
-        return;
-      }
-      setError("Payment is still processing. Try confirm again in a moment.");
-    } catch (e) {
-      setError(publicErrorMessage(e));
-    }
-  }
 
   async function requestPayout() {
     if (!token) return;
@@ -747,7 +708,6 @@ function BillingsInner() {
               onClick={() => {
                 setDepositSource("card");
                 setDepositPaymentMethodId("");
-                setPendingModernPayTransferId("");
               }}
               className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
                 depositSource === "card"
@@ -832,18 +792,9 @@ function BillingsInner() {
           />
           <p className="mt-2 text-xs text-gray-500">
             {depositSource === "mobile"
-              ? "After paying in Modem Pay, click confirm below to update your wallet."
+              ? "Mobile Pay opens in your browser. You will return here automatically after payment."
               : "Your wallet balance updates after payment confirmation."}
           </p>
-          {depositSource === "mobile" && pendingModernPayTransferId ? (
-            <button
-              type="button"
-              onClick={() => void confirmMobileDeposit()}
-              className="mt-3 w-full rounded-xl border border-gambian-green bg-gambian-green/10 px-4 py-2.5 text-sm font-semibold text-gambian-green transition hover:bg-gambian-green/20"
-            >
-              I completed payment, confirm now
-            </button>
-          ) : null}
         </Modal>
       ) : null}
 

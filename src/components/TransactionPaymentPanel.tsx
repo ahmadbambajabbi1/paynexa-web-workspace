@@ -7,6 +7,7 @@ import { fieldInput, fieldLabel } from "@/src/components/ui/form-classes";
 import * as escrowApi from "@/src/lib/api/escrow";
 import { errorMessage } from "@/src/lib/api/errors";
 import { formatMoney } from "@/src/lib/currency";
+import { buildModernPayReturnUrls } from "@/src/lib/modempay-return-urls";
 
 function cleanPaymentError(value: unknown): string {
   const raw = errorMessage(value);
@@ -38,8 +39,8 @@ export function TransactionPaymentPanel({ token, transactionId, amount, currency
   const [depositAmount, setDepositAmount] = useState(amount);
   const [paymentMethodId, setPaymentMethodId] = useState("");
   const [clientRequestId, setClientRequestId] = useState("");
-  const [pendingModernPayTransferId, setPendingModernPayTransferId] = useState("");
   const [returnPath, setReturnPath] = useState("");
+  const [depositRedirectHandled, setDepositRedirectHandled] = useState(false);
 
   const amountNumber = Number(amount) || 0;
   const balanceNumber = Number(balance) || 0;
@@ -82,6 +83,39 @@ export function TransactionPaymentPanel({ token, transactionId, amount, currency
     if (!clientRequestId) setClientRequestId(crypto.randomUUID());
   }, [clientRequestId, depositOpen]);
 
+  useEffect(() => {
+    if (depositRedirectHandled || typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const depositState = params.get("deposit");
+    if (!depositState) return;
+
+    setDepositRedirectHandled(true);
+    params.delete("deposit");
+    const clean = window.location.pathname + (params.toString() ? `?${params}` : "");
+    window.history.replaceState({}, "", clean);
+
+    if (depositState === "cancel") {
+      setError("Payment was cancelled.");
+      return;
+    }
+
+    void (async () => {
+      setDepositOpen(false);
+      setError(null);
+      await refresh();
+      try {
+        const wallet = await escrowApi.getWallet(token);
+        const nextBalance = Number(wallet.balance) || 0;
+        if (nextBalance + 1e-9 >= amountNumber) {
+          await payNow();
+        }
+      } catch (e) {
+        setError(cleanPaymentError(e));
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- run once when returning from Modem Pay
+  }, [depositRedirectHandled]);
+
   async function payNow() {
     if (disabled) return;
     setBusy(true);
@@ -118,12 +152,16 @@ export function TransactionPaymentPanel({ token, transactionId, amount, currency
       if (!Number.isFinite(n) || n <= 0) { setError("Enter a valid deposit amount."); return; }
 
       if (depositSource === "mobile") {
+        const next = returnPath || window.location.pathname;
+        const urls = buildModernPayReturnUrls(next);
         const res = await escrowApi.createModernPayDepositIntent(token, {
           amount: n,
           clientRequestId: clientRequestId || undefined,
+          returnUrl: urls.returnUrl,
+          cancelUrl: urls.cancelUrl,
         });
-        setPendingModernPayTransferId(res.transferId);
-        window.open(res.checkoutUrl, "_blank", "noopener,noreferrer");
+        setDepositOpen(false);
+        window.location.href = res.checkoutUrl;
         return;
       }
 
@@ -149,35 +187,8 @@ export function TransactionPaymentPanel({ token, transactionId, amount, currency
       await escrowApi.syncStripeDeposit(token, { transferId: intent.transferId });
       setDepositOpen(false);
       setClientRequestId("");
-      setPendingModernPayTransferId("");
       await refresh();
       await payNow();
-    } catch (e) {
-      setError(cleanPaymentError(e));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function confirmMobileDeposit() {
-    if (!pendingModernPayTransferId) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await escrowApi.confirmModernPayDeposit(token, { transferId: pendingModernPayTransferId });
-      if (res.status === "SUCCEEDED") {
-        setDepositOpen(false);
-        setClientRequestId("");
-        setPendingModernPayTransferId("");
-        await refresh();
-        await payNow();
-        return;
-      }
-      if (res.status === "FAILED" || res.status === "CANCELED") {
-        setError("Mobile wallet payment was not successful.");
-        return;
-      }
-      setError("Payment is still processing. Try confirm again in a moment.");
     } catch (e) {
       setError(cleanPaymentError(e));
     } finally {
@@ -314,7 +325,7 @@ export function TransactionPaymentPanel({ token, transactionId, amount, currency
                 </div>
               ) : (
                 <div className="rounded-xl border border-primaryColorBlack/15 bg-primaryColorBlack/5 px-4 py-3 text-xs font-medium text-primaryColorBlack">
-                  Mobile Pay opens in a new tab. Complete payment there, then click confirm below.
+                  Mobile Pay opens in your browser. You will return here automatically after payment.
                 </div>
               )}
 
@@ -328,18 +339,6 @@ export function TransactionPaymentPanel({ token, transactionId, amount, currency
                   inputMode="decimal"
                 />
               </div>
-
-              {/* Mobile confirm */}
-              {pendingModernPayTransferId && (
-                <button
-                  type="button"
-                  onClick={() => void confirmMobileDeposit()}
-                  disabled={busy}
-                  className="w-full rounded-xl border border-primaryColorBlack bg-primaryColorBlack/5 py-2.5 text-sm font-bold text-primaryColorBlack disabled:opacity-60"
-                >
-                  I completed payment — confirm now
-                </button>
-              )}
 
               {error && (
                 <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-800">
