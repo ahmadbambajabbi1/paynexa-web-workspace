@@ -51,11 +51,13 @@ function unitPriceLabel(currency: string | null) {
 
 export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel }: Props) {
   const walletCurrency = useWalletCurrency(token);
+  const [shareCategory, setShareCategory] = useState<"ECOMMERCE" | "SERVICES">("ECOMMERCE");
   const [itemTitle, setItemTitle] = useState("");
   const [itemDescription, setItemDescription] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [unitPrice, setUnitPrice] = useState("");
   const [deliveryNeeded, setDeliveryNeeded] = useState(false);
+  const [proofOfWorkRequired, setProofOfWorkRequired] = useState(true);
   const [sellerNote, setSellerNote] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -92,7 +94,9 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
         itemDescription: itemDescription.trim() || undefined,
         quantity: q,
         unitPrice: p,
-        deliveryNeeded,
+        shareCategory,
+        deliveryNeeded: shareCategory === "ECOMMERCE" ? deliveryNeeded : false,
+        proofOfWorkRequired: shareCategory === "SERVICES" ? proofOfWorkRequired : undefined,
         sellerNote: sellerNote.trim() || undefined,
       });
       onCreated(res.transactionId, res);
@@ -105,6 +109,33 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
 
   return (
     <form onSubmit={submit} className="space-y-6">
+      <div>
+        <p className={fieldLabel}>Transaction type</p>
+        <div className="mt-2 grid grid-cols-2 gap-3">
+          {([
+            { id: "ECOMMERCE" as const, title: "E-commerce", desc: "Products with optional delivery tracking" },
+            { id: "SERVICES" as const, title: "Services", desc: "Work milestones with optional proof uploads" },
+          ]).map((option) => {
+            const selected = shareCategory === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setShareCategory(option.id)}
+                className={`rounded-2xl border-2 p-4 text-left transition ${
+                  selected
+                    ? "border-primaryColorBlack bg-primaryColorBlack/5 shadow-sm"
+                    : "border-gray-200 bg-white hover:border-gray-300"
+                }`}
+              >
+                <p className="text-sm font-bold text-gray-900">{option.title}</p>
+                <p className="mt-1 text-xs text-gray-600">{option.desc}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div>
         <label className={fieldLabel} htmlFor="public-title">Item or service</label>
         <input id="public-title" value={itemTitle} onChange={(e) => setItemTitle(e.target.value)} className={fieldInput} placeholder="e.g. iPhone 14 Pro, website design, delivery service" required />
@@ -126,10 +157,17 @@ export function CreatePublicTransactionForm({ token, selfId, onCreated, onCancel
         </div>
       </div>
 
-      <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700">
-        <input type="checkbox" checked={deliveryNeeded} onChange={(e) => setDeliveryNeeded(e.target.checked)} className="mt-1 h-4 w-4 rounded border-gray-300 text-primaryColorBlack" />
-        <span>Delivery or fulfillment needs to be tracked for this transaction.</span>
-      </label>
+      {shareCategory === "ECOMMERCE" ? (
+        <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700">
+          <input type="checkbox" checked={deliveryNeeded} onChange={(e) => setDeliveryNeeded(e.target.checked)} className="mt-1 h-4 w-4 rounded border-gray-300 text-primaryColorBlack" />
+          <span>Delivery or fulfillment needs to be tracked for this transaction.</span>
+        </label>
+      ) : (
+        <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700">
+          <input type="checkbox" checked={proofOfWorkRequired} onChange={(e) => setProofOfWorkRequired(e.target.checked)} className="mt-1 h-4 w-4 rounded border-gray-300 text-primaryColorBlack" />
+          <span>Upload proof of work required before completion.</span>
+        </label>
+      )}
 
       <div>
         <label className={fieldLabel} htmlFor="public-note">Seller note</label>

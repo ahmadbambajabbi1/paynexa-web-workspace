@@ -1,4 +1,7 @@
+import { apiUrlForPath, SERVICE_URLS } from "@/src/config/constants";
 import { apiFetch } from "@/src/lib/api/client";
+import { ApiError } from "@/src/lib/api/errors";
+import { getOrCreateDeviceId } from "@/src/lib/device-id";
 import type {
   ParticipantSearchResponse,
   TransactionListResponse,
@@ -8,8 +11,18 @@ import type {
 export async function listTransactionsForParty(
   token: string,
   userId: string,
+  opts?: {
+    listVersion?: string;
+    updatedSince?: string;
+    limit?: number;
+    cursor?: string;
+  },
 ): Promise<TransactionListResponse> {
   const q = new URLSearchParams({ buyerId: userId, sellerId: userId });
+  if (opts?.listVersion?.trim()) q.set("listVersion", opts.listVersion.trim());
+  if (opts?.updatedSince?.trim()) q.set("updatedSince", opts.updatedSince.trim());
+  if (opts?.limit != null) q.set("limit", String(opts.limit));
+  if (opts?.cursor?.trim()) q.set("cursor", opts.cursor.trim());
   return apiFetch(`/transactions/by-party?${q.toString()}`, {
     method: "GET",
     token,
@@ -70,6 +83,8 @@ export async function createPublicTransaction(
     quantity: number;
     unitPrice: number;
     deliveryNeeded?: boolean;
+    shareCategory?: "ECOMMERCE" | "SERVICES";
+    proofOfWorkRequired?: boolean;
     sellerNote?: string;
     type?: string;
   },
@@ -218,6 +233,8 @@ export async function getPublicTransactionSummary(
   protectionFee: string;
   totalBuyerPays: string;
   deliveryNeeded: boolean;
+  shareCategory?: "ECOMMERCE" | "SERVICES" | string;
+  proofOfWorkRequired?: boolean;
   status: string;
   sellerNote: string | null;
 }> {
@@ -261,6 +278,79 @@ export async function approveDisputeRelease(
     token,
     body: JSON.stringify({ actorId }),
   });
+}
+
+export async function uploadTransactionProofFile(
+  token: string,
+  transactionId: string,
+  file: File,
+): Promise<string> {
+  const base = SERVICE_URLS.users;
+  const deviceId = getOrCreateDeviceId();
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("transactionId", transactionId);
+  const res = await fetch(`${base}/users/transaction-proofs/upload`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(deviceId ? { "X-Device-Id": deviceId } : {}),
+    },
+    body: fd,
+  });
+  const text = await res.text();
+  let parsed: unknown;
+  try {
+    parsed = text ? JSON.parse(text) : {};
+  } catch {
+    parsed = { message: text };
+  }
+  if (!res.ok) {
+    throw new ApiError(
+      res.status,
+      parsed,
+      typeof parsed === "object" &&
+        parsed &&
+        "message" in parsed &&
+        typeof (parsed as { message: unknown }).message === "string"
+        ? (parsed as { message: string }).message
+        : undefined,
+    );
+  }
+  const key = (parsed as { key?: string }).key;
+  if (!key?.trim()) throw new Error("Upload response missing key");
+  return key.trim();
+}
+
+export async function addTransactionDocument(
+  token: string,
+  transactionId: string,
+  body: {
+    actorId: string;
+    fileKey: string;
+    fileUrl: string;
+    uploader: string;
+    purpose?: string;
+  },
+): Promise<unknown> {
+  return apiFetch(`/transactions/${encodeURIComponent(transactionId)}/documents`, {
+    method: "POST",
+    token,
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getTransactionDocumentUrl(
+  token: string,
+  transactionId: string,
+  documentId: string,
+  actorId: string,
+): Promise<{ url: string }> {
+  const q = new URLSearchParams({ actorId });
+  return apiFetch(
+    `/transactions/${encodeURIComponent(transactionId)}/documents/${encodeURIComponent(documentId)}/url?${q.toString()}`,
+    { method: "GET", token },
+  );
 }
 
 export async function saveDeliveryDetails(

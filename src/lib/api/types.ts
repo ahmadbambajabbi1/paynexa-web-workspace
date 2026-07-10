@@ -46,6 +46,10 @@ export type TransactionListItem = {
 
 export type TransactionListResponse = {
   items: TransactionListItem[];
+  listVersion?: string;
+  unchanged?: boolean;
+  hasMore?: boolean;
+  nextCursor?: string | null;
 };
 
 export type ProductTypeFieldDef = {
@@ -189,6 +193,14 @@ export type TransactionRoom = {
     stripeFeeAmount?: string | null;
     netReceivedAmount?: string | null;
   } | null;
+  documents?: Array<{
+    id: string;
+    fileKey: string;
+    fileUrl: string;
+    uploader: string;
+    purpose?: string | null;
+    createdAt: string;
+  }>;
   disputes?: Array<{
     id: string;
     raisedByUserId?: string;

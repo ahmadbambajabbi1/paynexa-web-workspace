@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { RequireAuth } from "@/src/components/auth/RequireAuth";
 import { useAuth } from "@/src/lib/auth/auth-context";
@@ -14,7 +14,9 @@ import {
   statusApproxProgress,
 } from "@/src/lib/transaction-ui";
 import { userMayCreateTransactions } from "@/src/lib/kyc-access";
+import { getCachedTransactions, loadTransactionsForParty, mergeTransactionItems, syncTransactionsIncremental } from "@/src/lib/transactions-cache";
 import { formatMoney } from "@/src/lib/currency";
+import { subscribeTransactionUpdates } from "@/src/lib/realtime/transaction-stream";
 
 type TransactionFilter = "all" | "public" | "escrow";
 
@@ -36,37 +38,121 @@ export default function TransactionsPage() {
 
 function TransactionsInner() {
   const { user, token } = useAuth();
-  const [items, setItems] = useState<TransactionListItem[]>([]);
+  const [items, setItems] = useState<TransactionListItem[]>(() =>
+    user ? getCachedTransactions(user.id) : [],
+  );
   const [loadErr, setLoadErr] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<TransactionFilter>("all");
+  const [syncing, setSyncing] = useState(false);
+  const [filter] = useState<TransactionFilter>("all");
   const [walletCurrency, setWalletCurrency] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const realtimeRefreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!user || !token) return;
     let cancelled = false;
-    setLoading(true);
-    (async () => {
+    const cached = getCachedTransactions(user.id);
+    if (cached.length > 0) {
+      setItems(cached);
+    } else {
+      setSyncing(true);
+    }
+    void (async () => {
       try {
-        const [res, wallet] = await Promise.all([
-          txApi.listTransactionsForParty(token, user.id),
+        const [merged, wallet, listRes] = await Promise.all([
+          loadTransactionsForParty(user.id, (opts) =>
+            txApi.listTransactionsForParty(token, user.id, opts),
+          ),
           escrowApi.getWallet(token),
+          txApi.listTransactionsForParty(token, user.id, { limit: 40 }),
         ]);
         if (!cancelled) {
-          setItems(res.items);
+          setItems(merged);
+          setNextCursor(listRes.nextCursor ?? null);
+          setHasMore(listRes.hasMore === true);
           setWalletCurrency(wallet.currency ?? null);
           setLoadErr(null);
         }
       } catch (e) {
-        if (!cancelled) setLoadErr(errorMessage(e));
+        if (!cancelled && cached.length === 0) setLoadErr(errorMessage(e));
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setSyncing(false);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [user, token]);
+
+  useEffect(() => {
+    if (!user?.id || !token) return;
+    const abort = new AbortController();
+
+    const scheduleListRefresh = (event?: { type?: string }) => {
+      if (realtimeRefreshRef.current) {
+        clearTimeout(realtimeRefreshRef.current);
+      }
+      const delay = event?.type === "transaction.updated" ? 0 : 150;
+      realtimeRefreshRef.current = setTimeout(() => {
+        void syncTransactionsIncremental(user.id, (opts) =>
+          txApi.listTransactionsForParty(token, user.id, opts),
+        ).then((merged) => {
+          if (!abort.signal.aborted) setItems(merged);
+        });
+      }, delay);
+    };
+
+    subscribeTransactionUpdates({
+      token,
+      userId: user.id,
+      signal: abort.signal,
+      onEvent: scheduleListRefresh,
+    });
+
+    return () => {
+      abort.abort();
+      if (realtimeRefreshRef.current) clearTimeout(realtimeRefreshRef.current);
+    };
+  }, [user?.id, token]);
+
+  const loadMore = useCallback(async () => {
+    if (!token || !user?.id || !hasMore || loadingMore || !nextCursor) return;
+    setLoadingMore(true);
+    try {
+      const res = await txApi.listTransactionsForParty(token, user.id, {
+        limit: 40,
+        cursor: nextCursor,
+      });
+      setItems((prev) => mergeTransactionItems(prev, res.items));
+      setNextCursor(res.nextCursor ?? null);
+      setHasMore(res.hasMore === true);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [token, user?.id, hasMore, loadingMore, nextCursor]);
+
+  useEffect(() => {
+    if (!hasMore || loadingMore) return;
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) void loadMore();
+      },
+      { rootMargin: "240px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasMore, loadingMore, loadMore, items.length]);
+
+  const filteredItems = useMemo(() => {
+    if (filter === "public") return items.filter((item) => item.workflow === "PUBLIC_SHAREABLE");
+    if (filter === "escrow") return items.filter((item) => item.workflow === "ESCROW_TWO_PARTY");
+    return items;
+  }, [filter, items]);
 
   const counts = useMemo(() => {
     const publicCount = items.filter((item) => item.workflow === "PUBLIC_SHAREABLE").length;
@@ -106,12 +192,6 @@ function TransactionsInner() {
 
   const selectedTab = tabs.find((tab) => tab.id === filter) ?? tabs[0];
 
-  const filteredItems = useMemo(() => {
-    if (filter === "public") return items.filter((item) => item.workflow === "PUBLIC_SHAREABLE");
-    if (filter === "escrow") return items.filter((item) => item.workflow === "ESCROW_TWO_PARTY");
-    return items;
-  }, [filter, items]);
-
   if (!user || !token) return null;
 
   return (
@@ -119,10 +199,10 @@ function TransactionsInner() {
       {/* Header – clean, no background */}
       <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-black/50">
+          <span className="app-kicker">
             Transaction Dashboard
           </span>
-          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-black md:text-4xl">
+          <h1 className="app-section-heading mt-1 text-3xl font-extrabold md:text-4xl">
             Transactions
           </h1>
         </div>
@@ -163,13 +243,13 @@ function TransactionsInner() {
       {/* <TransactionTabs tabs={tabs} active={filter} onChange={setFilter} /> */}
 
       {/* Transaction list – refined card design */}
-      <div className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm">
-        <div className="border-b border-black/10 bg-black/5 px-6 py-5">
+      <div className="app-card overflow-hidden rounded-3xl">
+        <div className="border-b border-[var(--color-app-border)] bg-[var(--color-app-surface-muted)] px-6 py-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-display text-xl font-bold text-black">
+            <h2 className="app-section-heading text-xl font-bold">
               {selectedTab.label}
             </h2>
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-bold text-black shadow-sm">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-app-border)] bg-white px-4 py-2 text-xs font-bold text-[var(--color-app-text)] shadow-sm">
               <i className={`fas ${selectedTab.icon}`} />
               {filteredItems.length} {filteredItems.length === 1 ? "transaction" : "transactions"}
             </span>
@@ -183,7 +263,7 @@ function TransactionsInner() {
         )}
 
         <div className="space-y-4 p-6">
-          {loading && filteredItems.length === 0 && !loadErr ? (
+          {syncing && filteredItems.length === 0 && !loadErr ? (
             <TransactionsLoading />
           ) : filteredItems.length === 0 && !loadErr ? (
             <EmptyState filter={filter} />
@@ -192,12 +272,17 @@ function TransactionsInner() {
           {filteredItems.map((row) => (
             <TransactionRow key={row.id} row={row} selfId={user.id} currency={walletCurrency} />
           ))}
+          <div ref={loadMoreRef} className="py-4 text-center text-sm text-black/45">
+            {loadingMore ? "Loading more…" : hasMore ? "Scroll for more" : filteredItems.length > 0 ? "End of list" : null}
+          </div>
         </div>
       </div>
     </>
   );
 }
 
+// Kept for the deferred multi-tab transaction view design.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function TransactionTabs({
   tabs,
   active,
@@ -277,52 +362,59 @@ function TransactionRow({
   return (
     <Link
       href={`/transactions/${row.id}`}
-      className="group block rounded-2xl border border-black/10 bg-white p-5 transition-all duration-300 hover:border-black/30 hover:shadow-md"
+      className="app-card app-card-hover group block rounded-2xl p-5"
     >
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        {/* Left section: icon + details */}
-        <div className="flex min-w-0 flex-1 items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-black/5 text-lg text-black">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-app-surface-muted)] text-lg text-[var(--color-app-text)]">
             <i className={`fas ${isPublic ? "fa-link" : "fa-shield-alt"}`} />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="truncate text-base font-bold text-black">
-                {row.productTitle || `Secure sale ${row.id.slice(0, 8)}...`}
-              </h3>
-              <WorkflowBadge workflow={row.workflow} />
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="truncate text-base font-bold text-[var(--color-app-text)]">
+                    {row.productTitle || `Secure sale ${row.id.slice(0, 8)}...`}
+                  </h3>
+                  <WorkflowBadge workflow={row.workflow} />
+                </div>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-[var(--color-app-text-muted)]">
+                  {roleLabel} · {formatTransactionType(row.type)} ·{" "}
+                  {new Date(row.updatedAt).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xl font-extrabold text-[var(--color-app-text)]">
+                  {formatMoney(row.amount, currency)}
+                </p>
+                <span
+                  className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-bold capitalize ${statusBadgeClass(
+                    row.status
+                  )}`}
+                >
+                  {formatStatus(row.status)}
+                </span>
+              </div>
             </div>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-black/60">
-              {roleLabel} · {formatTransactionType(row.type)} ·{" "}
-              {new Date(row.updatedAt).toLocaleDateString()}
-            </p>
-            <p className="mt-2 text-xl font-extrabold text-black">
-              {formatMoney(row.amount, currency)}
-            </p>
           </div>
         </div>
 
-        {/* Right section: status + progress + chevron */}
-        <div className="flex items-center gap-4 lg:min-w-[260px]">
-          <div className="min-w-0 flex-1">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <div>
             <div className="mb-2 flex items-center justify-between gap-3">
-              <span
-                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold capitalize ${statusBadgeClass(
-                  row.status
-                )}`}
-              >
-                {formatStatus(row.status)}
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-app-text-muted)]">
+                Progress
               </span>
-              <span className="text-xs font-bold text-black">{progress}%</span>
+              <span className="text-xs font-bold text-[var(--color-app-text)]">{progress}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-black/5">
+            <div className="h-2 overflow-hidden rounded-full bg-[var(--color-app-surface-muted)]">
               <div
-                className="h-full rounded-full bg-black transition-all duration-500"
+                className="h-full rounded-full bg-[var(--color-primaryColorBlack)] transition-all duration-500"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-black/5 text-black transition duration-300 group-hover:bg-black group-hover:text-white">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--color-app-border)] bg-[var(--color-app-surface-muted)] text-[var(--color-app-text)] transition duration-300 group-hover:bg-[var(--color-primaryColorBlack)] group-hover:text-white">
             <i className="fas fa-chevron-right text-xs" />
           </span>
         </div>
@@ -398,17 +490,17 @@ function Stat({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+      <div className="app-card app-card-hover rounded-2xl p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-black/50">
+            <p className="app-kicker">
             {label}
           </p>
-          <p className="mt-2 font-display text-4xl font-black tracking-tight text-black">
+            <p className="mt-2 font-display text-4xl font-black tracking-tight text-[var(--color-app-text)]">
             {value}
           </p>
         </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/5 text-black">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-app-surface-muted)] text-[var(--color-app-text)]">
           <i className={`fas ${icon} text-base`} />
         </div>
       </div>

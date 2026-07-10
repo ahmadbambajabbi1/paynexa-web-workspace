@@ -7,7 +7,7 @@ import { RequireAuth } from "@/src/components/auth/RequireAuth";
 import { ListingImageUploader, type LocalListingImage } from "@/src/components/listings/ListingImageUploader";
 import { cardPanel, fieldInput, fieldLabel, fieldSelect } from "@/src/components/ui/form-classes";
 import { useAuth } from "@/src/lib/auth/auth-context";
-import { STORAGE_ACCESS_TOKEN } from "@/src/config/constants";
+import { SERVICE_URLS, STORAGE_ACCESS_TOKEN } from "@/src/config/constants";
 import { errorMessage } from "@/src/lib/api/errors";
 import * as sm from "@/src/lib/api/service-marketplace";
 
@@ -137,7 +137,7 @@ function CreateServiceInner() {
         fd.append("gallery", g.file, g.file.name);
       }
 
-      const base = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:5000").replace(/\/$/, "");
+      const base = SERVICE_URLS.products;
       const res = await fetch(`${base}/service-marketplace/listings/complete`, {
         method: "POST",
         headers: {

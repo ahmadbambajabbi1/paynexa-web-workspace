@@ -12,8 +12,15 @@ export type OperatingCountry = {
   sortOrder: number;
 };
 
-export async function listOperatingCountries() {
-  return await apiFetch<{ countries: OperatingCountry[] }>("/users/countries/operating", {
+export async function listOperatingCountries(sinceVersion?: string) {
+  const q = sinceVersion?.trim()
+    ? `?sinceVersion=${encodeURIComponent(sinceVersion.trim())}`
+    : "";
+  return await apiFetch<{
+    version?: string;
+    unchanged?: boolean;
+    countries: OperatingCountry[];
+  }>(`/users/countries/operating${q}`, {
     method: "GET",
   });
 }

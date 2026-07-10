@@ -19,14 +19,65 @@ export function formatStatus(status: string): string {
   return status.replace(/_/g, " ").toLowerCase();
 }
 
-export function formatTimelineAction(action: string, detail?: string | null): string {
+/** Services share-link workflow labels (backend states unchanged). */
+export function formatServicesStatus(status: string): string {
+  switch (status) {
+    case "IN_PROGRESS":
+      return "Work started";
+    case "INSPECTION":
+      return "Buyer review";
+    case "COMPLETED":
+      return "Funds released";
+    case "FUNDED":
+      return "Payment secured";
+    default:
+      return formatStatus(status);
+  }
+}
+
+export function displayStatus(
+  status: string,
+  services = false,
+): string {
+  return services ? formatServicesStatus(status) : formatStatus(status);
+}
+
+export function isServicesTransaction(tx: {
+  type?: string | null;
+  terms?: string | null;
+}): boolean {
+  if ((tx.type ?? "").toUpperCase() === "SERVICES") return true;
+  if (!tx.terms?.trim()) return false;
+  try {
+    const parsed = JSON.parse(tx.terms) as Record<string, unknown>;
+    return String(parsed.shareCategory ?? "").toUpperCase() === "SERVICES";
+  } catch {
+    return false;
+  }
+}
+
+export function proofOfWorkRequired(terms?: string | null): boolean {
+  if (!terms?.trim()) return false;
+  try {
+    const parsed = JSON.parse(terms) as Record<string, unknown>;
+    return parsed.proofOfWorkRequired === true;
+  } catch {
+    return false;
+  }
+}
+
+export function formatTimelineAction(
+  action: string,
+  detail?: string | null,
+  services = false,
+): string {
   if (action === "state.changed") {
     const state = detail?.startsWith("state=") ? detail.slice(6) : "";
     switch (state) {
       case "IN_PROGRESS":
-        return "Delivery started";
+        return services ? "Work started" : "Delivery started";
       case "INSPECTION":
-        return "Sent to buyer for inspection";
+        return services ? "Work completed — buyer review" : "Sent to buyer for inspection";
       case "COMPLETED":
         return "Transaction completed";
       case "DISPUTED":
@@ -75,7 +126,23 @@ export function formatTimelineDetail(action: string, detail?: string | null): st
   return detail;
 }
 
-export function transitionActionLabel(nextState: string): string {
+export function transitionActionLabel(nextState: string, services = false): string {
+  if (services) {
+    switch (nextState) {
+      case "IN_PROGRESS":
+        return "Work started";
+      case "INSPECTION":
+        return "Work completed";
+      case "COMPLETED":
+        return "Approve and release funds";
+      case "DISPUTED":
+        return "Open dispute";
+      case "CLOSED":
+        return "Close transaction";
+      default:
+        return formatStatus(nextState);
+    }
+  }
   switch (nextState) {
     case "IN_PROGRESS":
       return "Start delivery";
@@ -108,6 +175,19 @@ export function statusApproxProgress(status: string): number {
     CLOSED: 100,
   };
   return m[status] ?? 18;
+}
+
+/** Show the Conversation tab once a dispute exists or the transaction is in dispute. */
+export function showConversationTab(
+  disputes: unknown[] | null | undefined,
+  status: string,
+): boolean {
+  return (disputes?.length ?? 0) > 0 || status === "DISPUTED";
+}
+
+/** Transaction actions (accept, pay, state changes) are hidden after completion. */
+export function hasTransactionActions(status: string): boolean {
+  return status !== "COMPLETED";
 }
 
 /** Buyer may close their own order before completion (not share-link listings). */

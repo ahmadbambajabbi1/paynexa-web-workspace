@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreateTransactionForm } from "@/src/components/CreateTransactionForm";
 import { RequireAuth } from "@/src/components/auth/RequireAuth";
 import { useAuth } from "@/src/lib/auth/auth-context";
 import * as txApi from "@/src/lib/api/transactions";
@@ -14,7 +13,6 @@ import {
   formatTransactionType,
   statusApproxProgress,
 } from "@/src/lib/transaction-ui";
-import { cardPanel } from "@/src/components/ui/form-classes";
 import { userMayCreateTransactions } from "@/src/lib/kyc-access";
 
 export default function DashboardPage() {
@@ -65,14 +63,14 @@ function StatCard({
   iconColor: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-[0_2px_16px_rgba(11,37,69,0.08)] transition-all duration-300 hover:shadow-[0_8px_32px_rgba(11,37,69,0.14)] hover:-translate-y-0.5">
+    <div className="app-card app-card-hover group relative overflow-hidden rounded-3xl p-6">
       {/* subtle top accent line */}
       <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-3xl bg-primaryColorBlack/20 group-hover:bg-primaryColorBlack/60 transition-colors duration-300" />
       <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ${iconBg}`}>
         <i className={`fas ${icon} text-lg ${iconColor}`} />
       </div>
-      <p className="text-sm font-medium text-gray-500">{label}</p>
-      <p className="mt-1 text-3xl font-black text-gray-900 tracking-tight">{value}</p>
+      <p className="text-sm font-medium text-[var(--color-app-text-muted)]">{label}</p>
+      <p className="mt-1 text-3xl font-black tracking-tight text-[var(--color-app-text)]">{value}</p>
     </div>
   );
 }
@@ -220,10 +218,10 @@ function DashboardInner() {
     <>
       {/* ── Page header ── */}
       <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-widest text-primaryColorBlack/50 mb-1">
+        <p className="app-kicker mb-1">
           Welcome back
         </p>
-        <h1 className="text-3xl capitalize font-black tracking-tight text-gray-900 md:text-4xl">
+        <h1 className="app-section-heading text-3xl capitalize font-black md:text-4xl">
           {user.displayName || user.fullName || "My Dashboard"}
         </h1>
       </div>
@@ -265,24 +263,24 @@ function DashboardInner() {
       </div>
 
       {/* ── Transactions list ── */}
-      <div className="overflow-hidden rounded-3xl bg-white shadow-[0_2px_16px_rgba(11,37,69,0.08)]">
+      <div className="app-card overflow-hidden rounded-3xl">
         {/* list header */}
         <div className="flex flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-black text-gray-900">
+            <h2 className="app-section-heading text-lg font-black">
               Recent Transactions
             </h2>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-[var(--color-app-text-muted)]">
               {items.length === 0 ? "No transactions yet" : `${items.length} transaction${items.length === 1 ? "" : "s"}`}
             </p>
           </div>
-          <span className="inline-flex items-center rounded-full bg-primaryColorBlack/10 px-3 py-1.5 text-xs font-bold text-primaryColorBlack">
+            <span className="inline-flex items-center rounded-full bg-[var(--color-app-surface-muted)] px-3 py-1.5 text-xs font-bold text-[var(--color-primaryColorBlack)] ring-1 ring-[var(--color-app-border)]">
             All roles
           </span>
         </div>
 
         {/* divider */}
-        <div className="h-px bg-gray-100" />
+        <div className="h-px bg-[var(--color-app-border)]" />
 
         {/* error */}
         {loadErr && (

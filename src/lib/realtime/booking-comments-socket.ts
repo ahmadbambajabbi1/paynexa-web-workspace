@@ -1,5 +1,5 @@
 import { io, type Socket } from "socket.io-client";
-import { API_BASE_URL } from "@/src/config/constants";
+import { SERVICE_URLS } from "@/src/config/constants";
 import { getOrCreateDeviceId } from "@/src/lib/device-id";
 
 export type BookingCommentPayload = {
@@ -18,7 +18,7 @@ export function subscribeBookingComments(opts: {
   bookingId: string;
   onComments: (bookingComments: BookingCommentPayload[]) => void;
 }): Socket {
-  const base = API_BASE_URL.replace(/\/$/, "");
+  const base = SERVICE_URLS.products;
   const deviceId = getOrCreateDeviceId();
   const socket = io(`${base}/booking`, {
     auth: {

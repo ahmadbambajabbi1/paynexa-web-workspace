@@ -7,6 +7,8 @@ export type WalletActivityRow = {
   signedAmount: number;
   status?: string;
   isEscrow: boolean;
+  isPendingEscrow?: boolean;
+  escrowAmount?: number;
 };
 
 function transferLabel(item: WalletTransferSummary): string {
@@ -24,18 +26,35 @@ function isEscrowLedgerEntry(entry: WalletLedgerEntry): boolean {
   const action = entry.action.trim();
   return (
     action.startsWith("Paid transaction") ||
-    action.startsWith("Received for transaction") ||
+    action.startsWith("Received for ") ||
+    action.startsWith("Escrow funded for transaction") ||
     action.startsWith("Refunded for transaction") ||
     action.startsWith("Refunded transaction")
   );
 }
 
+function ledgerSignedAmount(action: string, amount: number): number {
+  if (action.startsWith("Paid transaction")) return -amount;
+  if (action.startsWith("Escrow funded for transaction")) return 0;
+  if (action.startsWith("Received for ")) return amount;
+  if (
+    action.startsWith("Refunded for transaction") ||
+    action.startsWith("Refunded transaction")
+  ) {
+    return amount;
+  }
+  return amount;
+}
+
 function ledgerLabel(action: string): string {
   const parts = action.split(" — ").map((p) => p.trim()).filter(Boolean);
-  if (parts.length >= 2) {
-    const title = parts[1];
+  const title = parts.length >= 2 ? parts[1] : null;
+  if (title) {
     if (action.startsWith("Paid transaction")) return `Escrow payment · ${title}`;
-    if (action.startsWith("Received for transaction")) return `Escrow payout · ${title}`;
+    if (action.startsWith("Escrow funded for transaction")) {
+      return `Buyer funded escrow · ${title}`;
+    }
+    if (action.startsWith("Received for ")) return `Escrow payout · ${title}`;
     if (
       action.startsWith("Refunded for transaction") ||
       action.startsWith("Refunded transaction")
@@ -61,12 +80,17 @@ export function buildWalletActivity(
 
   for (const entry of ledger) {
     if (!isEscrowLedgerEntry(entry)) continue;
+    const action = entry.action.trim();
     rows.push({
       id: `ledger-${entry.id}`,
-      label: ledgerLabel(entry.action),
+      label: ledgerLabel(action),
       createdAt: entry.createdAt,
-      signedAmount: Number(entry.amount),
+      signedAmount: ledgerSignedAmount(action, Number(entry.amount)),
       isEscrow: true,
+      isPendingEscrow: action.startsWith("Escrow funded for transaction"),
+      escrowAmount: action.startsWith("Escrow funded for transaction")
+        ? Number(entry.amount)
+        : undefined,
     });
   }
 
