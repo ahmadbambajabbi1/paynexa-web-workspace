@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type CountryDial } from "@/src/data/countryDialCodes";
 import * as countriesApi from "@/src/lib/api/countries";
+import { getCachedOperatingCountries, loadOperatingCountries } from "@/src/lib/operating-countries-cache";
 import { fieldInput, fieldLabel, fieldSelect } from "@/src/components/ui/form-classes";
 
 function dialByIso(countries: CountryDial[], iso2: string): CountryDial | undefined {
@@ -63,16 +64,33 @@ export function PhoneE164Field({
   const [loadError, setLoadError] = useState<string | null>(null);
   const initialValueRef = useRef(value);
 
-  // Load operating countries once — do not re-fetch when `value` changes (fixes mobile keyboard dismissal).
+  // Load operating countries once — cache first, then incremental refresh.
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    const cached = getCachedOperatingCountries();
+    if (cached.length > 0) {
+      const next = cached.map((c) => ({ iso2: c.iso2, name: c.name, dial: c.dialCode }));
+      setCountries(next);
+      const parsed = parseE164ToCountryNational(
+        initialValueRef.current,
+        defaultCountryIso2,
+        next,
+      );
+      if (parsed.country) {
+        setCountryIso2(parsed.country.iso2);
+        setNational(parsed.national);
+      }
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setLoadError(null);
-    countriesApi
-      .listOperatingCountries()
-      .then((res) => {
+    void loadOperatingCountries((sinceVersion) =>
+      countriesApi.listOperatingCountries(sinceVersion),
+    )
+      .then((rows) => {
         if (cancelled) return;
-        const next = res.countries.map((c) => ({
+        const next = rows.map((c) => ({
           iso2: c.iso2,
           name: c.name,
           dial: c.dialCode,
@@ -88,10 +106,12 @@ export function PhoneE164Field({
             setCountryIso2(parsed.country.iso2);
             setNational(parsed.national);
           }
+        } else if (cached.length === 0) {
+          setLoadError("No operating countries are configured.");
         }
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!cancelled && cached.length === 0) {
           setCountries([]);
           setLoadError("Operating countries are unavailable.");
         }

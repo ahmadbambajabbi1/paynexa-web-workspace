@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/src/config/constants";
+import { apiUrlForPath } from "@/src/config/constants";
 import { getOrCreateDeviceId } from "@/src/lib/device-id";
 import { ApiError } from "@/src/lib/api/errors";
 
@@ -22,7 +22,7 @@ export async function apiFetch<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const res = await fetch(`${API_BASE_URL.replace(/\/$/, "")}${path}`, {
+  const res = await fetch(apiUrlForPath(path), {
     ...rest,
     headers,
   });

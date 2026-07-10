@@ -11,6 +11,13 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { buildModernPayReturnUrls } from "@/src/lib/modempay-return-urls";
+import {
+  applyWalletSnapshotToState,
+  getCachedWallet,
+  writeCachedWallet,
+  type WalletCacheSnapshot,
+} from "@/src/lib/wallet-cache";
+import { subscribeWalletUpdates } from "@/src/lib/realtime/wallet-stream";
 
 function publicErrorMessage(value: unknown): string {
   const raw = value instanceof Error ? value.message : String(value ?? "");
@@ -43,18 +50,37 @@ export default function BillingsPage() {
 }
 
 function BillingsInner() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(true);
-  const [balance, setBalance] = useState("0");
-  const [walletCurrency, setWalletCurrency] = useState<string | null>(null);
-  const [methods, setMethods] = useState<escrowApi.PaymentMethodSummary[]>([]);
-  const [transfers, setTransfers] = useState<escrowApi.WalletTransferSummary[]>([]);
-  const [ledger, setLedger] = useState<escrowApi.WalletLedgerEntry[]>([]);
-  const [walletStats, setWalletStats] = useState<escrowApi.WalletTransferStats>({
-    transferCount: 0,
-    totalDeposited: "0",
-    totalWithdrawn: "0",
+  const [historySyncing, setHistorySyncing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [balance, setBalance] = useState(() => {
+    const cached = user ? getCachedWallet(user.id) : null;
+    return cached?.balance ?? "0";
+  });
+  const [walletCurrency, setWalletCurrency] = useState<string | null>(() => {
+    const cached = user ? getCachedWallet(user.id) : null;
+    return cached?.currency ?? null;
+  });
+  const [methods, setMethods] = useState<escrowApi.PaymentMethodSummary[]>(() => {
+    const cached = user ? getCachedWallet(user.id) : null;
+    return cached?.methods ?? [];
+  });
+  const [transfers, setTransfers] = useState<escrowApi.WalletTransferSummary[]>(() => {
+    const cached = user ? getCachedWallet(user.id) : null;
+    return cached?.transfers ?? [];
+  });
+  const [ledger, setLedger] = useState<escrowApi.WalletLedgerEntry[]>(() => {
+    const cached = user ? getCachedWallet(user.id) : null;
+    return cached?.ledger ?? [];
+  });
+  const [walletStats, setWalletStats] = useState<escrowApi.WalletTransferStats>(() => {
+    const cached = user ? getCachedWallet(user.id) : null;
+    return cached?.stats ?? {
+      transferCount: 0,
+      totalDeposited: "0",
+      totalWithdrawn: "0",
+    };
   });
   const [error, setError] = useState<string | null>(null);
   const [stripeKey, setStripeKey] = useState<string>("");
@@ -78,10 +104,15 @@ function BillingsInner() {
     return loadStripe(stripeKey);
   }, [stripeKey]);
 
-  const refresh = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    setError(null);
+  const refresh = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!token || !user?.id) return;
+    const silent = opts?.silent === true;
+    const hasCached =
+      balance !== "0" || methods.length > 0 || transfers.length > 0 || ledger.length > 0;
+    if (!silent && !hasCached && transfers.length === 0 && ledger.length === 0) {
+      setHistorySyncing(true);
+    }
+    if (!silent) setError(null);
     try {
       const [cfg, w, m, t, stats, ledgerRes] = await Promise.all([
         escrowApi.getEscrowConfig(token),
@@ -91,23 +122,50 @@ function BillingsInner() {
         escrowApi.getWalletTransferStats(token),
         escrowApi.getWalletLedger(token, 200),
       ]);
+      const snapshot: WalletCacheSnapshot = {
+        balance: w.balance ?? "0",
+        currency: w.currency ?? null,
+        methods: m.methods ?? [],
+        transfers: t.transfers ?? [],
+        stats,
+        ledger: ledgerRes.entries ?? [],
+        savedAt: new Date().toISOString(),
+      };
+      writeCachedWallet(user.id, snapshot);
       setStripeKey(cfg.stripePublishableKey?.trim() ?? "");
-      setBalance(w.balance ?? "0");
-      setWalletCurrency(w.currency ?? null);
-      setMethods(m.methods ?? []);
-      setTransfers(t.transfers ?? []);
-      setLedger(ledgerRes.entries ?? []);
-      setWalletStats(stats);
+      applyWalletSnapshotToState(snapshot, {
+        setBalance,
+        setWalletCurrency,
+        setMethods,
+        setWalletStats,
+        setTransfers,
+        setLedger,
+      });
     } catch (e) {
-      setError(publicErrorMessage(e));
+      if (!silent) setError(publicErrorMessage(e));
     } finally {
-      setLoading(false);
+      setHistorySyncing(false);
     }
-  }, [token]);
+  }, [token, user?.id, balance, methods.length, transfers.length, ledger.length]);
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    if (!token || !user?.id) return;
+    const cached = getCachedWallet(user.id);
+    void refresh({ silent: cached != null });
+  }, [token, user?.id, refresh]);
+
+  useEffect(() => {
+    if (!token) return;
+    const abort = new AbortController();
+    subscribeWalletUpdates({
+      token,
+      signal: abort.signal,
+      onEvent: () => {
+        void refresh({ silent: true });
+      },
+    });
+    return () => abort.abort();
+  }, [token, refresh]);
 
   async function addFundsStripe() {
     if (!token) return;
@@ -311,7 +369,7 @@ function BillingsInner() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="app-shell min-h-screen">
       <div className="mx-auto max-w-6xl px-0 py-4 sm:py-6">
         {/* Error Banner */}
         {error ? (
@@ -333,17 +391,20 @@ function BillingsInner() {
         ) : null}
 
         {/* Main Wallet Card */}
-        <div className="mb-8 overflow-hidden rounded-2xl bg-primaryColorBlack shadow-xl">
+        <div className="mb-8 overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#0f172a_0%,#162342_55%,#1d4ed8_100%)] shadow-[0_28px_60px_rgba(15,23,42,0.18)]">
           <div className="relative px-6 py-8 sm:px-8 sm:py-10">
             <button
               type="button"
-              onClick={() => void refresh()}
-              disabled={loading}
+              onClick={() => {
+                setRefreshing(true);
+                void refresh({ silent: true }).finally(() => setRefreshing(false));
+              }}
+              disabled={refreshing}
               className="absolute right-4 top-4 z-10 rounded-lg border border-white/25 bg-white/10 p-2 text-white/85 transition hover:bg-white/20 hover:text-white disabled:opacity-50 sm:right-6 sm:top-6"
               title="Refresh"
               aria-label="Refresh wallet"
             >
-              <svg className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
@@ -397,7 +458,7 @@ function BillingsInner() {
                     </span>
                     <span className="text-white/30">|</span>
                     <span className="text-white/60">
-                      <span className="font-semibold text-white/80">{walletStats.transferCount}</span> transactions
+                      <span className="font-semibold text-white/80">{walletActivity.length}</span> transactions
                     </span>
                   </div>
                 </div>
@@ -406,9 +467,8 @@ function BillingsInner() {
                 <div className="flex flex-wrap gap-3">
                   <button
                     type="button"
-                    disabled={loading}
                     onClick={() => void addFundsStripe()}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gambian-gold px-5 py-2.5 text-sm font-bold text-amber-950 shadow-lg transition hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 active:translate-y-0"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gambian-gold px-5 py-2.5 text-sm font-bold text-amber-950 shadow-lg transition hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -417,9 +477,8 @@ function BillingsInner() {
                   </button>
                   <button
                     type="button"
-                    disabled={loading}
                     onClick={() => void requestPayout()}
-                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-2.5 text-sm font-bold text-white border border-white/20 transition hover:bg-white/20 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-2.5 text-sm font-bold text-white border border-white/20 transition hover:bg-white/20"
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -445,7 +504,7 @@ function BillingsInner() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-6 border-b border-gray-200">
+        <div className="mb-6 border-b border-[var(--color-app-border)]">
           <nav className="-mb-px flex gap-6">
             <button
               type="button"
@@ -484,8 +543,8 @@ function BillingsInner() {
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <div>
-                    <h2 className="font-display text-xl font-bold text-gray-900">Payment Methods</h2>
-                    <div className="mt-2 h-1 w-14 rounded-full bg-gambian-gold" />
+                    <h2 className="app-section-heading text-xl font-bold">Payment Methods</h2>
+                    <div className="mt-2 h-1 w-14 rounded-full bg-[var(--color-gambian-gold)]" />
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -576,10 +635,14 @@ function BillingsInner() {
                     View all →
                   </button>
                 </div>
-                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                <div className="app-card overflow-hidden rounded-2xl">
                   <div className="divide-y divide-gray-100">
                     {recentTransfers.map((item) => {
-                      const positive = item.signedAmount >= 0;
+                      const pending = item.isPendingEscrow === true;
+                      const positive = pending || item.signedAmount >= 0;
+                      const amount = pending
+                        ? (item.escrowAmount ?? 0)
+                        : Math.abs(item.signedAmount);
                       return (
                       <div key={item.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/50 transition">
                         <div className="flex items-center gap-3 min-w-0">
@@ -606,8 +669,8 @@ function BillingsInner() {
                           </div>
                         </div>
                         <div className="text-right shrink-0 ml-3">
-                          <p className={`text-sm font-bold ${positive ? "text-green-600" : "text-red-600"}`}>
-                            {positive ? "+" : "-"}{formatMoney(Math.abs(item.signedAmount), walletCurrency)}
+                          <p className={`text-sm font-bold ${pending ? "text-amber-700" : positive ? "text-green-600" : "text-red-600"}`}>
+                            {pending ? "In escrow " : positive ? "+" : "-"}{formatMoney(amount, walletCurrency)}
                           </p>
                           {item.status ? (
                           <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(item.status)}`}>
@@ -630,8 +693,12 @@ function BillingsInner() {
               <h2 className="text-lg font-bold text-gray-900">All Transactions</h2>
               <p className="text-sm text-gray-500">Deposits, withdrawals, and escrow payments</p>
             </div>
-            <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-              {walletActivity.length === 0 ? (
+            <div className="app-card overflow-hidden rounded-2xl">
+              {historySyncing && walletActivity.length === 0 ? (
+                <div className="px-6 py-12 text-center text-sm text-gray-500">
+                  Loading transactions…
+                </div>
+              ) : walletActivity.length === 0 ? (
                 <div className="px-6 py-12 text-center">
                   <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
                     <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -644,7 +711,11 @@ function BillingsInner() {
               ) : (
                 <div className="divide-y divide-gray-100">
                   {walletActivity.map((item) => {
-                    const positive = item.signedAmount >= 0;
+                    const pending = item.isPendingEscrow === true;
+                    const positive = pending || item.signedAmount >= 0;
+                    const amount = pending
+                      ? (item.escrowAmount ?? 0)
+                      : Math.abs(item.signedAmount);
                     return (
                     <div key={item.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50/50 transition">
                       <div className="flex items-center gap-3 min-w-0">
@@ -671,8 +742,8 @@ function BillingsInner() {
                         </div>
                       </div>
                       <div className="text-right shrink-0 ml-3">
-                        <p className={`text-sm font-bold ${positive ? "text-green-600" : "text-red-600"}`}>
-                          {positive ? "+" : "-"}{formatMoney(Math.abs(item.signedAmount), walletCurrency)}
+                        <p className={`text-sm font-bold ${pending ? "text-amber-700" : positive ? "text-green-600" : "text-red-600"}`}>
+                          {pending ? "In escrow " : positive ? "+" : "-"}{formatMoney(amount, walletCurrency)}
                         </p>
                         {item.status ? (
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(item.status)}`}>
@@ -844,7 +915,7 @@ function Modal(props: {
   const { title, children, onClose, onPrimary, primaryLabel } = props;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-      <div className={`${cardPanel} w-full max-w-lg p-6 shadow-2xl`}>
+      <div className={`${cardPanel} w-full max-w-lg rounded-[24px] p-6 shadow-2xl`}>
         <div className="flex items-start justify-between gap-3">
           <h2 className="font-display text-lg font-bold text-gray-900">{title}</h2>
           <button

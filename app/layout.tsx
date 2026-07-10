@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
@@ -22,7 +22,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-dvh text-gray-800 antialiased overflow-x-hidden font-sans">
+      <body
+        className="min-h-dvh text-gray-800 antialiased overflow-x-hidden font-sans"
+        suppressHydrationWarning
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

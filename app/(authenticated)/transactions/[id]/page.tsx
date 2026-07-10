@@ -1,27 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/src/lib/auth/auth-context";
 import { isProfileComplete } from "@/src/lib/auth/profile";
 import * as txApi from "@/src/lib/api/transactions";
 import * as escrowApi from "@/src/lib/api/escrow";
-import type {
-  PublicTransactionAnalytics,
-  TransactionPartyProfile,
-  TransactionRoom,
-} from "@/src/lib/api/types";
+import type { TransactionPartyProfile, TransactionRoom } from "@/src/lib/api/types";
 import { errorMessage } from "@/src/lib/api/errors";
 import {
   canBuyerCloseTransaction,
-  formatStatus,
+  displayStatus,
   formatTimelineAction,
   formatTimelineDetail,
   formatTransactionType,
+  hasTransactionActions,
+  isServicesTransaction,
+  proofOfWorkRequired,
+  showConversationTab,
+  STATUS_TRANSITIONS,
   statusApproxProgress,
   transitionActionLabel,
 } from "@/src/lib/transaction-ui";
+import { TransactionProofPanel } from "@/src/components/TransactionProofPanel";
+import { TransactionProofUploadModal } from "@/src/components/TransactionProofUploadModal";
 import {
   timelineActorLabel,
   transactionRoomHeading,
@@ -33,34 +36,19 @@ import { TransactionPaymentPanel } from "@/src/components/TransactionPaymentPane
 import { RaiseDisputeModal } from "@/src/components/RaiseDisputeModal";
 import { DisputeThreadPanel } from "@/src/components/DisputeThreadPanel";
 import { formatMoney } from "@/src/lib/currency";
+import { subscribeTransactionUpdates } from "@/src/lib/realtime/transaction-stream";
+import type { TransactionStreamEvent } from "@/src/lib/realtime/transaction-stream";
+import {
+  getCachedTransactionRoom,
+  writeCachedTransactionRoom,
+} from "@/src/lib/transaction-room-cache";
 
 type ParticipantRole = "LAWYER" | "AGENT";
 type PartySide = "buyer" | "seller";
 type SelfRole = "buyer" | "seller" | "other";
 
-const FUNDED_STATUSES = [
-  "FUNDED",
-  "IN_PROGRESS",
-  "INSPECTION",
-  "COMPLETED",
-  "CLOSED",
-  "DISPUTED",
-];
-
-// --- Status transition map (exactly as in the Flutter app) ---
-const kStatusTransitions: Record<string, string[]> = {
-  "AWAITING_ACCEPTANCE": ["AWAITING_FUNDING"],
-  "AWAITING_FUNDING": ["FUNDED"],
-  "FUNDED": ["IN_PROGRESS"],
-  "IN_PROGRESS": ["INSPECTION"],
-  "INSPECTION": ["COMPLETED", "DISPUTED"],
-  "COMPLETED": [],
-  "CLOSED": [],
-  "DISPUTED": [],
-};
-
 function visibleTransitions(status: string, role: SelfRole): string[] {
-  const all = kStatusTransitions[status] || [];
+  const all = STATUS_TRANSITIONS[status] || [];
   if (role === "buyer") {
     return all.filter(s => ["COMPLETED", "DISPUTED"].includes(s));
   }
@@ -95,6 +83,8 @@ function parsePublicTerms(terms: string): {
   itemDescription: string | null;
   sellerNote: string | null;
   deliveryNeeded: boolean;
+  shareCategory: string | null;
+  proofOfWorkRequired: boolean;
 } {
   try {
     const raw = JSON.parse(terms) as Record<string, unknown>;
@@ -108,9 +98,18 @@ function parsePublicTerms(terms: string): {
           ? raw.sellerNote.trim()
           : null,
       deliveryNeeded: raw.deliveryNeeded === true,
+      shareCategory:
+        typeof raw.shareCategory === "string" ? raw.shareCategory.trim().toUpperCase() : null,
+      proofOfWorkRequired: raw.proofOfWorkRequired === true,
     };
   } catch {
-    return { itemDescription: null, sellerNote: null, deliveryNeeded: false };
+    return {
+      itemDescription: null,
+      sellerNote: null,
+      deliveryNeeded: false,
+      shareCategory: null,
+      proofOfWorkRequired: false,
+    };
   }
 }
 
@@ -140,19 +139,19 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-[18px] border border-[#E8EBF2] bg-white shadow-[0_6px_16px_rgba(0,0,0,0.035)]">
-      <div className="border-b border-[#E8EBF2] px-4 py-4 sm:px-5">
-        <h2 className="font-display text-lg font-bold text-gray-900">{title}</h2>
+    <div className="app-card overflow-hidden rounded-[24px]">
+      <div className="border-b border-[var(--color-app-border)] bg-[var(--color-app-surface-muted)]/80 px-5 py-4 sm:px-6">
+        <h2 className="app-section-heading text-lg">{title}</h2>
         {subtitle ? (
-          <p className="mt-1 text-xs font-semibold text-gray-500">{subtitle}</p>
+          <p className="mt-1 text-xs font-semibold text-[var(--color-app-text-muted)]">{subtitle}</p>
         ) : null}
       </div>
-      <div className="p-4 sm:p-5">{children}</div>
+      <div className="p-5 sm:p-6">{children}</div>
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, services = false }: { status: string; services?: boolean }) {
   let bg = "bg-amber-100/80";
   let text = "text-amber-900";
   if (status === "COMPLETED" || status === "CLOSED") {
@@ -169,7 +168,7 @@ function StatusBadge({ status }: { status: string }) {
   }
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${bg} ${text}`}>
-      {formatStatus(status)}
+      {displayStatus(status, services)}
     </span>
   );
 }
@@ -187,7 +186,7 @@ function RoomTabs({
   onChange: (id: string) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E8EBF2] bg-white p-1.5 shadow-[0_3px_10px_rgba(0,0,0,0.04)]">
+    <div className="app-card rounded-[22px] p-2">
       <div className="flex w-full gap-1.5">
         {tabs.map((tab) => {
           const isActive = tab.id === active;
@@ -198,8 +197,8 @@ function RoomTabs({
               onClick={() => onChange(tab.id)}
               className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 transition-all duration-200 ${
                 isActive
-                  ? "bg-primaryColorBlack text-white"
-                  : "bg-transparent text-gray-500 hover:text-gray-800"
+                  ? "bg-[var(--color-primaryColorBlack)] text-white shadow-sm"
+                  : "bg-transparent text-[var(--color-app-text-muted)] hover:bg-[var(--color-app-surface-muted)] hover:text-[var(--color-app-text)]"
               }`}
             >
               <i className={`fas ${tab.icon} text-base`} />
@@ -265,27 +264,30 @@ function TransactionHero({
 }) {
   const roleLabel = role === "buyer" ? "Buyer" : role === "seller" ? "Seller" : "Collaborator";
   return (
-    <div className="rounded-[20px] border border-[#E8EBF2] bg-white p-5 shadow-[0_6px_16px_rgba(0,0,0,0.035)] sm:p-[18px]">
-      <p className="font-mono text-xs text-gray-400">#{tx.id.slice(0, 8)}</p>
-      <h1 className="mt-2.5 font-display text-2xl font-black leading-tight text-gray-900 sm:text-[25px]">
+    <div className="overflow-hidden rounded-[28px] border border-[var(--color-app-border)] bg-[linear-gradient(135deg,#0f172a_0%,#162342_55%,#1d4ed8_100%)] p-5 text-white shadow-[0_28px_60px_rgba(15,23,42,0.18)] sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="font-mono text-xs text-white/55">#{tx.id.slice(0, 8)}</p>
+        <StatusBadge status={tx.status} services={isServicesTransaction(tx)} />
+      </div>
+      <h1 className="mt-3 font-display text-2xl font-black leading-tight text-white sm:text-[28px]">
         {title}
       </h1>
-      <div className="mt-5 grid grid-cols-2 gap-2.5">
-        <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-3">
-          <p className="text-[11px] font-bold text-gray-600">Amount</p>
-          <p className="mt-1 text-lg font-black text-primaryColorBlack">
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="rounded-[18px] border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">Amount</p>
+          <p className="mt-1 text-lg font-black text-white">
             {money(tx.amount, currency)}
           </p>
         </div>
-        <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-3">
-          <p className="text-[11px] font-bold text-gray-600">Role</p>
-          <p className="mt-1 text-sm font-black text-gray-900">{roleLabel}</p>
+        <div className="rounded-[18px] border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">Role</p>
+          <p className="mt-1 text-sm font-black text-white">{roleLabel}</p>
         </div>
       </div>
-      <div className="mt-4">
-        <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+      <div className="mt-5">
+        <div className="h-2.5 overflow-hidden rounded-full bg-white/12">
           <div
-            className="h-full rounded-full bg-primaryColorBlack transition-all"
+            className="h-full rounded-full bg-white transition-all"
             style={{ width: `${Math.min(100, Math.max(0, progressPct))}%` }}
           />
         </div>
@@ -357,6 +359,7 @@ function ActionsGroup({
   nextStates,
   canClose,
   busy,
+  services = false,
   onAccept,
   onPay,
   onTransition,
@@ -366,6 +369,7 @@ function ActionsGroup({
   nextStates: string[];
   canClose: boolean;
   busy: boolean;
+  services?: boolean;
   onAccept: () => void;
   onPay: () => void;
   onTransition: (next: string) => void;
@@ -396,7 +400,7 @@ function ActionsGroup({
     );
   }
   for (const next of nextStates) {
-    let label = transitionActionLabel(next);
+    const label = transitionActionLabel(next, services);
     let icon = "fa-arrow-right";
     if (next === "COMPLETED") icon = "fa-check-double";
     if (next === "DISPUTED") icon = "fa-gavel";
@@ -426,7 +430,7 @@ function ActionsGroup({
   if (actions.length === 0) return null;
   return (
     <SectionCard title="Actions" subtitle="Available actions">
-      <div className="space-y-2">{actions}</div>
+      <div className="grid gap-2 sm:grid-cols-2">{actions}</div>
     </SectionCard>
   );
 }
@@ -436,9 +440,9 @@ function ActionsGroup({
 // ----------------------------------------------------------------------
 function SummaryRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-3">
-      <p className="text-[11px] font-extrabold text-gray-600">{label}</p>
-      <p className={`mt-1 ${strong ? "text-lg font-black text-primaryColorBlack" : "text-sm font-bold text-gray-900"}`}>
+    <div className="rounded-[16px] border border-[var(--color-app-border)] bg-[var(--color-app-surface-muted)] p-3.5">
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--color-app-text-muted)]">{label}</p>
+      <p className={`mt-1 ${strong ? "text-lg font-black text-[var(--color-primaryColorBlack)]" : "text-sm font-bold text-[var(--color-app-text)]"}`}>
         {value}
       </p>
     </div>
@@ -569,10 +573,19 @@ function SaleDetailsPanel({
           <SummaryRow label="Unit price" value={money(unitPrice, currency)} />
         </div>
         <SummaryRow label="Total" value={money(tx.amount, currency)} strong />
-        <SummaryRow
-          label="Delivery"
-          value={terms.deliveryNeeded ? "Delivery tracked" : "Payment only"}
-        />
+        {terms.shareCategory === "SERVICES" ? (
+          <>
+            <SummaryRow label="Category" value="Services" />
+            {terms.proofOfWorkRequired ? (
+              <SummaryRow label="Proof of work" value="Required before completion" />
+            ) : null}
+          </>
+        ) : (
+          <SummaryRow
+            label="Delivery"
+            value={terms.deliveryNeeded ? "Delivery tracked" : "Payment only"}
+          />
+        )}
         {terms.itemDescription ? (
           <div className="rounded-[14px] border border-[#E8EBF2] bg-[#F8FAFC] p-4">
             <p className="text-xs font-black text-gray-700">Description</p>
@@ -812,7 +825,15 @@ function TeamTab({
 // ----------------------------------------------------------------------
 // Timeline Tab (matches mobile vertical timeline)
 // ----------------------------------------------------------------------
-function TimelineTab({ room, selfId }: { room: TransactionRoom; selfId: string }) {
+function TimelineTab({
+  room,
+  selfId,
+  services = false,
+}: {
+  room: TransactionRoom;
+  selfId: string;
+  services?: boolean;
+}) {
   const events = room.timeline ?? [];
   return (
     <SectionCard title="Timeline">
@@ -836,7 +857,7 @@ function TimelineTab({ room, selfId }: { room: TransactionRoom; selfId: string }
                 <div className={`min-w-0 flex-1 ${isLast ? "" : "pb-4"}`}>
                   <div className="rounded-[14px] border border-gray-200 bg-gray-50 p-3">
                     <p className="text-sm font-extrabold text-gray-900">
-                      {formatTimelineAction(ev.action, ev.detail)}
+                      {formatTimelineAction(ev.action, ev.detail, services)}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">{formatDate(ev.at)}</p>
                     {detail ? <p className="mt-1.5 text-sm leading-relaxed text-gray-700">{detail}</p> : null}
@@ -880,6 +901,8 @@ function PublicShareableRoom({
 }) {
   const tx = room.transaction;
   const role = selfRoleFor(room, selfId);
+  const services = isServicesTransaction(tx);
+  const proofRequired = proofOfWorkRequired(tx.terms);
   const isTemplate = !!tx.shareToken;
   const isSeller = role === "seller";
   const canPay = !isTemplate && role === "buyer" && tx.status === "AWAITING_FUNDING";
@@ -892,10 +915,17 @@ function PublicShareableRoom({
     : sharePath;
 
   // Tabs: Overview (sale details + actions), Parties, Timeline
+  const showConversation =
+    showConversationTab(room.disputes, tx.status) &&
+    (role === "buyer" || role === "seller");
   const tabs = [
     { id: "overview", label: "Overview", icon: "fa-tachometer-alt" },
     { id: "parties", label: "Parties", icon: "fa-users" },
     // { id: "analytics", label: "Analytics", icon: "fa-chart-line" },
+    ...(proofRequired ? [{ id: "proof", label: "Proof", icon: "fa-file-circle-check" }] : []),
+    ...(showConversation
+      ? [{ id: "conversation", label: "Conversation", icon: "fa-comments" }]
+      : []),
     { id: "timeline", label: "Timeline", icon: "fa-history" },
   ];
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -907,7 +937,7 @@ function PublicShareableRoom({
   const nextStates = visibleTransitions(tx.status, role);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <TransactionHero
         tx={tx}
         title={tx.productTitle}
@@ -919,6 +949,19 @@ function PublicShareableRoom({
 
       {currentTab === "overview" && (
         <div className="w-full space-y-5">
+          {hasTransactionActions(tx.status) && (nextStates.length > 0 || canClose) && !canPay ? (
+            <ActionsGroup
+              canAccept={canAccept}
+              canPay={false}
+              nextStates={nextStates}
+              canClose={canClose}
+              busy={busy}
+              services={services}
+              onAccept={() => {}}
+              onPay={() => {}}
+              onTransition={onTransition}
+            />
+          ) : null}
           <SaleDetailsPanel
             tx={tx}
             terms={terms}
@@ -934,18 +977,6 @@ function PublicShareableRoom({
             currency={walletCurrency}
             viewerRole={role}
           />
-          {(room.disputes?.length ?? 0) > 0 || tx.status === "DISPUTED" ? (
-            <DisputeThreadPanel
-              token={token}
-              transactionId={tx.id}
-              actorId={selfId}
-              selfRole={role === "buyer" || role === "seller" ? role : null}
-              disputes={room.disputes ?? []}
-              busy={busy}
-              onReload={onReload}
-              onOpenNewDispute={onOpenDispute}
-            />
-          ) : null}
           {canPay ? (
             <TransactionPaymentPanel
               token={token}
@@ -958,28 +989,42 @@ function PublicShareableRoom({
               }}
             />
           ) : null}
-          {(nextStates.length > 0 || canClose) && !canPay ? (
-            <ActionsGroup
-              canAccept={canAccept}
-              canPay={false}
-              nextStates={nextStates}
-              canClose={canClose}
-              busy={busy}
-              onAccept={() => {}}
-              onPay={() => {}}
-              onTransition={onTransition}
-            />
-          ) : null}
         </div>
       )}
+      {currentTab === "proof" && proofRequired ? (
+        <TransactionProofPanel
+          token={token}
+          transactionId={tx.id}
+          actorId={selfId}
+          selfRole={role === "buyer" || role === "seller" ? role : "other"}
+          documents={room.documents ?? []}
+          proofRequired={proofRequired}
+          status={tx.status}
+          onChanged={onReload}
+        />
+      ) : null}
       {currentTab === "parties" && <PartiesTab room={room} selfId={selfId} />}
+      {currentTab === "conversation" && showConversation ? (
+        <DisputeThreadPanel
+          token={token}
+          transactionId={tx.id}
+          actorId={selfId}
+          selfRole={role === "buyer" || role === "seller" ? role : null}
+          disputes={room.disputes ?? []}
+          busy={busy}
+          onReload={onReload}
+          onOpenNewDispute={onOpenDispute}
+        />
+      ) : null}
       {/* {currentTab === "analytics" && isSeller && (
         <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 text-center text-gray-400">
           <i className="fas fa-chart-line text-3xl mb-2 block" />
           <p>Analytics coming soon</p>
         </div>
       )} */}
-      {currentTab === "timeline" && <TimelineTab room={room} selfId={selfId} />}
+      {currentTab === "timeline" && (
+        <TimelineTab room={room} selfId={selfId} services={services} />
+      )}
     </div>
   );
 }
@@ -1014,6 +1059,8 @@ function SecureEscrowRoom({
 }) {
   const tx = room.transaction;
   const role = selfRoleFor(room, selfId);
+  const services = isServicesTransaction(tx);
+  const proofRequired = proofOfWorkRequired(tx.terms);
   const heading = transactionRoomHeading(room);
   const progressPct = statusApproxProgress(tx.status);
   const canAccept = role === "buyer" && tx.status === "AWAITING_ACCEPTANCE" && !tx.acceptedPartyIds.includes(selfId);
@@ -1023,18 +1070,25 @@ function SecureEscrowRoom({
   const nextStates = visibleTransitions(tx.status, role);
   const canClose = canBuyerCloseTransaction(role, tx);
 
+  const showConversation =
+    showConversationTab(room.disputes, tx.status) &&
+    (role === "buyer" || role === "seller");
   const tabs = [
     { id: "overview", label: "Overview", icon: "fa-tachometer-alt" },
     { id: "product", label: "Product", icon: "fa-box-open" },
     { id: "parties", label: "Parties", icon: "fa-users" },
     { id: "team", label: "Team", icon: "fa-user-plus" },
+    ...(proofRequired ? [{ id: "proof", label: "Proof", icon: "fa-file-circle-check" }] : []),
+    ...(showConversation
+      ? [{ id: "conversation", label: "Conversation", icon: "fa-comments" }]
+      : []),
     { id: "timeline", label: "Timeline", icon: "fa-history" },
   ];
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const currentTab = tabs.some((t) => t.id === activeTab) ? activeTab : tabs[0].id;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <TransactionHero
         tx={tx}
         title={heading}
@@ -1046,6 +1100,21 @@ function SecureEscrowRoom({
 
       {currentTab === "overview" && (
         <div className="w-full space-y-5">
+          {hasTransactionActions(tx.status) &&
+          (canAccept || nextStates.length > 0 || canClose) &&
+          !canPay ? (
+            <ActionsGroup
+              canAccept={canAccept}
+              canPay={false}
+              nextStates={nextStates}
+              canClose={canClose}
+              busy={busy}
+              services={services}
+              onAccept={onAccept}
+              onPay={() => {}}
+              onTransition={onTransition}
+            />
+          ) : null}
           <SectionCard title="Deal summary" subtitle="Funding and amount for this escrow">
             <div className="space-y-2.5">
               <SummaryRow label="Amount" value={money(tx.amount, walletCurrency)} strong />
@@ -1053,24 +1122,6 @@ function SecureEscrowRoom({
               <SummaryRow label="Funding" value="Buyer payment" />
             </div>
           </SectionCard>
-          <TransactionFinancialSummary
-            tx={tx}
-            payment={room.payment}
-            currency={walletCurrency}
-            viewerRole={role}
-          />
-          {(room.disputes?.length ?? 0) > 0 || tx.status === "DISPUTED" ? (
-            <DisputeThreadPanel
-              token={token}
-              transactionId={tx.id}
-              actorId={selfId}
-              selfRole={role === "buyer" || role === "seller" ? role : null}
-              disputes={room.disputes ?? []}
-              busy={busy}
-              onReload={onReload}
-              onOpenNewDispute={onOpenDispute}
-            />
-          ) : null}
           {canPay ? (
             <TransactionPaymentPanel
               token={token}
@@ -1080,23 +1131,46 @@ function SecureEscrowRoom({
               onPaid={async () => await onReload()}
             />
           ) : null}
-          {(canAccept || nextStates.length > 0 || canClose) && !canPay ? (
-            <ActionsGroup
-              canAccept={canAccept}
-              canPay={false}
-              nextStates={nextStates}
-              canClose={canClose}
-              busy={busy}
-              onAccept={onAccept}
-              onPay={() => {}}
-              onTransition={onTransition}
-            />
-          ) : null}
         </div>
       )}
 
-      {currentTab === "product" && <ProductDetails room={room} currency={walletCurrency} />}
+      {currentTab === "proof" && proofRequired ? (
+        <TransactionProofPanel
+          token={token}
+          transactionId={tx.id}
+          actorId={selfId}
+          selfRole={role === "buyer" || role === "seller" ? role : "other"}
+          documents={room.documents ?? []}
+          proofRequired={proofRequired}
+          status={tx.status}
+          onChanged={onReload}
+        />
+      ) : null}
+
+      {currentTab === "product" && (
+        <div className="space-y-5">
+          <ProductDetails room={room} currency={walletCurrency} />
+          <TransactionFinancialSummary
+            tx={tx}
+            payment={room.payment}
+            currency={walletCurrency}
+            viewerRole={role}
+          />
+        </div>
+      )}
       {currentTab === "parties" && <PartiesTab room={room} selfId={selfId} />}
+      {currentTab === "conversation" && showConversation ? (
+        <DisputeThreadPanel
+          token={token}
+          transactionId={tx.id}
+          actorId={selfId}
+          selfRole={role === "buyer" || role === "seller" ? role : null}
+          disputes={room.disputes ?? []}
+          busy={busy}
+          onReload={onReload}
+          onOpenNewDispute={onOpenDispute}
+        />
+      ) : null}
       {currentTab === "team" && (
         <TeamTab
           room={room}
@@ -1106,7 +1180,9 @@ function SecureEscrowRoom({
           onAcceptParticipant={onAcceptParticipant}
         />
       )}
-      {currentTab === "timeline" && <TimelineTab room={room} selfId={selfId} />}
+      {currentTab === "timeline" && (
+        <TimelineTab room={room} selfId={selfId} services={services} />
+      )}
     </div>
   );
 }
@@ -1123,26 +1199,33 @@ export default function TransactionDetailPage() {
   const [room, setRoom] = useState<TransactionRoom | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteRole, setInviteRole] = useState<ParticipantRole>("AGENT");
   const [invitePartySide, setInvitePartySide] = useState<PartySide>("buyer");
   const [walletCurrency, setWalletCurrency] = useState<string | null>(null);
   const [disputeOpen, setDisputeOpen] = useState(false);
+  const [proofUploadOpen, setProofUploadOpen] = useState(false);
+  const [pendingTransition, setPendingTransition] = useState<string | null>(null);
+  const realtimeRefreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
     if (!id || !token) return;
-    setErr(null);
+    const silent = opts?.silent === true;
+    if (!silent) setErr(null);
     try {
       const [r, wallet] = await Promise.all([
         txApi.getTransactionRoom(token, id),
         escrowApi.getWallet(token),
       ]);
+      writeCachedTransactionRoom(id, r);
       setRoom(r);
       setWalletCurrency(wallet.currency ?? null);
+      setErr(null);
     } catch (e) {
-      setErr(errorMessage(e));
-      setRoom(null);
+      if (!silent) {
+        setErr(errorMessage(e));
+        setRoom(null);
+      }
     }
   }, [id, token]);
 
@@ -1156,8 +1239,36 @@ export default function TransactionDetailPage() {
       router.replace(`/complete-profile?next=${encodeURIComponent(`/transactions/${id}`)}`);
       return;
     }
-    void load();
+    const cached = getCachedTransactionRoom(id);
+    if (cached) setRoom(cached);
+    void load({ silent: cached != null });
   }, [id, loading, user, token, load, router]);
+
+  useEffect(() => {
+    if (!user?.id || !token || !id) return;
+    const abort = new AbortController();
+
+    const scheduleDetailRefresh = (event: TransactionStreamEvent) => {
+      if (event.transactionId && event.transactionId !== id) return;
+      if (realtimeRefreshRef.current) clearTimeout(realtimeRefreshRef.current);
+      const delay = event.type === "transaction.updated" ? 0 : 150;
+      realtimeRefreshRef.current = setTimeout(() => {
+        void load({ silent: true });
+      }, delay);
+    };
+
+    subscribeTransactionUpdates({
+      token,
+      userId: user.id,
+      signal: abort.signal,
+      onEvent: scheduleDetailRefresh,
+    });
+
+    return () => {
+      abort.abort();
+      if (realtimeRefreshRef.current) clearTimeout(realtimeRefreshRef.current);
+    };
+  }, [user?.id, token, id, load]);
 
   async function onAccept() {
     if (!user || !room || !token) return;
@@ -1170,19 +1281,52 @@ export default function TransactionDetailPage() {
     finally { setBusy(false); }
   }
 
+  async function applyTransition(next: string) {
+    if (!user || !room || !token) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      await txApi.updateTransactionState(token, room.transaction.id, user.id, next);
+      await load();
+    } catch (e) {
+      setErr(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onTransition(next: string) {
     if (!user || !room || !token) return;
     if (next === "DISPUTED") {
       setDisputeOpen(true);
       return;
     }
-    setBusy(true);
-    setErr(null);
-    try {
-      await txApi.updateTransactionState(token, room.transaction.id, user.id, next);
-      await load();
-    } catch (e) { setErr(errorMessage(e)); }
-    finally { setBusy(false); }
+    const tx = room.transaction;
+    const services = isServicesTransaction(tx);
+    const proofRequired = proofOfWorkRequired(tx.terms);
+    const isSeller = user.id === tx.sellerId;
+    const proofCount = (room.documents ?? []).filter(
+      (d) => d.purpose === "PROOF_OF_WORK",
+    ).length;
+    if (
+      next === "INSPECTION" &&
+      services &&
+      proofRequired &&
+      isSeller &&
+      proofCount < 1
+    ) {
+      setPendingTransition(next);
+      setProofUploadOpen(true);
+      return;
+    }
+    await applyTransition(next);
+  }
+
+  async function onProofUploaded() {
+    await load();
+    const next = pendingTransition;
+    setPendingTransition(null);
+    if (next) await applyTransition(next);
   }
 
   async function submitDispute(reason: string) {
@@ -1216,13 +1360,11 @@ export default function TransactionDetailPage() {
 
   async function copyShareLink(url: string) {
     await navigator.clipboard?.writeText(url);
-    setToast("Link copied!");
-    setTimeout(() => setToast(null), 2500);
   }
 
   if (loading || !user || !token) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F4F6FB]">
+      <div className="app-shell flex min-h-screen items-center justify-center">
         <div className="text-center">
           <i className="fas fa-circle-notch fa-spin text-3xl text-black mb-3" />
           <p className="text-gray-500 font-medium">Loading...</p>
@@ -1235,32 +1377,25 @@ export default function TransactionDetailPage() {
   const isPublicShareable = tx?.workflow === "PUBLIC_SHAREABLE";
 
   return (
-    <div className="min-h-screen bg-[#F4F6FB]">
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        {toast && (
-          <div className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-bold text-white shadow-xl">
-            <i className="fas fa-check-circle" />
-            {toast}
-          </div>
-        )}
-
+    <div className="app-shell min-h-screen">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <Link
           href="/transactions"
-          className="inline-flex items-center gap-2 rounded-xl bg-white border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 mb-6"
+          className="app-card app-card-hover mb-6 inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold text-[var(--color-app-text-muted)]"
         >
           <i className="fas fa-arrow-left text-xs" />
           Back to Transactions
         </Link>
 
         {err && (
-          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 shadow-sm">
             <i className="fas fa-exclamation-circle text-red-500 mt-0.5" />
             <p className="text-sm text-red-800 font-medium">{err}</p>
           </div>
         )}
 
         {!room && !err && (
-          <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-12 text-center">
+          <div className="app-card rounded-3xl p-12 text-center">
             <i className="fas fa-circle-notch fa-spin text-2xl text-black mb-3 block" />
             <p className="text-gray-400 text-sm">Loading transaction details...</p>
           </div>
@@ -1315,6 +1450,19 @@ export default function TransactionDetailPage() {
             busy={busy}
             onClose={() => setDisputeOpen(false)}
             onSubmit={submitDispute}
+          />
+        ) : null}
+        {room && user && token ? (
+          <TransactionProofUploadModal
+            open={proofUploadOpen}
+            token={token}
+            transactionId={room.transaction.id}
+            actorId={user.id}
+            onClose={() => {
+              setProofUploadOpen(false);
+              setPendingTransition(null);
+            }}
+            onComplete={onProofUploaded}
           />
         ) : null}
       </div>

@@ -6,13 +6,22 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --color-gambian-red: #ce1126;
-  --color-primaryColorBlack: #000000;
+  --color-primaryColorBlack: #0f172a;
   --color-gambian-green: #3a7728;
-  --color-gambian-gold: #ffd700;
-  --color-gambian-sand: #f4e4c1;
-  --color-gambian-earth: #8b4513;
-  /** Matches Flutter `AppColors.pageGradientStart` — neutral app canvas */
-  --color-app-canvas: #f4f6fa;
+  --color-gambian-gold: #cfae4b;
+  --color-gambian-sand: #f6f3ea;
+  --color-gambian-earth: #475569;
+  --color-app-canvas: #f4f7fb;
+  --color-app-surface: #ffffff;
+  --color-app-surface-muted: #f8fafc;
+  --color-app-border: #dbe4f0;
+  --color-app-border-strong: #c8d5e6;
+  --color-app-text: #0f172a;
+  --color-app-text-muted: #64748b;
+  --color-app-accent: #1d4ed8;
+  --color-app-success: #0f766e;
+  --shadow-app-card: 0 16px 40px rgba(15, 23, 42, 0.08);
+  --shadow-app-card-hover: 0 20px 48px rgba(15, 23, 42, 0.12);
 }
 
 @keyframes float {
@@ -41,16 +50,58 @@
 
 body {
   background: var(--color-app-canvas);
+  color: var(--color-app-text);
 }
 
 .font-display {
   font-family: var(--font-display);
 }
 
+.app-shell {
+  background:
+    radial-gradient(circle at top, rgba(29, 78, 216, 0.06), transparent 32%),
+    var(--color-app-canvas);
+}
+
+.app-card {
+  background: var(--color-app-surface);
+  border: 1px solid var(--color-app-border);
+  box-shadow: var(--shadow-app-card);
+}
+
+.app-card-hover {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.app-card-hover:hover {
+  border-color: var(--color-app-border-strong);
+  box-shadow: var(--shadow-app-card-hover);
+  transform: translateY(-2px);
+}
+
+.app-section-heading {
+  color: var(--color-app-text);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.app-kicker {
+  color: var(--color-app-text-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(219, 228, 240, 0.9);
+  box-shadow: var(--shadow-app-card);
 }
 
 .gradient-text {
@@ -66,7 +117,7 @@ body {
 
 .transaction-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-app-card-hover);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -94,7 +145,7 @@ body {
 
 .pattern-bg {
   background-image: radial-gradient(#ce1126 1px, transparent 1px),
-    radial-gradient(#0c1c8c 1px, transparent 1px);
+    radial-gradient(#0f172a 1px, transparent 1px);
   background-size: 20px 20px;
   background-position:
     0 0,

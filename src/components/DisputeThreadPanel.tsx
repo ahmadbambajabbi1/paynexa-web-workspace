@@ -107,13 +107,13 @@ export function DisputeThreadPanel({
             Buyer and seller share one thread. Both can file a complaint and reply. PayNexa reviews all messages.
           </p>
         </div>
-        {canOpenOrJoin ? (
+        {canOpenOrJoin && dispute ? (
           <button
             type="button"
             onClick={onOpenNewDispute}
             className="rounded-xl bg-primaryColorBlack px-4 py-2 text-sm font-semibold text-white"
           >
-            {dispute ? "Add your complaint" : "Open dispute"}
+            Add your complaint
           </button>
         ) : null}
       </div>

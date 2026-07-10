@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/src/config/constants";
+import { apiUrlForPath, SERVICE_URLS } from "@/src/config/constants";
 import { getOrCreateDeviceId } from "@/src/lib/device-id";
 import { apiFetch } from "@/src/lib/api/client";
 import { ApiError } from "@/src/lib/api/errors";
@@ -29,7 +29,7 @@ export async function uploadKycFile(token: string, file: File): Promise<{ key: s
   if (!isAllowedKycUploadFile(file)) {
     throw new Error("Unsupported file type. Use PDF, JPEG, PNG, WebP, or GIF.");
   }
-  const base = API_BASE_URL.replace(/\/$/, "");
+  const base = SERVICE_URLS.users;
   const deviceId = getOrCreateDeviceId();
   const fd = new FormData();
   fd.append("file", file);

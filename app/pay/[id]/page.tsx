@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/src/components/SiteHeader";
 import { TransactionPaymentPanel } from "@/src/components/TransactionPaymentPanel";
 import { DeliveryAddressSection } from "@/src/components/DeliveryAddressSection";
@@ -14,6 +14,8 @@ import { useAuth } from "@/src/lib/auth/auth-context";
 import { isProfileComplete } from "@/src/lib/auth/profile";
 import { APP_DEEP_LINK_SCHEME } from "@/src/config/constants";
 import { formatMoney } from "@/src/lib/currency";
+import { displayStatus } from "@/src/lib/transaction-ui";
+import { subscribeTransactionUpdates } from "@/src/lib/realtime/transaction-stream";
 
 type PublicSummary = Awaited<ReturnType<typeof txApi.getPublicTransactionSummary>>;
 
@@ -94,17 +96,34 @@ export default function PayTransactionPage() {
     return () => window.clearTimeout(t);
   }, [appDeepLink, ref]);
 
-  async function refreshSummary() {
+
+  const refreshSummary = useCallback(async () => {
     if (!ref) return;
     try {
       const nextSummary = await txApi.getPublicTransactionSummary(ref, token);
       setSummary(nextSummary);
+      setCheckoutTxId(nextSummary.id);
       setErr(null);
     } catch (e) {
       setSummary(null);
       setErr(errorMessage(e));
     }
-  }
+  }, [ref, token]);
+
+  useEffect(() => {
+    if (!user?.id || !token || !checkoutTxId) return;
+    const abort = new AbortController();
+    subscribeTransactionUpdates({
+      token,
+      userId: user.id,
+      signal: abort.signal,
+      onEvent: (event) => {
+        if (event.transactionId && event.transactionId !== checkoutTxId) return;
+        void refreshSummary();
+      },
+    });
+    return () => abort.abort();
+  }, [user?.id, token, checkoutTxId, refreshSummary]);
 
   const isSeller = !!summary && !!user && user.id === summary.sellerId;
   const isAssignedOtherBuyer = !!summary?.buyerId && !!user && summary.buyerId !== user.id;
@@ -122,6 +141,9 @@ export default function PayTransactionPage() {
     paymentQuote?.conversionApplied
       ? paymentQuote.buyerCurrency
       : transactionCurrency ?? walletCurrency;
+  const isServices = (summary?.shareCategory ?? "").toUpperCase() === "SERVICES";
+  const needsDelivery = !!summary?.deliveryNeeded && !isServices;
+  const proofRequired = isServices && summary?.proofOfWorkRequired === true;
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -182,7 +204,8 @@ export default function PayTransactionPage() {
                 <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">Order summary</h2>
                 <div className="mt-5 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-slate-50">
                   <LineItem label="Seller" value={summary.seller} />
-                  <LineItem label="Status" value={formatPublicStatus(summary.status)} highlight />
+                  <LineItem label="Status" value={formatPublicStatus(summary.status, isServices)} highlight />
+                  <LineItem label="Type" value={isServices ? "Services" : "E-commerce"} />
                   <LineItem label="Quantity" value={String(summary.quantity ?? 1)} />
                   <LineItem label="Unit price" value={formatMoney(summary.unitPrice, displayCurrency)} />
                   <LineItem label="Subtotal" value={formatMoney(summary.amount, displayCurrency)} />
@@ -218,6 +241,30 @@ export default function PayTransactionPage() {
                     </p>
                   </div>
                 ) : null}
+
+                {(proofRequired || needsDelivery) ? (
+                  <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                      What to expect after payment
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {proofRequired ? (
+                        <CheckoutRequirement
+                          icon="fa-file-circle-check"
+                          title="Proof of work required"
+                          body="The seller must upload deliverables before you release payment. You will review their proof in the transaction room during inspection."
+                        />
+                      ) : null}
+                      {needsDelivery ? (
+                        <CheckoutRequirement
+                          icon="fa-truck"
+                          title="Delivery tracking required"
+                          body="This order includes delivery. Add your delivery address before payment so the seller can ship and you can track fulfillment."
+                        />
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
               </section>
 
               {/* Next step */}
@@ -248,7 +295,7 @@ export default function PayTransactionPage() {
                     </ActionCard>
                   ) : (
                     <div className="space-y-5">
-                      {summary.deliveryNeeded && token && user ? (
+                      {needsDelivery && token && user ? (
                         <DeliveryAddressSection
                           token={token}
                           confirmed={deliverySaved ? deliverySummary : null}
@@ -274,7 +321,7 @@ export default function PayTransactionPage() {
                           transactionId={checkoutTxId}
                           amount={payAmount}
                           currency={payCurrency}
-                          disabled={summary.deliveryNeeded && !deliverySaved}
+                          disabled={needsDelivery && !deliverySaved}
                           onPaid={async (paidTransactionId) => {
                             await refreshSummary();
                             router.push(`/transactions/${paidTransactionId}`);
@@ -301,6 +348,28 @@ export default function PayTransactionPage() {
 
 const primaryBtnClass =
   "block w-full rounded-xl bg-primaryColorBlack py-3.5 text-center text-sm font-bold text-white transition hover:opacity-90";
+
+function CheckoutRequirement({
+  icon,
+  title,
+  body,
+}: {
+  icon: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primaryColorBlack shadow-sm">
+        <i className={`fas ${icon}`} />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-slate-900">{title}</p>
+        <p className="mt-1 text-sm leading-relaxed text-slate-600">{body}</p>
+      </div>
+    </div>
+  );
+}
 
 function Badge({ icon, label }: { icon: string; label: string }) {
   return (
@@ -332,8 +401,9 @@ function LineItem({ label, value, highlight }: { label: string; value: string; h
   );
 }
 
-function formatPublicStatus(status: string): string {
+function formatPublicStatus(status: string, services = false): string {
   if (status === "AWAITING_ACCEPTANCE") return "Awaiting buyer";
   if (status === "AWAITING_FUNDING") return "Awaiting payment";
+  if (services) return displayStatus(status, true);
   return status.replaceAll("_", " ").toLowerCase();
 }

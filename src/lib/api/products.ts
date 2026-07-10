@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/src/config/constants";
+import { SERVICE_URLS } from "@/src/config/constants";
 import { getOrCreateDeviceId } from "@/src/lib/device-id";
 import { apiFetch } from "@/src/lib/api/client";
 import { ApiError } from "@/src/lib/api/errors";
@@ -93,7 +93,7 @@ export async function replaceProductBanner(
   id: string,
   file: File,
 ): Promise<ProductRow> {
-  const base = API_BASE_URL.replace(/\/$/, "");
+  const base = SERVICE_URLS.products;
   const deviceId = getOrCreateDeviceId();
   const fd = new FormData();
   fd.append("file", file);
@@ -114,7 +114,7 @@ export async function appendProductGallery(
   id: string,
   files: File[],
 ): Promise<ProductRow> {
-  const base = API_BASE_URL.replace(/\/$/, "");
+  const base = SERVICE_URLS.products;
   const deviceId = getOrCreateDeviceId();
   const fd = new FormData();
   for (const f of files) {
@@ -174,7 +174,7 @@ export async function createProductComplete(
     visibility?: "DRAFT" | "PUBLISHED";
   },
 ): Promise<ProductRow> {
-  const base = API_BASE_URL.replace(/\/$/, "");
+  const base = SERVICE_URLS.products;
   const deviceId = getOrCreateDeviceId();
   const fd = new FormData();
   fd.append(
@@ -224,7 +224,7 @@ export async function createProductComplete(
 
 /** Server-side upload to R2 via product-service; returns storage key (product_images/…). */
 export async function uploadProductImage(token: string, file: File): Promise<string> {
-  const base = API_BASE_URL.replace(/\/$/, "");
+  const base = SERVICE_URLS.products;
   const deviceId = getOrCreateDeviceId();
   const fd = new FormData();
   fd.append("file", file);

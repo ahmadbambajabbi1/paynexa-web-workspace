@@ -6,7 +6,7 @@ import { RequireAuth } from "@/src/components/auth/RequireAuth";
 import { useAuth } from "@/src/lib/auth/auth-context";
 import * as txApi from "@/src/lib/api/transactions";
 import type { TransactionNotificationItem } from "@/src/lib/api/types";
-import { API_BASE_URL } from "@/src/config/constants";
+import { SERVICE_URLS } from "@/src/config/constants";
 import { getOrCreateDeviceId } from "@/src/lib/device-id";
 
 export default function NotificationsPage() {
@@ -43,7 +43,7 @@ function NotificationsInner() {
     if (!user || !token) return;
     const abort = new AbortController();
     const deviceId = getOrCreateDeviceId();
-    const base = API_BASE_URL.replace(/\/$/, "");
+    const base = SERVICE_URLS.transactions;
     const url = new URL(`${base}/transactions/notifications/stream`);
     url.searchParams.set("userId", user.id);
     void (async () => {

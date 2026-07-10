@@ -322,49 +322,37 @@ function ProfileInner() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Full-width header – no top padding, touches top edge */}
+      {/* Full-width profile hero */}
       <div className="relative overflow-hidden bg-primaryColorBlack">
-        {/* Subtle dot pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <svg width="100%" height="100%">
-            <defs>
-              <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="white" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#dots)" />
-          </svg>
-        </div>
-
-        <div className="relative px-5 py-6 sm:px-8">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:gap-6">
-            {/* Avatar with verified badge */}
+        <div className="absolute inset-0 " />
+        <div className="relative mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
+          <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-end sm:gap-8 sm:text-left">
             <div className="relative shrink-0">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full border-3 border-white/25 bg-white/15 text-xl font-bold text-white backdrop-blur sm:h-24 sm:w-24 sm:text-2xl">
+              <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-white/20 bg-white/10 text-3xl font-bold text-white shadow-2xl backdrop-blur-sm sm:h-32 sm:w-32 sm:text-4xl">
                 {initials || "U"}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-primaryColorBlack bg-green-500">
-                <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-primaryColorBlack bg-emerald-500 shadow-lg">
+                <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
             </div>
 
-            {/* Name & role */}
-            <div className="text-center sm:text-left flex-1">
-              <h1 className="text-xl font-bold text-white sm:text-2xl">
+            <div className="flex-1 min-w-0">
+              {/* <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/50">Your profile</p> */}
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
                 {displayName}
               </h1>
               {showFullNameLine && (
-                <p className="mt-0.5 text-sm text-white/70">{user.fullName!.trim()}</p>
+                <p className="mt-2 text-base text-white/70">{user.fullName!.trim()}</p>
               )}
-              <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">
+              <div className="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-white ring-1 ring-white/10">
                   {professionalLabel}
                 </span>
                 {user.emailVerifiedAt && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-semibold text-emerald-100">
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-4 py-1.5 text-sm font-semibold text-emerald-100 ring-1 ring-emerald-400/30">
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     Verified
@@ -372,26 +360,13 @@ function ProfileInner() {
                 )}
               </div>
             </div>
-
-            {/* Apply Pro button */}
-            {/* {canApplyAny && (
-              <button
-                type="button"
-                onClick={() => setOpenRolePicker(true)}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-bold text-primaryColorBlack shadow-lg transition hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Apply Pro
-              </button>
-            )} */}
           </div>
         </div>
       </div>
 
-      {/* Tabs – border bottom, clean */}
-      <div className="border-b border-gray-200 bg-white px-5 sm:px-8">
+      {/* Tabs */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <nav className="-mb-px flex gap-6">
           <button
             type="button"
@@ -418,10 +393,11 @@ function ProfileInner() {
             </button>
           )}
         </nav>
+        </div>
       </div>
 
-      {/* Tab content with consistent spacing */}
-      <div className="px-5 py-6 sm:px-8">
+      {/* Tab content */}
+      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
         {activeTab === "profile" ? (
           <div className="space-y-6">
             {/* Contact Information */}
