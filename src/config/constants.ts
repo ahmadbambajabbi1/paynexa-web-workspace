@@ -6,11 +6,11 @@ function trimUrl(raw: string | undefined, fallback: string): string {
 }
 
 const defaults = {
-  users: "http://127.0.0.1:5001",
-  transactions: "http://127.0.0.1:5002",
-  escrow: "http://127.0.0.1:5003",
-  messages: "http://127.0.0.1:5004",
-  products: "http://127.0.0.1:5005",
+  users: "paynexa-user-service-production.up.railway.app",
+  transactions: "https://paynexa-transaction-service-production.up.railway.app",
+  escrow: "https://paynexa-escrow-service-production.up.railway.app",
+  messages: "https://blissful-embrace-production-51c6.up.railway.app",
+  products: "https://paynexa-product-service-production.up.railway.app",
 } as const;
 
 export const SERVICE_URLS = {
